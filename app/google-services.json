@@ -1,0 +1,36 @@
+{
+  "project_info": {
+    "project_number": "146117892280",
+    "project_id": "dongneproject",
+    "name": "Android-Ansr"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146117892280:android:db9bdab120a4e240",
+        "android_client_info": {
+          "package_name": "kr.me.ansr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFVDgeyiEhmUVkMrukOiLmRkALhJQWpd4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
