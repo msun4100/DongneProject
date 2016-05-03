@@ -169,12 +169,13 @@ public class SplashActivity extends Activity {
         @Override
         public void run() {
 //            PropertyManager.getInstance().setUserId("Todo..");
-            String userId = PropertyManager.getInstance().getUserId();
-            if (!userId.equals("")) {
-//                String password = PropertyManager.getInstance().getPassword();
-                final String id = "user01@gmail.com";
-                final String password = "1234";
-                NetworkManager.getInstance().postDongneLogin(SplashActivity.this, id, password, new NetworkManager.OnResultListener<LoginInfo>(){
+//            String userId = PropertyManager.getInstance().getUserId();
+            String email = PropertyManager.getInstance().getEmail();
+            if (!email.equals("")) {
+                String password = PropertyManager.getInstance().getPassword();
+//                final String id = "user01@gmail.com";
+//                final String password = "1234";
+                NetworkManager.getInstance().postDongneLogin(SplashActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>(){
                     @Override
                     public void onSuccess(Request request, LoginInfo result) {
                         Toast.makeText(SplashActivity.this, "result:"+ result, Toast.LENGTH_SHORT).show();

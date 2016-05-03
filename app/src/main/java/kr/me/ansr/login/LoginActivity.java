@@ -2,7 +2,6 @@ package kr.me.ansr.login;
 
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.NetworkManager;
-import kr.me.ansr.NetworkManager.OnResultListener;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.gcm.QuickstartPreferences;
 import kr.me.ansr.R;
@@ -83,25 +82,29 @@ public class LoginActivity extends Activity {
 	}
 
     String token;
-	EditText idView;
+	EditText emailView;
 	EditText passwordView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		idView = (EditText)findViewById(R.id.login_editText1);
+		emailView = (EditText)findViewById(R.id.login_editText1);
 		passwordView = (EditText)findViewById(R.id.login_editText2);
 		Button btn = (Button)findViewById(R.id.btn_login);
 		btn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				final String id = "user01@gmail.com";
-				final String password = "1234";
-				NetworkManager.getInstance().postDongneLogin(LoginActivity.this, id, password, new NetworkManager.OnResultListener<LoginInfo>(){
+//				final String id = "user01@gmail.com";
+//				final String password = "1234";
+                final String email = emailView.getText().toString();
+				final String password = passwordView.getText().toString();
+				NetworkManager.getInstance().postDongneLogin(LoginActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>(){
 					@Override
 					public void onSuccess(Request request, LoginInfo result) {
                         Toast.makeText(LoginActivity.this, "result:"+ result, Toast.LENGTH_SHORT).show();
+                        PropertyManager.getInstance().setEmail(email);
+						PropertyManager.getInstance().setPassword(password);
 						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 						startActivity(intent);
 						finish();
@@ -114,26 +117,7 @@ public class LoginActivity extends Activity {
 				});
 			}
 		});
-//		btn.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				final String id = idView.getText().toString();
-//				final String password = passwordView.getText().toString();
-//				NetworkManager.getInstance().login(id, password, new NetworkManager.OnLoginResultListener() {
-//
-//					@Override
-//					public void onSuccess(String message) {
-//						PropertyManager.getInstance().setUserName(id);
-//						PropertyManager.getInstance().setPassword(password);
-//						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//						startActivity(intent);
-//						finish();
-//					}
-//				});
-//			}
-//		});
-		
+
 		btn = (Button)findViewById(R.id.btn_signup);
 		btn.setOnClickListener(new View.OnClickListener() {
 			

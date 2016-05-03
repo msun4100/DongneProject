@@ -218,10 +218,9 @@ public class NetworkManager {
             final CallbackObject<LoginInfo> callbackObject = new CallbackObject<LoginInfo>();
 
             JsonObject json = new JsonObject();
-//            json.addProperty("email","user01@gmail.com");
-//            json.addProperty("password","1234");
             json.addProperty("email", email);
             json.addProperty("password", password);
+//            json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(JSON, jsonString);
             Request request = new Request.Builder().url(url)
