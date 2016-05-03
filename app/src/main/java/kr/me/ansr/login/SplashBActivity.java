@@ -19,7 +19,7 @@ public class SplashBActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_b);
 
-        Toast.makeText(SplashBActivity.this, "SplashB\n"+ PropertyManager.getInstnace().getRegistrationId(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(SplashBActivity.this, "SplashB\n"+ PropertyManager.getInstance().getRegistrationId(), Toast.LENGTH_SHORT).show();
         btn1 = (Button)findViewById(R.id.btn_login);
         btn1.setOnClickListener(new View.OnClickListener() {
 

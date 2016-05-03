@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 public class PropertyManager {
 	private static PropertyManager instance;
-	public static PropertyManager getInstnace() {
+	public static PropertyManager getInstance() {
 		if (instance == null) {
 			instance = new PropertyManager();
 		}
@@ -52,7 +52,24 @@ public class PropertyManager {
 		mEditor.putString(FIELD_USER_ID, userId);
 		mEditor.commit();
 	}
-	
+
+    private static final String FIELD_EMAIL = "EMAIL";
+    private String mEmail;
+
+    public String getEmail() {
+        if (mEmail == null) {
+            mEmail = mPrefs.getString(FIELD_EMAIL, "");
+        }
+        return mEmail;
+    }
+
+    public void setEmail(String email) {
+        mEmail = email;
+        mEditor.putString(FIELD_EMAIL, email);
+        mEditor.commit();
+    }
+
+
 	private static final String FIELD_PASSWORD = "password";
 	private String mPassword;
 	

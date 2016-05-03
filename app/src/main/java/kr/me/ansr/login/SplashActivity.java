@@ -3,7 +3,6 @@ package kr.me.ansr.login;
 
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.NetworkManager;
-import kr.me.ansr.NetworkManager.OnResultListener;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.gcm.QuickstartPreferences;
@@ -148,7 +147,7 @@ public class SplashActivity extends Activity {
                 new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
 
         if (checkPlayServices()) {
-            String regId = PropertyManager.getInstnace().getRegistrationId();
+            String regId = PropertyManager.getInstance().getRegistrationId();
             if (!regId.equals("")) {
                 runOnUiThread(nextAction);
             } else {
@@ -169,10 +168,10 @@ public class SplashActivity extends Activity {
 
         @Override
         public void run() {
-//            PropertyManager.getInstnace().setUserId("Todo..");
-            String userId = PropertyManager.getInstnace().getUserId();
+//            PropertyManager.getInstance().setUserId("Todo..");
+            String userId = PropertyManager.getInstance().getUserId();
             if (!userId.equals("")) {
-//                String password = PropertyManager.getInstnace().getPassword();
+//                String password = PropertyManager.getInstance().getPassword();
                 final String id = "user01@gmail.com";
                 final String password = "1234";
                 NetworkManager.getInstance().postDongneLogin(SplashActivity.this, id, password, new NetworkManager.OnResultListener<LoginInfo>(){
@@ -250,7 +249,7 @@ public class SplashActivity extends Activity {
                         // Instance ID에 해당하는 토큰을 생성하여 가져온다.
                         regId = instanceID.getToken(default_senderId, scope, null);
 
-                        PropertyManager.getInstnace().setRegistrationId(regId);
+                        PropertyManager.getInstance().setRegistrationId(regId);
                         Log.i(TAG, "GCM Registration Token: " + regId);
                     }
                 } catch (IOException e) {
@@ -268,7 +267,7 @@ public class SplashActivity extends Activity {
 //                    }
 //                    String regid = gcm.register(SENDER_ID);
 //					Log.i("Splash regid", ""+regid);
-//                    PropertyManager.getInstnace().setRegistrationId(regid);
+//                    PropertyManager.getInstance().setRegistrationId(regid);
 //
 //                } catch (IOException ex) {
 //                }

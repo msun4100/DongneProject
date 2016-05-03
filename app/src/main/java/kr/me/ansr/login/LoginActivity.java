@@ -124,8 +124,8 @@ public class LoginActivity extends Activity {
 //
 //					@Override
 //					public void onSuccess(String message) {
-//						PropertyManager.getInstnace().setUserName(id);
-//						PropertyManager.getInstnace().setPassword(password);
+//						PropertyManager.getInstance().setUserName(id);
+//						PropertyManager.getInstance().setPassword(password);
 //						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 //						startActivity(intent);
 //						finish();

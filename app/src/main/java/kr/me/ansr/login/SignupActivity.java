@@ -2,7 +2,6 @@ package kr.me.ansr.login;
 
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.NetworkManager;
-import kr.me.ansr.NetworkManager.OnResultListener;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 
@@ -38,8 +37,8 @@ public class SignupActivity extends Activity {
 					
 					@Override
 					public void onSuccess(String message) {
-						PropertyManager.getInstnace().setUserName(id);
-						PropertyManager.getInstnace().setPassword(password);
+						PropertyManager.getInstance().setUserName(id);
+						PropertyManager.getInstance().setPassword(password);
 						Intent intent = new Intent(SignupActivity.this, MainActivity.class);						
 						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 						startActivity(intent);
