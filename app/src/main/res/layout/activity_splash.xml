@@ -8,10 +8,34 @@
        <TextView
            android:id="@+id/textView1"
            android:layout_width="wrap_content"
-           android:layout_height="match_parent"
-           android:layout_marginTop="150dp"
+           android:layout_height="200dp"
+           android:layout_marginTop="100dp"
            android:text="Splash"
            android:textAppearance="?android:attr/textAppearanceLarge"
-           android:textSize="100sp" />
+           android:textSize="50sp" />
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="vertical">
+
+              <Button android:id="@+id/registrationButton"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:text="@string/registering_message_ready" />
+
+              <TextView
+                  android:id="@+id/informationTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="informationTextView"
+                  android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+              <ProgressBar
+                  android:id="@+id/registrationProgressBar"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  />
+       </LinearLayout>
     
 </LinearLayout>

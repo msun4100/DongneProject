@@ -68,6 +68,24 @@ public class PropertyManager {
 		mEditor.putString(FIELD_PASSWORD, password);
 		mEditor.commit();
 	}
-	
+
+
+	private static final String FIELD_REGISTRATION_ID = "regid";
+	private String regid;
+
+	public void setRegistrationId(String regid) {
+
+		this.regid = regid;
+		mEditor.putString(FIELD_REGISTRATION_ID, regid);
+		mEditor.commit();
+	}
+
+	public String getRegistrationId() {
+		if (regid == null) {
+			regid = mPrefs.getString(FIELD_REGISTRATION_ID, "");
+		}
+		return regid;
+	}
+
 	
 }

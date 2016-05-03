@@ -74,7 +74,7 @@ public class LoginActivity extends Activity {
 					mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
 					mRegistrationButton.setText(getString(R.string.registering_message_complete));
 					mRegistrationButton.setEnabled(false);
-					String token = intent.getStringExtra("token");
+					token = intent.getStringExtra("token");
 					mInformationTextView.setText(token);
 				}
 
@@ -82,7 +82,7 @@ public class LoginActivity extends Activity {
 		};
 	}
 
-
+    String token;
 	EditText idView;
 	EditText passwordView;
 	
@@ -102,6 +102,9 @@ public class LoginActivity extends Activity {
 					@Override
 					public void onSuccess(Request request, LoginInfo result) {
                         Toast.makeText(LoginActivity.this, "result:"+ result, Toast.LENGTH_SHORT).show();
+						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+						startActivity(intent);
+						finish();
 					}
 
 					@Override
