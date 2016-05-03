@@ -1,4 +1,4 @@
-package kr.me.ansr;
+package kr.me.ansr.gcm;
 
 import android.content.Intent;
 

@@ -1,4 +1,4 @@
-package kr.me.ansr;
+package kr.me.ansr.gcm;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +11,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
+
+import kr.me.ansr.MainActivity;
+import kr.me.ansr.R;
 
 /**
  * Created by saltfactory on 6/8/15.

@@ -1,4 +1,4 @@
-package kr.me.ansr;
+package kr.me.ansr.gcm;
 
 /**
  * Created by saltfactory on 6/8/15.

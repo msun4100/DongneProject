@@ -4,9 +4,10 @@ import kr.me.ansr.MainActivity;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.NetworkManager.OnResultListener;
 import kr.me.ansr.PropertyManager;
-import kr.me.ansr.QuickstartPreferences;
+import kr.me.ansr.gcm.QuickstartPreferences;
 import kr.me.ansr.R;
-import kr.me.ansr.RegistrationIntentService;
+import kr.me.ansr.gcm.RegistrationIntentService;
+import okhttp3.Request;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -17,18 +18,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class LoginActivity extends Activity {
 
@@ -96,24 +94,42 @@ public class LoginActivity extends Activity {
 		passwordView = (EditText)findViewById(R.id.login_editText2);
 		Button btn = (Button)findViewById(R.id.btn_login);
 		btn.setOnClickListener(new View.OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
-				final String id = idView.getText().toString();
-				final String password = passwordView.getText().toString();
-				NetworkManager.getInstance().login(id, password, new OnResultListener() {
-					
+				final String id = "user01@gmail.com";
+				final String password = "1234";
+				NetworkManager.getInstance().postDongneLogin(LoginActivity.this, "keyword", new NetworkManager.OnResultListener<LoginInfo>(){
 					@Override
-					public void onSuccess(String message) {
-						PropertyManager.getInstnace().setUserName(id);
-						PropertyManager.getInstnace().setPassword(password);
-						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-						startActivity(intent);
-						finish();
+					public void onSuccess(Request request, LoginInfo result) {
+                        Toast.makeText(LoginActivity.this, "result:"+ result.result.lastLogin, Toast.LENGTH_SHORT).show();
+					}
+
+					@Override
+					public void onFailure(Request request, int code, Throwable cause) {
+
 					}
 				});
 			}
 		});
+//		btn.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				final String id = idView.getText().toString();
+//				final String password = passwordView.getText().toString();
+//				NetworkManager.getInstance().login(id, password, new NetworkManager.OnLoginResultListener() {
+//
+//					@Override
+//					public void onSuccess(String message) {
+//						PropertyManager.getInstnace().setUserName(id);
+//						PropertyManager.getInstnace().setPassword(password);
+//						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//						startActivity(intent);
+//						finish();
+//					}
+//				});
+//			}
+//		});
 		
 		btn = (Button)findViewById(R.id.btn_signup);
 		btn.setOnClickListener(new View.OnClickListener() {

@@ -20,7 +20,7 @@ public class SplashActivity extends Activity {
 		String name = PropertyManager.getInstnace().getUserName();
 		if (!name.equals("")) {
 			String password = PropertyManager.getInstnace().getPassword();
-			NetworkManager.getInstance().login(name, password, new OnResultListener() {
+			NetworkManager.getInstance().login(name, password, new NetworkManager.OnLoginResultListener() {
 				
 				@Override
 				public void onSuccess(String message) {

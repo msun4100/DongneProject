@@ -4,26 +4,14 @@ import kr.me.ansr.MainActivity;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.NetworkManager.OnResultListener;
 import kr.me.ansr.PropertyManager;
-import kr.me.ansr.QuickstartPreferences;
 import kr.me.ansr.R;
-import kr.me.ansr.RegistrationIntentService;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class SignupActivity extends Activity {
 
@@ -46,7 +34,7 @@ public class SignupActivity extends Activity {
 			public void onClick(View v) {
 				final String id = idView.getText().toString();
 				final String password = passwordView.getText().toString();
-				NetworkManager.getInstance().login(id, password, new OnResultListener() {
+				NetworkManager.getInstance().login(id, password, new NetworkManager.OnLoginResultListener() {
 					
 					@Override
 					public void onSuccess(String message) {
