@@ -9,4 +9,12 @@ public class CommonInfo {
 	public static final String RESPONSE_WORK = "work";
 	public int success;
 	public String msg;
+
+    @Override
+    public String toString() {
+        return "CommonInfo{" +
+                "success=" + success +
+                ", msg='" + msg + '\'' +
+                '}';
+    }
 }

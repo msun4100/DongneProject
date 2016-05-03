@@ -98,15 +98,15 @@ public class LoginActivity extends Activity {
 			public void onClick(View v) {
 				final String id = "user01@gmail.com";
 				final String password = "1234";
-				NetworkManager.getInstance().postDongneLogin(LoginActivity.this, "keyword", new NetworkManager.OnResultListener<LoginInfo>(){
+				NetworkManager.getInstance().postDongneLogin(LoginActivity.this, id, password, new NetworkManager.OnResultListener<LoginInfo>(){
 					@Override
 					public void onSuccess(Request request, LoginInfo result) {
-                        Toast.makeText(LoginActivity.this, "result:"+ result.result.lastLogin, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "result:"+ result, Toast.LENGTH_SHORT).show();
 					}
 
 					@Override
 					public void onFailure(Request request, int code, Throwable cause) {
-
+						Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}

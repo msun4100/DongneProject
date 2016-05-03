@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -203,24 +206,26 @@ public class NetworkManager {
 
     }
 
-//    private static final String URL_TMAP_POI = "https://apis.skplanetx.com/tmap/pois?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&searchKeyword=%s";
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final String SERVER_URL = "http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000";
 //    http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000
-    private static final String URL_LOGIN = "http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000/login";
-    public Request postDongneLogin(Context context, String keyword, final OnResultListener<LoginInfo> listener) {
+
+    private static final String URL_LOGIN = SERVER_URL + "/login";
+    public Request postDongneLogin(Context context, String email, String password, final OnResultListener<LoginInfo> listener) {
         try {
-            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8"));
+//            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
+            String url = URL_LOGIN;
             final CallbackObject<LoginInfo> callbackObject = new CallbackObject<LoginInfo>();
 
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             JsonObject json = new JsonObject();
-            json.addProperty("email","user01@gmail.com");
-            json.addProperty("password","1234");
-            String email = "user01@gmail.com";
-            String password = "1234";
+//            json.addProperty("email","user01@gmail.com");
+//            json.addProperty("password","1234");
+            json.addProperty("email", email);
+            json.addProperty("password", password);
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(JSON, jsonString);
             Request request = new Request.Builder().url(url)
-//                    .header("Accept", "application/json")
+//                    .header("Accept", "application/json") //API전용 헤더인듯?
                     .post(body)
                     .tag(context)
                     .build();
@@ -237,19 +242,10 @@ public class NetworkManager {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.i("NETWORK MANAGER:", response.message() );
-
                     Gson gson = new Gson();
                     LoginInfo result = gson.fromJson(response.body().charStream(), LoginInfo.class);
-                    Log.i("NETWORK MANAGER'2", ""+result.msg );
-//                    for (POIItem item : result.searchPoiInfo.pois.poi) {
-//                        item.updatePOIData();
-//                    }
-//                    callbackObject.result = result.searchPoiInfo;
+                    Log.i("NETWORK MANAGER>>", ""+result );
                     callbackObject.result = result;
-//                XMLParser parser = new XMLParser();
-//                NaverMovies movies = parser.fromXml(response.body().byteStream(), "channel", NaverMovies.class);
-//                callbackObject.result = movies;
                     Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
                     mHandler.sendMessage(msg);
                 }
@@ -257,11 +253,18 @@ public class NetworkManager {
 
             return request;
 
-        } catch (UnsupportedEncodingException e) {
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
             e.printStackTrace();
         }
+//        catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+
         return null;
     }
+
 
 
 //    private static final String URL_TMAP_POI = "https://apis.skplanetx.com/tmap/pois?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&searchKeyword=%s";
