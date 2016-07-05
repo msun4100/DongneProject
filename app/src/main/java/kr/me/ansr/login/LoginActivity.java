@@ -123,7 +123,8 @@ public class LoginActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+//				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 				startActivity(intent);
 			}
 		});
