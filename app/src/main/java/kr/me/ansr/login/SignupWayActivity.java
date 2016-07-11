@@ -20,7 +20,7 @@ public class SignupWayActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("");
+        getSupportActionBar().setTitle(TAG);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //login siginup scrolling
         Button btn = (Button)findViewById(R.id.btn_local);
