@@ -14,9 +14,6 @@ import android.widget.EditText;
 
 public class SignupActivity extends Activity {
 
-
-
-
 	EditText idView;
 	EditText passwordView;
 	

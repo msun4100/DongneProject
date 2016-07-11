@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +24,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
 	TabHost tabHost;
 	ViewPager pager;
@@ -107,7 +108,7 @@ public class MainActivity extends ActionBarActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			Toast.makeText(getApplicationContext(), "latitude: "+PropertyManager.getInstance().getLatitude()+"\nlongitude"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation() +"\nlatitude: "+PropertyManager.getInstance().getLatitude()+"\nlongitude"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_LONG).show();
 			return true;
 		}
         if (id == R.id.logout) {

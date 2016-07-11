@@ -24,6 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -189,7 +190,7 @@ public class SplashActivity extends Activity {
         }
     };
     private boolean isFirstLogin = true;
-    private boolean isToast = false;
+    private boolean isPermissionOK = true;
     @Override
     protected void onStart() {
         super.onStart();
@@ -198,9 +199,11 @@ public class SplashActivity extends Activity {
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setCostAllowed(true);
-
-		mProvider = mLM.getBestProvider(criteria, true);
-        Toast.makeText(SplashActivity.this, "bestProvider->" + mProvider , Toast.LENGTH_SHORT).show();
+        //type 1 for genymotion device
+        mProvider = LocationManager.GPS_PROVIDER;
+//		mProvider = mLM.getBestProvider(criteria, true);
+//        Toast.makeText(SplashActivity.this, "bestProvider->" + mProvider , Toast.LENGTH_SHORT).show();
+        //type 2 for personal device
 //        mProvider = LocationManager.NETWORK_PROVIDER;
 //        기존 코드는 NETWORK_PROVIDER만을 사용했었음. 지금은 지니모션과 병행하기 위해 bestProvider로 함
 //        onCreate()에도 mProvider를 초기화하는 코드도 있었고... <- 이코드는 필요 없는거 같은데?
@@ -215,83 +218,84 @@ public class SplashActivity extends Activity {
 //		Log.i("isProviderEn", ""+mLM.isProviderEnabled(mProvider));
 //		Log.i("Passive", ""+mProvider.equals(LocationManager.PASSIVE_PROVIDER));
         if (mProvider == null || mProvider.equals(LocationManager.PASSIVE_PROVIDER) || !mLM.isProviderEnabled(mProvider)) {
-            if (isFirstLogin) {
-//				PropertyManager.getInstance().getUsingLocation() == 0
-                if (PropertyManager.getInstance().getUsingLocation() == 2) {
-                    PropertyManager.getInstance().setUsingLocation(2);
-                } else {
-                    Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요.", Toast.LENGTH_SHORT).show();
-                    PropertyManager.getInstance().setUsingLocation(0);
-                }
-//                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 1);
-//                //startActivity(intent);
-                isFirstLogin = false;
-            } else {
-                Toast.makeText(SplashActivity.this, "This app need location setting.", Toast.LENGTH_SHORT).show();
-//				"37.4762397",
-//				"126.9583907",
-//				PropertyManager.getInstance().setLatitude("37.4762397");
-//				PropertyManager.getInstance().setLongitude("126.9583907");
-                isFirstLogin = false;
-                finish();
-            }
-            return;
-        } else {
-            isFirstLogin = false;
+//			PropertyManager.getInstance().getUsingLocation() == 0
             if (PropertyManager.getInstance().getUsingLocation() == 2) {
                 PropertyManager.getInstance().setUsingLocation(2);
+            } else if (PropertyManager.getInstance().getUsingLocation() == 0){
+                Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요.", Toast.LENGTH_SHORT).show();
+                PropertyManager.getInstance().setUsingLocation(0);
+            }
+//               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), RC_FINE_LOCATION_ON_ACTIVITY_RESULT);
+//                //startActivity(intent);
+            return; // 정상적인 프로바이더를 지원하지 않으면 아래 코드 실행 안함.
+        } else {
+            //mProvider가 null이 아니면 위치 정보 가져오는 코드 진행
+            if (PropertyManager.getInstance().getUsingLocation() == 2) {
+                //MainActivity에서 뜬 다이얼로그에서 다시 보지 않기를 클릭하면
+                PropertyManager.getInstance().setUsingLocation(2);
             } else {
-                PropertyManager.getInstance().setUsingLocation(1);
+//                PropertyManager.getInstance().setUsingLocation(1);
             }
         }
-        //6.0 이하 버전에서는 checkSelfPermission 호출은 그냥 무시됨 return 0 반환
-        //onRequestPermissionResult에서 바로 else 를 타기 때문에 분기를 안두어도 됨.
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(SplashActivity.this, "checkSelfPermission()", Toast.LENGTH_SHORT).show();
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-               //사용자가 임의로 권한을 취소시킨 경우
-               //권한 재요청
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // only for Marshmallow version and newer versions
+            Toast.makeText(SplashActivity.this, "Marshmallow", Toast.LENGTH_SHORT).show();
+            isPermissionOK = false; //기본값이 true임. 낮은 버전위해. updateLocation에서 requestPermission호출 후에 true로 바뀜.
+            PropertyManager.getInstance().setUsingLocation(0);
+            updateLocation();
+        } else {
+            isPermissionOK = true;
+            Toast.makeText(SplashActivity.this, "below M versions", Toast.LENGTH_SHORT).show();
+            //6.0 이하 버전에서는 checkSelfPermission 호출은 그냥 무시됨 return 0 반환
+            //onRequestPermissionResult에서 바로 else 를 타기 때문에 분기를 안두어도 됨.
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->if", Toast.LENGTH_SHORT).show();
+                    //사용자가 임의로 권한을 취소시킨 경우
+                    //권한 재요청
 //                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_LOCATION);
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Location Permission");
-                builder.setMessage("permission...");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        requestPermission();
-                    }
-                });
-                builder.create().show();
-                return;
-            } else {
-                //최초로 권한을 요청하는 경우(첫실행)
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_LOCATION);
-                requestPermission();
-                return;
+                    //========================
+                    PropertyManager.getInstance().setUsingLocation(2);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Location Permission");
+                    builder.setMessage("permission...");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            requestPermission();
+                        }
+                    });
+                    builder.create().show();
+                    //========================
+                    return;
+                } else {
+                    //낮은 API 버전에서는 무조건 else 타게 되는 듯
+                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->else", Toast.LENGTH_SHORT).show();
+                    PropertyManager.getInstance().setUsingLocation(0);
+                    return;
+                }
             }
-        } else {
-            //사용 권한이 있음을 확인한 경우
-            //initLayout(); 등 그 다음 flow
-//            Toast.makeText(getApplicationContext(), "권한OK", Toast.LENGTH_SHORT).show();
-        }
-        Location location = mLM.getLastKnownLocation(mProvider);
-        if (location != null) {
-            latitude=String.valueOf(location.getLatitude());
-            longitude=String.valueOf(location.getLongitude());
-            PropertyManager.getInstance().setLatitude(latitude);
-            PropertyManager.getInstance().setLongitude(longitude);
-            mListener.onLocationChanged(location);
-            Toast.makeText(SplashActivity.this, "onStart->location != null..\nLat:"+
-                    PropertyManager.getInstance().getLatitude(), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
-        }
-//		mLM.requestLocationUpdates(mProvider, 1000*60*60, 5.0f, mListener);// 프로바이더,2000==2초,// 5미터
-        mLM.requestLocationUpdates(mProvider, 5000, 5.0f, mListener);
-//		mLM.requestSingleUpdate(mProvider, mListener, null); //API 9부터 지원
+            Toast.makeText(SplashActivity.this, "After checkSelfPermission()", Toast.LENGTH_SHORT).show();
+            Location location = mLM.getLastKnownLocation(mProvider);
+            if (location != null) {
+                latitude=String.valueOf(location.getLatitude());
+                longitude=String.valueOf(location.getLongitude());
+                PropertyManager.getInstance().setLatitude(latitude);
+                PropertyManager.getInstance().setLongitude(longitude);
+                mListener.onLocationChanged(location);
+                Toast.makeText(SplashActivity.this, "onStart->location != null..\nLat:"+
+                        PropertyManager.getInstance().getLatitude(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
+            }
+//    		mLM.requestLocationUpdates(mProvider, 1000*60*60, 5.0f, mListener);// 프로바이더,2000==2초,// 5미터
+            mLM.requestLocationUpdates(mProvider, 5000, 5.0f, mListener);
+        } //else below M version
+
     }
 
     @Override
@@ -322,7 +326,10 @@ public class SplashActivity extends Activity {
         if (checkPlayServices()) {
             String regId = PropertyManager.getInstance().getRegistrationId();
             if (!regId.equals("")) {
-                runOnUiThread(nextAction);
+                if(isPermissionOK){
+                    runOnUiThread(nextAction);
+                }
+
             } else {
                 registerInBackground();
             }
@@ -362,26 +369,6 @@ public class SplashActivity extends Activity {
                         Toast.makeText(SplashActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
                     }
                 });
-//                NetworkManager.getInstance().putSdamLogin(SplashActivity.this, userId,password,
-////						"37.4762397",
-////						"126.9583907",
-//                        PropertyManager.getInstance().getLatitude(),
-//                        PropertyManager.getInstance().getLongitude(),
-//                        new OnResultListener<LoginInfo>() {
-//
-//                            @Override
-//                            public void onSuccess(LoginInfo result) {
-//                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-//                                startActivity(intent);
-////								Toast.makeText(SplashActivity.this, PropertyManager.getInstance().getRegistrationId(), Toast.LENGTH_SHORT).show();
-//                                finish();
-//                            }
-//
-//                            @Override
-//                            public void onFail(int code) {
-//                                Toast.makeText(SplashActivity.this, "서버에 연결할 수 없습니다. #" + code, Toast.LENGTH_LONG).show();
-//                            }
-//                        });
             } else {
                 mHandler.postDelayed(new Runnable() {
 
@@ -451,8 +438,13 @@ public class SplashActivity extends Activity {
 
             @Override
             protected void onPostExecute(String msg) {
-                Toast.makeText(SplashActivity.this, "onPostExcute msg:\n"+msg, Toast.LENGTH_SHORT).show();
-                runOnUiThread(nextAction);
+//                Toast.makeText(SplashActivity.this, "onPostExcute msg:\n"+msg, Toast.LENGTH_SHORT).show();
+                if(isPermissionOK){
+                    runOnUiThread(nextAction);
+                } else {
+                    Toast.makeText(SplashActivity.this, "onPostExcute else:\n", Toast.LENGTH_SHORT).show();
+                }
+
             }
         }.execute(null, null, null);
     }
@@ -515,7 +507,7 @@ public class SplashActivity extends Activity {
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Location Permission");
+                builder.setTitle("Please grant Location Permission");
                 builder.setMessage("permission...");
                 builder.setCancelable(false);
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -530,6 +522,8 @@ public class SplashActivity extends Activity {
             requestPermission();
             return;
         }
+        isPermissionOK = true;
+        PropertyManager.getInstance().setUsingLocation(1); //isPerm.이랑 2개씩 세트로 true면 1 false면 0
         Location location = mLM.getLastKnownLocation(mProvider);
 
         if (location != null) {
@@ -541,9 +535,10 @@ public class SplashActivity extends Activity {
     }
     private void displayLocation(Location location) {
 //        messageView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
-        Toast.makeText(SplashActivity.this, "lat : " + location.getLatitude() + ", lng : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(SplashActivity.this, "displayLocation()\nlat : " + location.getLatitude() + ", lng : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
     }
 
+    private static final int RC_FINE_LOCATION_ON_ACTIVITY_RESULT = 101;
     private static final int RC_FINE_LOCATION = 100;
     private void requestPermission() {
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, RC_FINE_LOCATION);
@@ -555,19 +550,24 @@ public class SplashActivity extends Activity {
         if (requestCode == RC_FINE_LOCATION) {
             if (permissions != null && permissions.length > 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),"onRequestPermissionsResult", Toast.LENGTH_SHORT).show();
+                    PropertyManager.getInstance().setUsingLocation(1);
+                    isPermissionOK = true;
                     updateLocation();
                 }
             }
         }
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 1) {
+        Toast.makeText(getApplicationContext(), "onActivityResult: "+ resultCode, Toast.LENGTH_LONG).show();
+        if (resultCode == RC_FINE_LOCATION_ON_ACTIVITY_RESULT) {
             switch (requestCode) {
-                case 1:
-                    Toast.makeText(getApplicationContext(), "onActivityResult: "+ requestCode, Toast.LENGTH_LONG).show();
+                case RC_FINE_LOCATION_ON_ACTIVITY_RESULT:
+                    PropertyManager.getInstance().setUsingLocation(1);
+//                    Toast.makeText(getApplicationContext(), "onActivityResult: "+ PropertyManager.getInstance().getUsingLocation(), Toast.LENGTH_LONG).show();
                     break;
             }
         }

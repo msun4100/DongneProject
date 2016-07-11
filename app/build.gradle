@@ -45,6 +45,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
     compile 'com.google.code.gson:gson:2.6.2'
-
+    //for gcm_chat req, res
     compile 'com.mcxiaoke.volley:library-aar:1.0.0'
 }

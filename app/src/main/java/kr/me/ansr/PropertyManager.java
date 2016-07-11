@@ -22,17 +22,13 @@ public class PropertyManager {
 		mEditor = mPrefs.edit();
 	}
 
-//	public void clearProperties() {
-//		instance = null;
-//		System.gc();
-//	}
 public void clearProperties() {
-//	mPrefs.clear();
 //	mPrefs.edit().clear().commit();
-//	mEditor.clear();
-//	mEditor.commit();
 	setEmail("");
 	setPassword("");
+	setLatitude("");
+	setLongitude("");
+	setUsingLocation(0);
 }
 
 	private static final String FIELD_USER_NAME = "username";
