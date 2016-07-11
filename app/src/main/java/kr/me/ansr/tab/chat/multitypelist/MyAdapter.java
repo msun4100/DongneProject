@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.chat;
+package kr.me.ansr.tab.chat.multitypelist;
 
 import java.util.ArrayList;
 

@@ -3,14 +3,28 @@
     package="kr.me.ansr">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- needed for older devices -
+     used to check app background / foreground status -->
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <!-- [START gcm_permission] -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <permission
+        android:name="kr.me.ansr.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="kr.me.ansr.permission.C2D_MESSAGE" />
     <!-- [END gcm_permission] -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme" android:name=".MyApplication">
         <activity
             android:name=".MainActivity"
@@ -46,7 +60,28 @@
             android:theme="@style/Theme.AppCompat"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
+        <!-- ==================================== -->
+        <activity
+            android:name=".gcmchat.activity.MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
+        <activity
+            android:name=".gcmchat.activity.LoginActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name=".gcmchat.activity.ChatRoomActivity"
+            android:label="@string/title_activity_chat_room_discussion"
+            android:parentActivityName=".gcmchat.activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".gcmchat.activity.MainActivity" />
+        </activity>
+        <!-- ==================================== -->
         <!-- [START gcm_receiver] -->
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
@@ -59,16 +94,10 @@
         </receiver>
         <!-- [END gcm_receiver] -->
 
-        <!-- [START gcm_listener_service] -->
-        <service
-            android:name=".gcm.MyGcmListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
-        <!-- [END gcm_listener_service] -->
-
+        <!--===================================== -->
+            <!-- [START gcm_listener_service] -->
+                <!-- .gcm.MyGcmListenerService.java...  -->
+            <!-- [END gcm_listener_service] -->
         <!-- [START instanceId_listener_service] -->
         <service
             android:name=".gcm.MyInstanceIDListenerService"
@@ -84,6 +113,28 @@
             android:name=".gcm.RegistrationIntentService"
             android:exported="false"></service>
         <!-- [END gcm_registration_service] -->
+
+        <!--===================================== -->
+        <service
+            android:name=".gcmchat.gcm.MyGcmPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".gcmchat.gcm.GcmIntentService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
     </application>
 
 </manifest>

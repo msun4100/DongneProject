@@ -1,11 +1,14 @@
 package kr.me.ansr;
 
+import kr.me.ansr.login.LoginActivity;
+import kr.me.ansr.login.SplashActivity;
 import kr.me.ansr.tab.board.BoardFragment;
-import kr.me.ansr.tab.chat.ChatFragment;
-import kr.me.ansr.tab.chat.socket.MainFragment;
+import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.meet.MeetFragment;
 import kr.me.ansr.tab.mypage.MypageFragment;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -18,6 +21,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -38,7 +42,7 @@ public class MainActivity extends ActionBarActivity {
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
 		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
 //		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), MainFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), ChatFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), GcmChatFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator("TAB3"), BoardFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator("TAB4"), MeetFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab5").setIndicator("TAB5"), MypageFragment.class, null);
@@ -103,8 +107,18 @@ public class MainActivity extends ActionBarActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			Toast.makeText(getApplicationContext(), "latitude: "+PropertyManager.getInstance().getLatitude()+"\nlongitude"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_LONG).show();
 			return true;
 		}
+        if (id == R.id.logout) {
+            PropertyManager.getInstance().clearProperties();
+            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+//            Toast.makeText(getApplicationContext(), "property email: "+PropertyManager.getInstance().getEmail(), Toast.LENGTH_LONG).show();
+//            finish();
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 	

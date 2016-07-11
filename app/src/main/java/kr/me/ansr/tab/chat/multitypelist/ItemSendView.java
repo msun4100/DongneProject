@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.chat;
+package kr.me.ansr.tab.chat.multitypelist;
 
 import kr.me.ansr.R;
 import android.content.Context;

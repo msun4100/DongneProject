@@ -38,11 +38,13 @@ dependencies {
     compile ('io.socket:socket.io-client:0.7.0') {
         exclude group: 'org.json', module: 'json'
     }
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'com.google.android.gms:play-services-gcm:8.3.0'
 
     //for NetworkManager
     compile 'com.android.support:design:23.1.1'
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
     compile 'com.google.code.gson:gson:2.6.2'
+
+    compile 'com.mcxiaoke.volley:library-aar:1.0.0'
 }

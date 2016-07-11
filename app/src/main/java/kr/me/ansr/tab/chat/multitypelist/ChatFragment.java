@@ -1,26 +1,18 @@
-package kr.me.ansr.tab.chat;
+package kr.me.ansr.tab.chat.multitypelist;
 
 import java.util.Date;
-import java.util.concurrent.Callable;
 
-import kr.me.ansr.tab.chat.socket.LoginActivity;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.chat.socket.MainActivity;
-import kr.me.ansr.tab.chat.socket.MainFragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnGenericMotionListener;
-import android.view.View.OnHoverListener;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -28,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 public class ChatFragment extends PagerFragment {
 

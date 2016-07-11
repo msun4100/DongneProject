@@ -15,9 +15,20 @@ import com.google.android.gms.gcm.GcmListenerService;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.R;
 
-/**
- * Created by saltfactory on 6/8/15.
- */
+/*
+GcmProvider.js 가 보내는 푸쉬 메시지를 받는 서비스 코드.
+GCM 연동 테스트를 위해서 해보고
+채팅 서비스를 하는데 이 서비스가 먼저 동작해서 채팅메시지 푸쉬가 자꾸 널이 되는 예외가 발생.
+그래서 매니페스트에서 서비스 코드를 아예 지움.
+        <service
+        android:name=".gcm.MyGcmListenerService"
+        android:exported="false">
+        <intent-filter>
+        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        </intent-filter>
+        </service>
+*/
+
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";

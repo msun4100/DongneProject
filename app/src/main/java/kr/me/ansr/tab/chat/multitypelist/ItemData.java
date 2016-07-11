@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.chat;
+package kr.me.ansr.tab.chat.multitypelist;
 
 public class ItemData {
 	public static final int TYPE_DATE = 0;

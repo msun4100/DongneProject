@@ -207,10 +207,9 @@ public class NetworkManager {
     }
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final String SERVER_URL = "http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000";
-//    http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000
-
-    private static final String URL_LOGIN = SERVER_URL + "/login";
+//    private static final String SERVER_URL = "http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000";
+    private static final String SERVER_URL = "http://10.0.3.2:3000";
+    private static final String URL_LOGIN = SERVER_URL + "/account/login";
     public Request postDongneLogin(Context context, String email, String password, final OnResultListener<LoginInfo> listener) {
         try {
 //            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
@@ -220,7 +219,7 @@ public class NetworkManager {
             JsonObject json = new JsonObject();
             json.addProperty("email", email);
             json.addProperty("password", password);
-//            json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
+            json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(JSON, jsonString);
             Request request = new Request.Builder().url(url)
@@ -243,7 +242,6 @@ public class NetworkManager {
                 public void onResponse(Call call, Response response) throws IOException {
                     Gson gson = new Gson();
                     LoginInfo result = gson.fromJson(response.body().charStream(), LoginInfo.class);
-                    Log.i("NETWORK MANAGER>>", ""+result );
                     callbackObject.result = result;
                     Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
                     mHandler.sendMessage(msg);

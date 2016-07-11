@@ -1,6 +1,7 @@
 package kr.me.ansr;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 public class PropertyManager {
@@ -20,7 +21,20 @@ public class PropertyManager {
 		mPrefs = MyApplication.getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 		mEditor = mPrefs.edit();
 	}
-	
+
+//	public void clearProperties() {
+//		instance = null;
+//		System.gc();
+//	}
+public void clearProperties() {
+//	mPrefs.clear();
+//	mPrefs.edit().clear().commit();
+//	mEditor.clear();
+//	mEditor.commit();
+	setEmail("");
+	setPassword("");
+}
+
 	private static final String FIELD_USER_NAME = "username";
 	private String mUserName;
 	
@@ -104,5 +118,72 @@ public class PropertyManager {
 		return regid;
 	}
 
-	
+	//for chatting push notifications
+	private static final String FIELD_IS_TAB2_VISIBLE = "istab2visible";
+	private String isTab2Visible;
+
+	public void setIsTab2Visible(String isVisible) {
+		this.isTab2Visible = isVisible;
+		mEditor.putString(FIELD_IS_TAB2_VISIBLE, isVisible);
+		mEditor.commit();
+	}
+	public String getIsTab2Visible() {
+		if (isTab2Visible == null) {
+			isTab2Visible = mPrefs.getString(FIELD_IS_TAB2_VISIBLE, "");
+		}
+		return isTab2Visible;
+	}
+
+	// for Location info
+	private static final String FIELD_LOCATION_LATITUDE = "latitude";
+	private String mLatitude;
+
+	public String getLatitude() {
+		if (mLatitude == null) {
+			mLatitude = mPrefs.getString(FIELD_LOCATION_LATITUDE, null);
+		}
+		return mLatitude;
+	}
+	public void setLatitude(String latitude) {
+		mLatitude = latitude;
+		mEditor.putString(FIELD_LOCATION_LATITUDE, latitude);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_LOCATION_LONGITUDE = "longitude";
+	private String mLongitude;
+
+	public String getLongitude() {
+		if (mLongitude == null) {
+			mLongitude = mPrefs.getString(FIELD_LOCATION_LONGITUDE, null);
+		}
+		return mLongitude;
+	}
+	public void setLongitude(String longitude) {
+		mLongitude = longitude;
+		mEditor.putString(FIELD_LOCATION_LONGITUDE, longitude);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_USING_LOCATION = "usinglocation";
+	private int mUsingLocation; // 0안씀 1사용 2다시보지않기
+
+	public int getUsingLocation() {
+		if (mUsingLocation == 0) {
+			mUsingLocation = mPrefs.getInt(FIELD_USING_LOCATION, 0);
+		}
+		return mUsingLocation;
+	}
+
+	public void setUsingLocation(int usingLocation) {
+		mUsingLocation = usingLocation;
+		mEditor.putInt(FIELD_USING_LOCATION, usingLocation);
+		mEditor.commit();
+	}
+
+	// for Location info
+
+
+
+
 }

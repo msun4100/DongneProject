@@ -1,13 +1,20 @@
 package kr.me.ansr.login;
 
 
-import kr.me.ansr.common.CommonInfo;
+import java.io.Serializable;
 
-public class LoginInfo extends CommonInfo{
-	LoginResult result;
+
+public class LoginInfo implements Serializable{
+    public Boolean error;
+    public String message;
+    public LoginResult user;
 
     @Override
     public String toString() {
-        return super.toString() + result;
+        return "LoginInfo{" +
+                "error=" + error +
+                ", message='" + message + '\'' +
+                ", user=" + user +
+                '}';
     }
 }

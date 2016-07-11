@@ -2,6 +2,7 @@ package kr.me.ansr.tab.board;
 
 
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class BoardFragment extends PagerFragment {
 
@@ -39,6 +41,7 @@ public class BoardFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			// ...
+//			Toast.makeText(getActivity(), ""+ PropertyManager.getInstance().getIsTab2Visible(), Toast.LENGTH_SHORT).show();
 		}
 	}
 }

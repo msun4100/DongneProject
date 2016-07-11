@@ -2,6 +2,7 @@ package kr.me.ansr.tab.friends;
 
 
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -51,7 +52,7 @@ public class FriendsFragment extends PagerFragment {
 
 			@Override
 			public void onGroupCollapse(int groupPosition) {
-				Toast.makeText(getActivity(), "Group collapse", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getActivity(), "Group collapse", Toast.LENGTH_SHORT).show();
 				listView.expandGroup(groupPosition);
 			}
 		});
@@ -60,7 +61,7 @@ public class FriendsFragment extends PagerFragment {
 
 			@Override
 			public void onGroupExpand(int groupPosition) {
-				Toast.makeText(getActivity(), "Group expand", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getActivity(), "Group expand", Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -98,6 +99,7 @@ public class FriendsFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			// ...
+//			Toast.makeText(getActivity(), ""+ PropertyManager.getInstance().getIsTab2Visible(), Toast.LENGTH_SHORT).show();
 		}
 	}
 }

@@ -29,4 +29,15 @@
     <string name="registering_message_ready">InstanceID 토큰 가져오기</string>
     <string name="registering_message_generating">InstanceID 토큰 생성중...</string>
     <string name="registering_message_complete">완료!</string>
+
+
+    <!-- For GCM Chatting-->
+    <string name="hint_name">Full Name</string>
+    <string name="hint_email">Email</string>
+    <string name="err_msg_name">Enter full name</string>
+    <string name="err_msg_email">Enter valid email address</string>
+    <string name="title_activity_chat_room_discussion">ChatRoomDiscussionActivity</string>
+    <string name="action_logout">Logout</string>
+
+
 </resources>
