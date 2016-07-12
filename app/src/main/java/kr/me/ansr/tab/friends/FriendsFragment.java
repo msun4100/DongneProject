@@ -6,6 +6,7 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public class FriendsFragment extends PagerFragment {
 
 	ExpandableListView listView;
 	MyAdapter mAdapter;
-
+	AppCompatActivity activity;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -28,6 +29,7 @@ public class FriendsFragment extends PagerFragment {
 		View view = inflater.inflate(R.layout.fragment_friends, container,
 				false);
 
+		activity = (AppCompatActivity) getActivity();
 		TextView tv = (TextView) view.findViewById(R.id.textView1);
 		tv.setText("Fragment 1");
 
@@ -100,6 +102,10 @@ public class FriendsFragment extends PagerFragment {
 		if (isVisibleToUser) {
 			// ...
 //			Toast.makeText(getActivity(), ""+ PropertyManager.getInstance().getIsTab2Visible(), Toast.LENGTH_SHORT).show();
+			if(activity != null){
+				activity.getSupportActionBar().setTitle("Friends Fragment");
+			}
+
 		}
 	}
 }

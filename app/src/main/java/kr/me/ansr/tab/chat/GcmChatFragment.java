@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -59,7 +62,8 @@ public class GcmChatFragment extends PagerFragment {
     private ArrayList<ChatRoom> chatRoomArrayList;
     private ChatRoomsAdapter mAdapter;
     private RecyclerView recyclerView;
-
+    private FloatingActionButton fab;
+    AppCompatActivity activity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 //        TextView tv = new TextView(getActivity());
@@ -71,14 +75,17 @@ public class GcmChatFragment extends PagerFragment {
 //            launchLoginActivity();
             Toast.makeText(getActivity(), "getUser() == null ", Toast.LENGTH_LONG).show();
         }
-        //setup toolbar
-//        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-//        toolbar.setBackground(R.color.material_blue_grey_800);
-//      REFERENCE: http://stackoverflow.com/questions/26998455/how-to-get-toolbar-from-fragment
-//        AppCompatActivity activity = (AppCompatActivity) getActivity();
-//        activity.setSupportActionBar(toolbar);
-//        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // ~ setup toolbar
+        activity = (AppCompatActivity) getActivity();
+
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
         /**
@@ -134,7 +141,23 @@ public class GcmChatFragment extends PagerFragment {
 
             }
         }));
-
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx,int dy){
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy >0) {
+                    // Scroll Down
+                    if (fab.isShown()) {
+                        fab.hide();
+                    }
+                } else if (dy <0) {
+                    // Scroll Up
+                    if (!fab.isShown()) {
+                        fab.show();
+                    }
+                }
+            }
+        });
         /**
          * Always check for google play services availability before
          * proceeding further with GCM
@@ -352,6 +375,12 @@ public class GcmChatFragment extends PagerFragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             // ...
+            if (!fab.isShown()) {
+                fab.show();
+            }
+            if( activity != null){
+                activity.getSupportActionBar().setTitle("GcmChat Fragment");
+            }
             PropertyManager.getInstance().setIsTab2Visible("visible");
         } else {
             PropertyManager.getInstance().setIsTab2Visible("inVisible");

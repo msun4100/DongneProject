@@ -16,7 +16,6 @@ import java.net.URISyntaxException;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import kr.me.ansr.gcmchat.helper.MyPreferenceManager;
-import kr.me.ansr.tab.chat.socket.Constants;
 
 public class MyApplication extends Application {
 	public static final String TAG = MyApplication.class.getSimpleName();
@@ -32,11 +31,7 @@ public class MyApplication extends Application {
 		super.onCreate();
 		mContext = this;
 		mInstance = this;
-		try {
-			mSocket = IO.socket(Constants.CHAT_SERVER_URL);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+
 
 
 	}
@@ -44,18 +39,6 @@ public class MyApplication extends Application {
     public static MyApplication getInstance() {
         return mInstance;
     }
-	private Socket mSocket;
-//	{
-//		try {
-//			mSocket = IO.socket(Constants.CHAT_SERVER_URL);
-//		} catch (URISyntaxException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
-	public Socket getSocket() {
-		return mSocket;
-	}
-	//=====================================================
 
 
 	public RequestQueue getRequestQueue() {

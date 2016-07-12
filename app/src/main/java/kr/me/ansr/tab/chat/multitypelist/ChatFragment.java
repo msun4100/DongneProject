@@ -4,7 +4,6 @@ import java.util.Date;
 
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
-import kr.me.ansr.tab.chat.socket.MainActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -101,8 +100,8 @@ public class ChatFragment extends PagerFragment {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), MainActivity.class);
-				startActivity(intent);
+//				Intent intent = new Intent(getActivity(), MainActivity.class);
+//				startActivity(intent);
 			}
 		});
 

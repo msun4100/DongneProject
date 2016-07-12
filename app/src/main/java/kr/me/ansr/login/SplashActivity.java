@@ -171,13 +171,13 @@ public class SplashActivity extends Activity {
         @Override
         public void onProviderEnabled(String provider) {
             // 위치정보 기능 온오프 리스너
-            Toast.makeText(getApplicationContext(), "ONNNNNNNNNN====", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "ONNNNNNNNNN====", Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             // 위치정보 기능 온오프 리스너
-            Toast.makeText(getApplicationContext(), "OFFFFFFFFFFF====", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "OFFFFFFFFFFF====", Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -253,7 +253,7 @@ public class SplashActivity extends Activity {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->if", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->if", Toast.LENGTH_SHORT).show();
                     //사용자가 임의로 권한을 취소시킨 경우
                     //권한 재요청
 //                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_LOCATION);
@@ -274,12 +274,12 @@ public class SplashActivity extends Activity {
                     return;
                 } else {
                     //낮은 API 버전에서는 무조건 else 타게 되는 듯
-                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->else", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->else", Toast.LENGTH_SHORT).show();
                     PropertyManager.getInstance().setUsingLocation(0);
                     return;
                 }
             }
-            Toast.makeText(SplashActivity.this, "After checkSelfPermission()", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(SplashActivity.this, "After checkSelfPermission()", Toast.LENGTH_SHORT).show();
             Location location = mLM.getLastKnownLocation(mProvider);
             if (location != null) {
                 latitude=String.valueOf(location.getLatitude());
