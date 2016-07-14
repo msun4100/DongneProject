@@ -5,91 +5,48 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/LinearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="150dp" >
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_launcher" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="20dp"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/text_lastname"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="last name"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="14sp" />
-
-                <EditText
-                    android:id="@+id/editText1"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="textPersonName" >
-
-                    <requestFocus />
-                </EditText>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/text_firstname"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="first name"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="14sp" />
-
-                <EditText
-                    android:id="@+id/editText2"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="textPersonName" >
-
-                    <requestFocus />
-                </EditText>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_gravity="center_horizontal" >
 
         <EditText
-            android:id="@+id/signup_editText1"
+            android:id="@+id/edit_signup_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="35dp"
-            android:layout_weight="1"
             android:ems="10"
-            android:hint="useremail@example.com"
-            android:inputType="textEmailAddress"
+            android:hint="이름"
             android:lines="1"
-            android:nextFocusDown="@+id/signup_editText2"
             android:textSize="16sp" />
+        <AutoCompleteTextView
+            android:id="@+id/auto_text_signup_univ"
+            android:hint="대학교 입력"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:completionThreshold="1"/>
+        <AutoCompleteTextView
+            android:id="@+id/auto_text_signup_dept"
+            android:hint="학과 입력"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:completionThreshold="2"/>
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:spinnerMode="dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+             />
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -100,57 +57,30 @@
         android:orientation="vertical" >
 
         <EditText
-            android:id="@+id/signup_editText2"
+            android:id="@+id/edit_signup_company"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
             android:fontFamily="nanum_bold"
-            android:hint="password"
-            android:inputType="textPassword"
+            android:hint="회사명(직접입력)"
+            android:inputType="textPersonName"
             android:lines="1"
-            android:nextFocusDown="@+id/signup_editText3"
+            android:nextFocusDown="@+id/edit_signup_job"
             android:singleLine="true"
             android:textSize="16sp" />
 
         <EditText
-            android:id="@+id/signup_editText3"
+            android:id="@+id/edit_signup_job"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="password"
-            android:inputType="textPassword"
+            android:hint="직무(직접입력)"
+            android:inputType="textPersonName"
             android:lines="1"
             android:singleLine="true"
             android:textSize="16sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" >
-
-            <TextView
-                android:id="@+id/text_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="13dp"
-                android:text="I Agree"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="14sp" />
-
-            <CheckBox
-                android:id="@+id/checkBox1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -158,12 +88,13 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/signup_btn_send"
+            android:id="@+id/btn_signup_send"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:layout_marginTop="13dp"
             android:text="회원가입" />
     </LinearLayout>
+
 
 </LinearLayout>

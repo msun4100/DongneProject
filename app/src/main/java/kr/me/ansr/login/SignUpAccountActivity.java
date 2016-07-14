@@ -1,6 +1,7 @@
-package kr.me.ansr.gcmchat.activity;
+package kr.me.ansr.login;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
@@ -28,68 +30,90 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.app.EndPoints;
 import kr.me.ansr.gcmchat.model.User;
 
-//로그인 proccess 를 LoginActivity에서 함
+public class SignUpAccountActivity extends AppCompatActivity {
 
-public class LoginActivity extends AppCompatActivity {
-
-    private String TAG = LoginActivity.class.getSimpleName();
-    private EditText inputName, inputEmail;
-    private TextInputLayout inputLayoutName, inputLayoutEmail;
+    private String TAG = SignUpAccountActivity.class.getSimpleName();
+    private EditText inputPw, inputPwConfirm, inputEmail;
+    private TextInputLayout inputLayoutPw, inputLayoutPwConfirm, inputLayoutEmail;
     private Button btnEnter;
 
+    private TextView textConfirm;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /**
-         * Check for login session. It user is already logged in
-         * redirect him to main activity
-         * */
-        if (MyApplication.getInstance().getPrefManager().getUser() != null) {
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-        }
-
-        setContentView(R.layout.a_activity_login);
+        setContentView(R.layout.activity_sign_up_account);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        inputLayoutName = (TextInputLayout) findViewById(R.id.input_layout_name);
+        inputLayoutPw = (TextInputLayout) findViewById(R.id.input_layout_pw);
+        inputLayoutPwConfirm = (TextInputLayout) findViewById(R.id.input_layout_pw_confirm);
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
-        inputName = (EditText) findViewById(R.id.input_pw);
-        inputEmail = (EditText) findViewById(R.id.input_email);
-        btnEnter = (Button) findViewById(R.id.btn_enter);
 
-        inputName.addTextChangedListener(new MyTextWatcher(inputName));
+        inputPw = (EditText) findViewById(R.id.input_pw);
+        inputPwConfirm = (EditText) findViewById(R.id.input_pw_confirm);
+        inputEmail = (EditText) findViewById(R.id.input_email);
+
+        btnEnter = (Button) findViewById(R.id.btn_enter);
+        textConfirm = (TextView) findViewById(R.id.text_signup_account_confirm);
+
+        inputPw.addTextChangedListener(new MyTextWatcher(inputPw));
+        inputPwConfirm.addTextChangedListener(new MyTextWatcher(inputPwConfirm));
         inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
 
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login();
+//                login();
+                runNextStep();
             }
         });
+        textConfirm.setVisibility(View.GONE);
     }
 
     /**
      * logging in user. Will make http post request with name, email
      * as parameters
      */
-    private void login() {
-        if (!validateName()) {
-            return;
-        }
-
+    private void runNextStep(){
         if (!validateEmail()) {
             return;
         }
+        if (!validatePassword(1)) {
+            return;
+        }
+        if (!validatePassword(2)) {
+            return;
+        }
+        if(isConfirmPassword() == true){
+            Intent intent = new Intent(SignUpAccountActivity.this, SignupActivity.class);
+            intent.putExtra("email", inputEmail.getText().toString());
+            intent.putExtra("password", inputPwConfirm.getText().toString());
+            startActivity(intent);
+        } else {
+            Toast.makeText(getApplicationContext(), "pw confirm error", Toast.LENGTH_SHORT).show();
+        }
 
-        final String name = inputName.getText().toString();
+
+    }
+    private void login() {
+        if (!validateEmail()) {
+            return;
+        }
+        if (!validatePassword(1)) {
+            return;
+        }
+        if (!validatePassword(2)) {
+            return;
+        }
+
+        final String name = inputPw.getText().toString();
         final String email = inputEmail.getText().toString();
 
         StringRequest strReq = new StringRequest(Request.Method.POST,
@@ -160,18 +184,47 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // Validating name
-    private boolean validateName() {
-        if (inputName.getText().toString().trim().isEmpty()) {
-            inputLayoutName.setError(getString(R.string.err_msg_name));
-            requestFocus(inputName);
-            return false;
-        } else {
-            inputLayoutName.setErrorEnabled(false);
+    private boolean validatePassword(int step) {
+        if(step == 1){
+            if (inputPw.getText().toString().trim().isEmpty()) {
+                inputLayoutPw.setError(getString(R.string.err_msg_pw));
+                requestFocus(inputPw);
+                return false;
+            } else {
+                inputLayoutPw.setErrorEnabled(false);
+            }
+        } else if(step == 2){
+            if (inputPwConfirm.getText().toString().trim().isEmpty()) {
+                textConfirm.setVisibility(View.GONE);
+                inputLayoutPwConfirm.setError(getString(R.string.err_msg_pw_confirm));
+                requestFocus(inputPwConfirm);
+                return false;
+            } else if(!isConfirmPassword()){
+                inputLayoutPwConfirm.setError("Invalid password");
+                inputLayoutPwConfirm.setErrorEnabled(false);
+                requestFocus(inputPwConfirm);
+                return false;
+            } else {
+                inputLayoutPwConfirm.setErrorEnabled(false);
+            }
         }
-
         return true;
     }
-
+    private boolean isConfirmPassword(){
+        String pw1 = inputPw.getText().toString();
+        String pw2 = inputPwConfirm.getText().toString();
+        if(!pw1.equals(pw2)){
+            textConfirm.setVisibility(View.VISIBLE);
+            textConfirm.setTextColor(0xfff14249);
+            textConfirm.setText("Invalid Password");
+//            Toast.makeText(getApplicationContext(), "같지 않음", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        textConfirm.setVisibility(View.VISIBLE);
+        textConfirm.setTextColor(0xffEA80FC);
+        textConfirm.setText("valid Password");
+        return true;
+    }
     // Validating email
     private boolean validateEmail() {
         String email = inputEmail.getText().toString().trim();
@@ -208,7 +261,10 @@ public class LoginActivity extends AppCompatActivity {
         public void afterTextChanged(Editable editable) {
             switch (view.getId()) {
                 case R.id.input_pw:
-                    validateName();
+                    validatePassword(1);
+                    break;
+                case R.id.input_pw_confirm:
+                    validatePassword(2);
                     break;
                 case R.id.input_email:
                     validateEmail();

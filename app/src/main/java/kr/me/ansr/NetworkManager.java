@@ -4,22 +4,16 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import org.json.JSONException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -36,7 +30,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import kr.me.ansr.login.LoginInfo;
-import kr.me.ansr.login.LoginResult;
+import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
+import kr.me.ansr.login.autocomplete.ex.univ.UnivInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -207,8 +202,8 @@ public class NetworkManager {
     }
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-//    private static final String SERVER_URL = "http://ec2-52-79-166-141.ap-northeast-2.compute.amazonaws.com:3000";
     private static final String SERVER_URL = "http://10.0.3.2:3000";
+
     private static final String URL_LOGIN = SERVER_URL + "/account/login";
     public Request postDongneLogin(Context context, String email, String password, final OnResultListener<LoginInfo> listener) {
         try {
@@ -263,7 +258,87 @@ public class NetworkManager {
     }
 
 
+    private static final String URL_UNIV = SERVER_URL + "/univ";
+    public Request getDongneUniv(Context context, final OnResultListener<UnivInfo> listener) {
+        try {
+            String url = URL_UNIV;
+            final CallbackObject<UnivInfo> callbackObject = new CallbackObject<UnivInfo>();
 
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+//                    .post(body)
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    UnivInfo result = gson.fromJson(response.body().charStream(), UnivInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+
+            return request;
+
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+    private static final String URL_DEPT = SERVER_URL + "/dept";
+    public Request getDongneDept(Context context, int univId, final OnResultListener<DeptInfo> listener) {
+        try {
+            String url = URL_DEPT + "/" + univId;
+            final CallbackObject<DeptInfo> callbackObject = new CallbackObject<DeptInfo>();
+
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+//                    .post(body)
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    DeptInfo result = gson.fromJson(response.body().charStream(), DeptInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 //    private static final String URL_TMAP_POI = "https://apis.skplanetx.com/tmap/pois?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&searchKeyword=%s";
 //
 //    public Request getTmapPOI(Context context, String keyword, final OnResultListener<TMapPOIList> listener) {

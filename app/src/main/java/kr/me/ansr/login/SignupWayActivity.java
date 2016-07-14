@@ -1,5 +1,6 @@
 package kr.me.ansr.login;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,8 @@ public class SignupWayActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(SignupWayActivity.this, "local",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(SignupWayActivity.this, TermsActivity.class);
+                startActivity(intent);
             }
         });
 

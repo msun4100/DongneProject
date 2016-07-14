@@ -38,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-//		getSupportActionBar().setTitle("mainActivity");
-//		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
