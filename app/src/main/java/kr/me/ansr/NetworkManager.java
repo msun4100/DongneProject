@@ -339,6 +339,82 @@ public class NetworkManager {
         }
         return null;
     }
+
+
+    private static final String URL_REGISTER = SERVER_URL + "/account/register";
+    public Request postDongneRegister(Context context, String email, String password, String name, int univId, int deptId, String enterYear, int isGraudate, String jobname, String jobteam, final OnResultListener<LoginInfo> listener) {
+        try {
+//            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
+            String url = URL_REGISTER;
+            final CallbackObject<LoginInfo> callbackObject = new CallbackObject<LoginInfo>();
+//            univ, job 객체로 생성
+            JsonObject json = new JsonObject();
+            json.addProperty("email", email);
+            json.addProperty("password", password);
+            json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
+            json.addProperty("username", name);
+//            json.addProperty("univ", univId);
+//            json.addProperty("univ", deptId);
+//            json.addProperty("univ", enterYear);
+//            json.addProperty("univ", isGraudate);
+//            json.addProperty("job", jobname);
+//            json.addProperty("job", jobteam);
+            //univ json 객체 생성
+            JsonObject univ = new JsonObject();
+            univ.addProperty("univId", ""+univId);
+            univ.addProperty("deptId", ""+deptId);
+            univ.addProperty("enterYear", enterYear);
+            univ.addProperty("isGraduate", isGraudate);
+            // json 객체 생성
+            JsonObject job = new JsonObject();
+            job.addProperty("name", jobname);
+            job.addProperty("team", jobteam);
+            json.add("univ", univ);
+            json.add("job", job);
+//            ============================================
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json") //API전용 헤더인듯?
+                    .post(body)
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    LoginInfo result = gson.fromJson(response.body().charStream(), LoginInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+
+            return request;
+
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+//        catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+
+        return null;
+    }
+
 //    private static final String URL_TMAP_POI = "https://apis.skplanetx.com/tmap/pois?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&searchKeyword=%s";
 //
 //    public Request getTmapPOI(Context context, String keyword, final OnResultListener<TMapPOIList> listener) {

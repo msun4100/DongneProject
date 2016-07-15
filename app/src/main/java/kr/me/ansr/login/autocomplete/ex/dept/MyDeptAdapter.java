@@ -20,6 +20,9 @@ public class MyDeptAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
         }
     }
+    public int getDeptId(int position){
+        return items.get(position).deptId;
+    }
 
     @Override
     public int getCount() {

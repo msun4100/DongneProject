@@ -38,6 +38,10 @@ public class MyUnivAdapter extends BaseAdapter implements Filterable {
         return position;
     }
 
+    public int getUnivId(int position){
+        return items.get(position).univId;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         UnivItemView view;

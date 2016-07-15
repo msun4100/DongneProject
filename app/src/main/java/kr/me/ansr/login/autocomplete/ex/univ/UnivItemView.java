@@ -16,17 +16,19 @@ public class UnivItemView extends FrameLayout {
     }
 
 //    ImageView iconView;
-    TextView univnameView, totalView;
+    TextView univIdView, univnameView, totalView;
     private void init() {
         inflate(getContext(), R.layout.view_item_auto_complete, this);
 //        iconView = (ImageView)findViewById(R.id.image_icon);
         univnameView = (TextView)findViewById(R.id.text_univname);
         totalView = (TextView)findViewById(R.id.text_total);
+//        univIdView = (TextView)findViewById(R.id.text_univId);
     }
 
     public void setData(UnivResult data) {
 //        iconView.setImageDrawable(data.icon);
         univnameView.setText(data.univname);
         totalView.setText(""+data.total);
+//        univIdView.setText(""+data.univId);
     }
 }

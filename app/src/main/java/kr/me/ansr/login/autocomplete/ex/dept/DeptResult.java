@@ -13,11 +13,6 @@ public class DeptResult implements Serializable {
 
     @Override
     public String toString() {
-        return "DeptResult{" +
-                "univId=" + univId +
-                ", deptId=" + deptId +
-                ", deptname='" + deptname + '\'' +
-                ", total=" + total +
-                '}';
+        return deptname;
     }
 }

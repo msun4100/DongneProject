@@ -12,14 +12,11 @@ public class UnivResult implements Serializable {
 
     @Override
     public String toString() {
-        return "UnivResult{" +
-                "univId=" + univId +
-                ", univname='" + univname + '\'' +
-                ", total=" + total +
-                '}';
+        return univname ;
     }
 
-    public String getUnivname() {
-        return univname;
+    public int getUnivId(){
+        return univId;
     }
+
 }

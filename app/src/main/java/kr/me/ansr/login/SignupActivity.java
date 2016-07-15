@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -35,7 +36,9 @@ public class SignupActivity extends Activity {
 	MySpinnerAdapter mySpinnerAdapter;
 
 	EditText inputName, inputCompany, inputJob;
-	String email, password;
+	String email, password, mSpinnerItem;
+	int mUnivId, mDeptId;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,11 +60,26 @@ public class SignupActivity extends Activity {
 //		mUnivAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		mUnivAdapter = new MyUnivAdapter();
 		textViewUniv.setAdapter(mUnivAdapter);
+		textViewUniv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//				Toast.makeText(getApplicationContext(), "univId: "+mUnivAdapter.getUnivId(position), Toast.LENGTH_SHORT).show();
+				mUnivId = mUnivAdapter.getUnivId(position);
+			}
+		});
+
 
 		textViewDept = (AutoCompleteTextView)findViewById(R.id.auto_text_signup_dept);
 		mDeptAdapter = new MyDeptAdapter();
 //		mDeptAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
 		textViewDept.setAdapter(mDeptAdapter);
+		textViewDept.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//				Toast.makeText(getApplicationContext(), "deptId: "+mDeptAdapter.getDeptId(position), Toast.LENGTH_SHORT).show();
+				mDeptId = mDeptAdapter.getDeptId(position);
+			}
+		});
 
 		spinner = (Spinner) findViewById(R.id.spinner);
 		mySpinnerAdapter = new MySpinnerAdapter();
@@ -69,12 +87,12 @@ public class SignupActivity extends Activity {
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				Toast.makeText(SignupActivity.this, "Selected : " + position, Toast.LENGTH_SHORT).show();
+				mSpinnerItem = (String)mySpinnerAdapter.getItem(position);
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-
+				spinner.setSelection(0);
 			}
 		});
 
@@ -86,8 +104,8 @@ public class SignupActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(),"btn_send", Toast.LENGTH_SHORT).show();
-				getDept(1);
+//				getDept(1);
+				doSignUp();
 			}
 		});
 
@@ -100,7 +118,6 @@ public class SignupActivity extends Activity {
 				if (result.error.equals(false)) {
 					String[] arr;
 					if(result.result != null){
-						Toast.makeText(SignupActivity.this, TAG + "result:" + result.result, Toast.LENGTH_SHORT).show();
 						arr = new String[result.result.size()];
 						ArrayList<UnivResult> list = result.result;
 //						mUnivAdapter.clear();
@@ -127,7 +144,6 @@ public class SignupActivity extends Activity {
 			public void onSuccess(Request request, DeptInfo result) {
 				if (result.error.equals(false)) {
 					if(result.result.size() > 0){
-						Toast.makeText(SignupActivity.this, TAG + "result:" + result.result, Toast.LENGTH_SHORT).show();
 						ArrayList<DeptResult> list = result.result;
 						mDeptAdapter.clearAll();
 						for(int i=0; i < list.size(); i ++){
@@ -150,7 +166,54 @@ public class SignupActivity extends Activity {
 	}
 
 	private void doSignUp(){
-//		String
+		if (!validateName()) {
+			Toast.makeText(SignupActivity.this, "이름을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateUniv()) {
+			Toast.makeText(SignupActivity.this, "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateDept()) {
+			Toast.makeText(SignupActivity.this, "학과명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateEnterYear()) {
+			Toast.makeText(SignupActivity.this, "학번을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateCompany()) {
+			Toast.makeText(SignupActivity.this, "회사명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateJob()) {
+			Toast.makeText(SignupActivity.this, "직무를 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		String name = inputName.getText().toString();
+		String jobname = inputCompany.getText().toString();
+		String jobteam = inputJob.getText().toString();
+		int isGraduate = 1;
+		NetworkManager.getInstance().postDongneRegister(SignupActivity.this,
+				email, password, name, mUnivId, mDeptId, mSpinnerItem, isGraduate, jobname, jobteam,
+				new NetworkManager.OnResultListener<LoginInfo>() {
+			@Override
+			public void onSuccess(Request request, LoginInfo result) {
+				if (result.error.equals(false)) {
+					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(SignupActivity.this, "error:true" + result.toString(), Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+
+			}
+		});
+
+
+
 	}
 
 	private void initData() {
@@ -172,6 +235,64 @@ public class SignupActivity extends Activity {
 
 		getUniv();
 		getDept(0);
+	}
+
+
+	private void requestFocus(View view) {
+		if (view.requestFocus()) {
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		}
+	}
+
+	// Validating name
+	private boolean validateName() {
+		if (inputName.getText().toString().trim().isEmpty()) {
+//				inputLayoutPw.setError(getString(R.string.err_msg_pw));
+			inputName.setText("");
+			requestFocus(inputName);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateUniv() {
+		if (textViewUniv.getText().toString().trim().isEmpty()) {
+			textViewUniv.setText("");
+			requestFocus(textViewUniv);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateDept() {
+		if (textViewDept.getText().toString().trim().isEmpty()) {
+			textViewDept.setText("");
+			requestFocus(textViewDept);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateEnterYear() {
+		if (mSpinnerItem == null || mSpinnerItem == "") {
+//			textViewDept.setText("");
+//			requestFocus(mSpinnerItem);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateCompany() {
+		if (inputCompany.getText().toString().trim().isEmpty()) {
+			inputCompany.setText("");
+			requestFocus(inputCompany);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateJob() {
+		if (inputJob.getText().toString().trim().isEmpty()) {
+			inputJob.setText("");
+			requestFocus(inputJob);
+			return false;
+		}
+		return true;
 	}
 
 }
