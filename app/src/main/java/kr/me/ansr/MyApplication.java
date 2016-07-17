@@ -13,8 +13,6 @@ import com.android.volley.toolbox.Volley;
 
 import java.net.URISyntaxException;
 
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import kr.me.ansr.gcmchat.helper.MyPreferenceManager;
 
 public class MyApplication extends Application {
@@ -31,10 +29,8 @@ public class MyApplication extends Application {
 		super.onCreate();
 		mContext = this;
 		mInstance = this;
-
-
-
 	}
+
 	public static Context getContext() {return mContext;}
     public static MyApplication getInstance() {
         return mInstance;

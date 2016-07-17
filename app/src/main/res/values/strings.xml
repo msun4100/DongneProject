@@ -146,6 +146,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_take_photo">TakePhotoActivity</string>
+    <string name="title_activity_media_store">MediaStoreActivity</string>
 
 
 </resources>

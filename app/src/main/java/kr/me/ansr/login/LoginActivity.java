@@ -3,35 +3,23 @@ package kr.me.ansr.login;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.gcmchat.model.User;
-import kr.me.ansr.login.LoginResult;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
-import kr.me.ansr.gcm.QuickstartPreferences;
 import kr.me.ansr.R;
-import kr.me.ansr.gcm.RegistrationIntentService;
+import kr.me.ansr.image.MediaStoreActivity;
+import kr.me.ansr.image.TakePhotoActivity;
 import okhttp3.Request;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
 
 	private static final String TAG = LoginActivity.class.getSimpleName();
@@ -93,8 +81,10 @@ public class LoginActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
+				finish();
 			}
 		});
 	}
