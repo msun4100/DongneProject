@@ -1,13 +1,16 @@
-package kr.me.ansr.image.glide;
+package kr.me.ansr.image;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,8 +25,8 @@ import java.util.ArrayList;
 import kr.me.ansr.R;
 
 
-public class SlideshowDialogFragment extends DialogFragment {
-    private String TAG = SlideshowDialogFragment.class.getSimpleName();
+public class SlideshowFragment extends Fragment {
+    private String TAG = SlideshowFragment.class.getSimpleName();
     private ArrayList<ImageItem> images;
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
@@ -32,20 +35,23 @@ public class SlideshowDialogFragment extends DialogFragment {
     AppCompatActivity activity;
     private TextView lblComplete, lblBack;
 
-    public static SlideshowDialogFragment newInstance() {
-        SlideshowDialogFragment f = new SlideshowDialogFragment();
+    public static SlideshowFragment newInstance() {
+        SlideshowFragment f = new SlideshowFragment();
         return f;
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_image_slider, container, false);
+
         activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setHomeButtonEnabled(true);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		activity.getSupportActionBar().setTitle("SlideshowFragment");
+        activity.getSupportActionBar().setTitle("SlideshowFragment");
 
-        View v = inflater.inflate(R.layout.fragment_image_slider, container, false);
         viewPager = (ViewPager) v.findViewById(R.id.viewpager);
         lblCount = (TextView) v.findViewById(R.id.lbl_count);
         lblTitle = (TextView) v.findViewById(R.id.title);
@@ -81,6 +87,19 @@ public class SlideshowDialogFragment extends DialogFragment {
         return v;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+//        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        // destroy all menu and re-call onCreateOptionsMenu
+//        getActivity().invalidateOptionsMenu();
+//    }
+
     private void setCurrentItem(int position) {
         viewPager.setCurrentItem(position, false);
         displayMetaInfo(selectedPosition);
@@ -111,12 +130,6 @@ public class SlideshowDialogFragment extends DialogFragment {
         ImageItem image = images.get(position);
         lblTitle.setText(image.getName());
         lblDate.setText(image.getTimestamp());
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
 
     //	adapter
@@ -164,4 +177,28 @@ public class SlideshowDialogFragment extends DialogFragment {
             container.removeView((View) object);
         }
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_slide_show, menu);
+
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.menu_image_home){
+            //Do whatever you want to do
+            Toast.makeText(getActivity(), "slideshowFragment menu selected", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        if(id == android.R.id.home){
+            Toast.makeText(getActivity(), "slideshowFragment home selected", Toast.LENGTH_SHORT).show();
+            ((MediaStoreActivity)getActivity()).callImageHomeFragment();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

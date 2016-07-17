@@ -1,4 +1,4 @@
-package kr.me.ansr.image.glide;
+package kr.me.ansr.image;
 
 import java.io.Serializable;
 

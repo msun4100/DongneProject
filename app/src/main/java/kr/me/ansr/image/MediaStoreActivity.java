@@ -1,45 +1,32 @@
 package kr.me.ansr.image;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.define.Define;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import kr.me.ansr.R;
-import kr.me.ansr.image.glide.ImageItem;
-import kr.me.ansr.image.glide.SlideshowDialogFragment;
 import kr.me.ansr.login.LoginActivity;
 
 public class MediaStoreActivity extends AppCompatActivity{
     private static final String TAG = MediaStoreActivity.class.getSimpleName();
+    private static final String F1_TAG = "tab1";
+    private static final String F2_TAG = "tab2";
     private final int ALBUM_PICKER_COUNT = 3;
     ArrayList<ImageItem> images;
 
@@ -47,6 +34,7 @@ public class MediaStoreActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_store);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -84,21 +72,14 @@ public class MediaStoreActivity extends AppCompatActivity{
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(images.size() > 0 ){
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("images", images);
-                    bundle.putInt("position", 4);
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    SlideshowDialogFragment newFragment = SlideshowDialogFragment.newInstance();
-                    newFragment.setArguments(bundle);
-                    newFragment.show(ft, "slideshow");
-                } else {
-                    Toast.makeText(MediaStoreActivity.this, "Library 버튼을 통해 이미지를 가져올 것", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
-//        getSupportLoaderManager().initLoader(0, null ,this);
+        init();
+    }
+
+    private void init(){
+        callImageHomeFragment();
     }
 
     @Override
@@ -124,10 +105,8 @@ public class MediaStoreActivity extends AppCompatActivity{
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("images", images);
                     bundle.putInt("position", 0);
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    SlideshowDialogFragment newFragment = SlideshowDialogFragment.newInstance();
-                    newFragment.setArguments(bundle);
-                    newFragment.show(ft, "slideshow");
+
+                    callSlideshowFragment(bundle);
                     break;
                 }
         }
@@ -137,7 +116,7 @@ public class MediaStoreActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.a_menu_main, menu);
         return true;
     }
 
@@ -152,18 +131,37 @@ public class MediaStoreActivity extends AppCompatActivity{
         if (id == R.id.action_settings) {
             return true;
         }
-        if(id == android.R.id.home){
-            Intent intent = new Intent(MediaStoreActivity.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-        }
+//        if(id == android.R.id.home){
+//            Intent intent = new Intent(MediaStoreActivity.this, LoginActivity.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+//            finish();
+//        }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public void callImageHomeFragment(){
+        Fragment f = getSupportFragmentManager().findFragmentByTag(F1_TAG);
+        if (f == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ImageHomeFragment newFragment = ImageHomeFragment.newInstance();
+//            newFragment.setArguments(bundle);
+            ft.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out);
+            ft.replace(R.id.containerforimage, newFragment, F1_TAG);
+            ft.commit();
+        }
+    }
+
+    public void callSlideshowFragment(Bundle bundle){
+        Fragment f = getSupportFragmentManager().findFragmentByTag(F2_TAG);
+        if (f == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            SlideshowFragment newFragment = SlideshowFragment.newInstance();
+            newFragment.setArguments(bundle);
+            ft.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out);
+            ft.replace(R.id.containerforimage, newFragment, F2_TAG);
+            ft.commit();
+        }
     }
 }

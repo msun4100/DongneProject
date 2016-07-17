@@ -318,11 +318,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.action_logout:
-                MyApplication.getInstance().logout();
-                break;
-        }
+//        switch (menuItem.getItemId()) {
+//            case R.id.action_logout:
+//                MyApplication.getInstance().logout();
+//                break;
+//        }
         return super.onOptionsItemSelected(menuItem);
     }
 
