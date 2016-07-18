@@ -176,10 +176,22 @@ public void clearProperties() {
 		mEditor.putInt(FIELD_USING_LOCATION, usingLocation);
 		mEditor.commit();
 	}
-
 	// for Location info
 
+	private static final String FIELD_PROFILE = "profile";
+	private String mProfile;
 
+	public String getProfile(){
+		if (mProfile == null) {
+			mProfile = mPrefs.getString(FIELD_PROFILE, "");
+		}
+		return mProfile;
+	}
+	public void setProfile(String profile) {
+		mProfile = profile;
+		mEditor.putString(FIELD_PROFILE, profile);
+		mEditor.commit();
+	}
 
 
 }

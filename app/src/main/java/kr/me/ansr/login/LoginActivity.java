@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
 						} else {
 							PropertyManager.getInstance().setEmail(email);
 							PropertyManager.getInstance().setPassword(password);
-
+							PropertyManager.getInstance().setUserId(result.user.user_id);
 							//for chatting PropertyManager
 							User user = new User("" + result.user.user_id, result.user.name, result.user.email);
 							MyApplication.getInstance().getPrefManager().storeUser(user);
@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent(LoginActivity.this, SignupWayActivity.class);
 				startActivity(intent);
-//				finish();
+				finish();
 			}
 		});
 		btn = (Button) findViewById(R.id.btn_scrolling);

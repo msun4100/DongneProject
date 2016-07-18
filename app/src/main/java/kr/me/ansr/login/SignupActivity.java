@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import kr.me.ansr.NetworkManager;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.ex.dept.DeptResult;
@@ -201,8 +202,10 @@ public class SignupActivity extends Activity {
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(false)) {
 					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
+					PropertyManager.getInstance().setUserId(result.user.user_id);
 				} else {
 					Toast.makeText(SignupActivity.this, "error:true" + result.toString(), Toast.LENGTH_SHORT).show();
+					PropertyManager.getInstance().setUserId("");
 				}
 			}
 
