@@ -1,6 +1,7 @@
 package kr.me.ansr.image;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,15 +39,6 @@ public class MediaStoreActivity extends AppCompatActivity{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         images = new ArrayList<>();
         images.clear();
         Button btn = (Button)findViewById(R.id.btn_media_store_select);
@@ -75,13 +67,45 @@ public class MediaStoreActivity extends AppCompatActivity{
             }
         });
 
-        init();
-    }
+        // Checking camera availability
+        if (!isDeviceSupportCamera()) {
+            Toast.makeText(getApplicationContext(), "Sorry! Your device doesn't support camera", Toast.LENGTH_LONG).show();
+            // will close the app if the device does't have camera
+            finish();
+        } else {
+            init();
+        }
+    }   //onCreate
 
+    public void startAlbum(){
+        FishBun.with(MediaStoreActivity.this)
+                .setAlbumThumnaliSize(150)//you can resize album thumnail size
+                .setPickerCount(ALBUM_PICKER_COUNT)//you can restrict photo count
+                .startAlbum();
+    }
     private void init(){
-        callImageHomeFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("filePath", "");
+//        bundle.putSerializable("images", images);
+//        bundle.putInt("position", 0);
+        callImageHomeFragment(bundle);
     }
 
+    /**
+     * Checking device has camera hardware or not
+     * */
+    private boolean isDeviceSupportCamera() {
+        if (getApplicationContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA)) {
+            // this device has a camera
+            return true;
+        } else {
+            // no camera on this device
+            return false;
+        }
+    }
+
+    public static final int RC_SELECT_PROFILE_CODE = 111;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -89,7 +113,6 @@ public class MediaStoreActivity extends AppCompatActivity{
             case Define.ALBUM_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     List<String> path = data.getStringArrayListExtra(Define.INTENT_PATH);
-                    Toast.makeText(this, "path : " + path, Toast.LENGTH_LONG).show();
                     //==Custom codes====
                     images.clear();
                     for(int i=0; i<path.size(); i++){
@@ -107,6 +130,17 @@ public class MediaStoreActivity extends AppCompatActivity{
                     bundle.putInt("position", 0);
 
                     callSlideshowFragment(bundle);
+                    break;
+                }
+            case RC_SELECT_PROFILE_CODE:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "in case RC_RESULT_PROFILE_CODE\n"+data.getExtras(), Toast.LENGTH_LONG).show();
+                    String filePath = data.getStringExtra("filePath");
+                    Toast.makeText(this, "filePath : " + filePath, Toast.LENGTH_LONG).show();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("filePath", filePath);
+
+                    callImageHomeFragment(bundle);
                     break;
                 }
         }
@@ -141,12 +175,12 @@ public class MediaStoreActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    public void callImageHomeFragment(){
+    public void callImageHomeFragment(Bundle bundle){
         Fragment f = getSupportFragmentManager().findFragmentByTag(F1_TAG);
         if (f == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ImageHomeFragment newFragment = ImageHomeFragment.newInstance();
-//            newFragment.setArguments(bundle);
+            newFragment.setArguments(bundle);
             ft.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out);
             ft.replace(R.id.containerforimage, newFragment, F1_TAG);
             ft.commit();

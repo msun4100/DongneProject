@@ -11,33 +11,39 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.me.ansr.image.MediaStoreActivity"
     tools:showIn="@layout/activity_media_store">
-    <Button
-        style="?android:attr/buttonStyleSmall"
+    <LinearLayout
+        android:visibility="gone"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="select"
-        android:id="@+id/btn_media_store_select"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"/>
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="goto Album"
-        android:id="@+id/btn_media_store_library"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/btn_media_store_select"
-        android:layout_toEndOf="@+id/btn_media_store_select" />
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="preview with glide"
-        android:id="@+id/btn_media_store_glide"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/btn_media_store_library"
-        android:layout_toEndOf="@+id/btn_media_store_library"/>
+        android:layout_height="wrap_content">
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="select"
+            android:id="@+id/btn_media_store_select"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"/>
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="goto Album"
+            android:id="@+id/btn_media_store_library"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/btn_media_store_select"
+            android:layout_toEndOf="@+id/btn_media_store_select" />
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="preview with glide"
+            android:id="@+id/btn_media_store_glide"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/btn_media_store_library"
+            android:layout_toEndOf="@+id/btn_media_store_library"/>
+    </LinearLayout>
+
     <FrameLayout
         android:id="@+id/containerforimage"
         android:layout_width="match_parent"

@@ -1,6 +1,7 @@
 package kr.me.ansr.image;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
@@ -190,15 +191,30 @@ public class SlideshowFragment extends Fragment {
         int id = item.getItemId();
         if(id == R.id.menu_image_home){
             //Do whatever you want to do
-            Toast.makeText(getActivity(), "slideshowFragment menu selected", Toast.LENGTH_SHORT).show();
+            if(images.size() > 0){
+                String path = images.get(0).getLarge();
+//                sendImageToOnActivityResult(path);
+                Bundle bundle = new Bundle();
+                bundle.putString("filePath", path);
+                ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
+            }
             return true;
         }
         if(id == android.R.id.home){
-            Toast.makeText(getActivity(), "slideshowFragment home selected", Toast.LENGTH_SHORT).show();
-            ((MediaStoreActivity)getActivity()).callImageHomeFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("filePath", "");
+            ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendImageToOnActivityResult(String path){
+        String filePath = path;
+        Intent intent = new Intent();
+        intent.putExtra("filePath", filePath);
+//        프래그먼트에서 부모액티비티에 대한 setResult를 어떻게 하지
+        getActivity().setResult(MediaStoreActivity.RC_SELECT_PROFILE_CODE, intent);
     }
 
 }

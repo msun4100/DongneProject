@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <TextView
         android:layout_width="200dp"
         android:layout_height="wrap_content"
@@ -14,12 +15,12 @@
         android:layout_centerHorizontal="true"/>
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:id="@+id/image_image_home_profile"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:src="@mipmap/ic_launcher"/>
 
     <TextView
@@ -30,7 +31,7 @@
         android:id="@+id/textView3"
         android:layout_below="@+id/image_image_home_profile"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp" />
+        android:layout_marginTop="20dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -41,4 +42,31 @@
         android:id="@+id/btn_image_home_confirm"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="150dp"
+        android:layout_centerHorizontal="true">
+        <TextView
+            android:id="@+id/txtPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="0%"
+            android:textSize="30dp"
+            android:visibility="gone"
+            />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="250dp"
+            android:layout_height="20dp"
+
+            android:visibility="gone"/>
+
+    </LinearLayout>
 </RelativeLayout>
