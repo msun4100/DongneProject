@@ -230,8 +230,14 @@ public class ImageHomeFragment extends Fragment {
                 textView3.setText("프로필 사진 등록 완료");
                 btn.setText("완료");
 //                Glide.with(getActivity()).load(filePath).into(profileView);
-                String url = Config.FILE_GET_URL.replace(":userId", ""+1);
-                Glide.with(getActivity()).load(url).into(profileView);
+                final String url = Config.FILE_GET_URL.replace(":userId", ""+1);
+//                Glide.with(getActivity()).load(url).into(profileView);
+                profileView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(getActivity()).load(url).into(profileView);
+                    }
+                },1500);
             } else {
                 showAlert(result);
                 txtPercentage.setVisibility(View.GONE);

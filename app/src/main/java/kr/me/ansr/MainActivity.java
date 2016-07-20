@@ -5,6 +5,7 @@ import kr.me.ansr.login.SplashActivity;
 import kr.me.ansr.tab.board.BoardFragment;
 import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.FriendsFragment;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.meet.MeetFragment;
 import kr.me.ansr.tab.mypage.MypageFragment;
 
@@ -45,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
 		//git 내용 변경위해
 		pager = (ViewPager)findViewById(R.id.pager);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
-		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
-//		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), MainFragment.class, null);
+//		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), GcmChatFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator("TAB3"), BoardFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator("TAB4"), MeetFragment.class, null);

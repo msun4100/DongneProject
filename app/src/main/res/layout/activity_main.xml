@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/FrameLayout1"
@@ -8,6 +8,7 @@
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
+    android:fitsSystemWindows="true"
     tools:context="kr.me.ansr.MainActivity">
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -56,4 +57,4 @@
         </LinearLayout>
     </TabHost>
 
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

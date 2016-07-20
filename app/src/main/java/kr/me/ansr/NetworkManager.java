@@ -51,13 +51,7 @@ public class NetworkManager {
 		}
 		return instance;
 	}
-	
-//	private NetworkManager() {
-//
-//	}
 
-//	Handler mHandler = new Handler(Looper.getMainLooper());
-	
 	public interface OnLoginResultListener {
 		public void onSuccess(String message);
 	}
@@ -201,7 +195,7 @@ public class NetworkManager {
 
     }
 
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final MediaType CONTENT_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String SERVER_URL = "http://10.0.3.2:3000";
 
     private static final String URL_LOGIN = SERVER_URL + "/account/login";
@@ -216,9 +210,9 @@ public class NetworkManager {
             json.addProperty("password", password);
             json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
             String jsonString = json.toString();
-            RequestBody body = RequestBody.create(JSON, jsonString);
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
-//                    .header("Accept", "application/json") //API전용 헤더인듯?
+                    .header("Accept", "application/json") //API전용 헤더인듯?
                     .post(body)
                     .tag(context)
                     .build();
@@ -347,18 +341,12 @@ public class NetworkManager {
 //            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
             String url = URL_REGISTER;
             final CallbackObject<LoginInfo> callbackObject = new CallbackObject<LoginInfo>();
-//            univ, job 객체로 생성
+
             JsonObject json = new JsonObject();
             json.addProperty("email", email);
             json.addProperty("password", password);
             json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
             json.addProperty("username", name);
-//            json.addProperty("univ", univId);
-//            json.addProperty("univ", deptId);
-//            json.addProperty("univ", enterYear);
-//            json.addProperty("univ", isGraudate);
-//            json.addProperty("job", jobname);
-//            json.addProperty("job", jobteam);
             //univ json 객체 생성
             JsonObject univ = new JsonObject();
             univ.addProperty("univId", ""+univId);
@@ -369,17 +357,20 @@ public class NetworkManager {
             JsonObject job = new JsonObject();
             job.addProperty("name", jobname);
             job.addProperty("team", jobteam);
+            // location 객체 생성
+            JsonObject location = new JsonObject();
+            location.addProperty("lat", PropertyManager.getInstance().getLatitude());
+            location.addProperty("lon", PropertyManager.getInstance().getLongitude());
+
             json.add("univ", univ);
             json.add("job", job);
+            json.add("location", location);
 //            ============================================
 
             String jsonString = json.toString();
-            RequestBody body = RequestBody.create(JSON, jsonString);
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
-                    .header("Accept", "application/json") //API전용 헤더인듯?
-                    .post(body)
-                    .tag(context)
-                    .build();
+                    .header("Accept", "application/json").post(body).tag(context).build();
 
             callbackObject.request = request;
             callbackObject.listener = listener;

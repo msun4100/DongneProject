@@ -438,7 +438,7 @@ public class SplashActivity extends Activity {
 
             @Override
             protected void onPostExecute(String msg) {
-//                Toast.makeText(SplashActivity.this, "onPostExcute msg:\n"+msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(SplashActivity.this, "onPostExcute msg:\n"+msg, Toast.LENGTH_SHORT).show();
                 if(isPermissionOK){
                     runOnUiThread(nextAction);
                 } else {
