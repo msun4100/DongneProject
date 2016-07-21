@@ -192,6 +192,20 @@ public void clearProperties() {
 		mEditor.putString(FIELD_PROFILE, profile);
 		mEditor.commit();
 	}
+	//user's univId
+	private static final String FIELD_UNIV_ID = "univId";
+	private String mUnivId;
 
+	public String getUnivId(){
+		if (mUnivId == null) {
+			mUnivId = mPrefs.getString(FIELD_UNIV_ID, "");
+		}
+		return mUnivId;
+	}
+	public void setUnivId(String univId) {
+		mUnivId = univId;
+		mEditor.putString(FIELD_UNIV_ID, univId);
+		mEditor.commit();
+	}
 
 }

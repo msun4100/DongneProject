@@ -19,6 +19,8 @@ import android.widget.ExpandableListView.OnGroupExpandListener;
 
 public class FriendsFragment extends PagerFragment {
 
+//	item_friends_child_layout, fragment_friends, item_friends_group_layout 지워
+
 	ExpandableListView listView;
 	MyAdapter mAdapter;
 	AppCompatActivity activity;

@@ -1,5 +1,7 @@
 package kr.me.ansr.tab.friends.recycler;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by KMS on 2016-07-20.
  */

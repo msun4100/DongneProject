@@ -85,11 +85,12 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         univView.setText(item.univ);
         stuIdView.setText(""+item.studentId);
         jobView.setText(""+item.job);
-        if (!TextUtils.isEmpty(item.thumbnail) && mContext != null) {
+        if (!TextUtils.isEmpty(item.thumbnail)) {
             Glide.with(mContext).load(item.thumbnail).into(iconThumbView);
         } else {
             iconThumbView.setImageResource(R.mipmap.ic_launcher);
         }
+
     }
 
     public View.OnClickListener viewListener = new View.OnClickListener() {

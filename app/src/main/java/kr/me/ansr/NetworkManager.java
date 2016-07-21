@@ -32,6 +32,7 @@ import javax.net.ssl.TrustManagerFactory;
 import kr.me.ansr.login.LoginInfo;
 import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.ex.univ.UnivInfo;
+import kr.me.ansr.tab.friends.recycler.model.FriendsInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -209,6 +210,7 @@ public class NetworkManager {
             json.addProperty("email", email);
             json.addProperty("password", password);
             json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
+            json.addProperty("univId", PropertyManager.getInstance().getUnivId());
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
@@ -405,51 +407,43 @@ public class NetworkManager {
 
         return null;
     }
+    private static final String URL_FRIEND_UNIV_USERS = SERVER_URL + "/friends/univ/:univId";
+    public Request getDongneUnivUsers(Context context, int univId, final OnResultListener<FriendsInfo> listener) {
+        try {
+            String url = URL_FRIEND_UNIV_USERS.replace("univId", ""+univId);
+            final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
 
-//    private static final String URL_TMAP_POI = "https://apis.skplanetx.com/tmap/pois?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&searchKeyword=%s";
-//
-//    public Request getTmapPOI(Context context, String keyword, final OnResultListener<TMapPOIList> listener) {
-//        try {
-//            String url = String.format(URL_TMAP_POI, URLEncoder.encode(keyword, "utf-8"));
-//            final CallbackObject<TMapPOIList> callbackObject = new CallbackObject<TMapPOIList>();
-//
-//            Request request = new Request.Builder().url(url)
-//                    .header("Accept", "application/json")
-//                    .header("appKey", "6aeffc95-8ebc-3f73-92e9-8a4d8f797c6b")
-//                    .tag(context)
-//                    .build();
-//
-//            callbackObject.request = request;
-//            callbackObject.listener = listener;
-//            mClient.newCall(request).enqueue(new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    callbackObject.exception = e;
-//                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
-//                    mHandler.sendMessage(msg);
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    Gson gson = new Gson();
-//                    TMapPOISearchResult result = gson.fromJson(response.body().charStream(), TMapPOISearchResult.class);
-//                    for (POIItem item : result.searchPoiInfo.pois.poi) {
-//                        item.updatePOIData();
-//                    }
-//                    callbackObject.result = result.searchPoiInfo;
-////                XMLParser parser = new XMLParser();
-////                NaverMovies movies = parser.fromXml(response.body().byteStream(), "channel", NaverMovies.class);
-////                callbackObject.result = movies;
-//                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
-//                    mHandler.sendMessage(msg);
-//                }
-//            });
-//
-//            return request;
-//
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    FriendsInfo result = gson.fromJson(response.body().charStream(), FriendsInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -11,16 +11,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Random;
 
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.login.autocomplete.ex.univ.UnivInfo;
+import kr.me.ansr.tab.friends.recycler.model.FriendsInfo;
+import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
+import okhttp3.Request;
 
 /**
  * Created by KMS on 2016-07-20.
  */
 public class FriendsSectionFragment extends PagerFragment{
-
+    private static final String TAG = FriendsSectionFragment.class.getSimpleName();
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
@@ -65,11 +72,11 @@ public class FriendsSectionFragment extends PagerFragment{
         recyclerView.setAdapter(mAdapter);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new MyDecoration(getActivity()));
         initData();
 
         return view;
     }
-
 
     private void initData() {
         Random r = new Random();
@@ -78,16 +85,58 @@ public class FriendsSectionFragment extends PagerFragment{
         someUrls[1]="http://10.0.3.2:3000/getPic/1";
         someUrls[2]="http://10.0.3.2:3000/getPic/2";
         someUrls[3]="";
-        mAdapter.put("내 프로필", new ChildItem(SectionAdapter.GROUP_PROFILE, true, "http://10.0.3.2:3000/getPic/0","user0","inha univ",16,"jobname"));
-        recyclerView.addItemDecoration(new MyDecoration(getActivity()));
-        for(int i=0; i<10; i++){
-            boolean isFriend = true;
-            if(i % 3 == 0) isFriend = false;
-            mAdapter.put("학교 사람들", new ChildItem(SectionAdapter.GROUP_FRIENDS, isFriend, ""+ someUrls[r.nextInt(4)],("user"+i),"univ",i,"job"));
-
-        }
+//        mAdapter.put("내 프로필", new ChildItem(SectionAdapter.GROUP_PROFILE, true, "http://10.0.3.2:3000/getPic/0","user0","inha univ",16,"jobname"));
+//        recyclerView.addItemDecoration(new MyDecoration(getActivity()));
+//        for(int i=0; i<10; i++){
+//            boolean isFriend = true;
+//            if(i % 3 == 0) isFriend = false;
+//            mAdapter.put("학교 사람들", new ChildItem(SectionAdapter.GROUP_FRIENDS, isFriend, ""+ someUrls[r.nextInt(4)],("user"+i),"univ",i,"job"));
+//        }
     }
 
+    public void getUnivUsers(){
+        String mUnivId = PropertyManager.getInstance().getUnivId();
+        if(mUnivId == ""){
+            Toast.makeText(getActivity(),"대학교 등록할 것", Toast.LENGTH_SHORT).show();
+            mUnivId = ""+ (0); //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
+            return;
+        }
+        NetworkManager.getInstance().getDongneUnivUsers(getActivity(),
+//                Integer.parseInt(PropertyManager.getInstance().getUnivId()),
+                Integer.parseInt(mUnivId),
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+            @Override
+            public void onSuccess(Request request, FriendsInfo result) {
+                if (result.error.equals(false)) {
+                    if(result.result != null){
+                        ArrayList<FriendsResult> list = result.result;
+//                        mAdapter.clear();
+
+                        mAdapter.put("내 프로필", new ChildItem(SectionAdapter.GROUP_PROFILE, true, "http://10.0.3.2:3000/getPic/0","user0","inha univ",16,"jobname"));
+
+//                        for(int i=0; i<10; i++){
+//                            boolean isFriend = true;
+//                            if(i % 3 == 0) isFriend = false;
+//                            mAdapter.put("학교 사람들", new ChildItem(SectionAdapter.GROUP_FRIENDS, isFriend, ""+ someUrls[r.nextInt(4)],("user"+i),"univ",i,"job"));
+//                        }
+                        for(int i=0; i < list.size(); i ++){
+
+
+                        }
+                    }
+                } else {
+//                    mAdapter.clearAll();
+                    Toast.makeText(getActivity(), TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Request request, int code, Throwable cause) {
+
+            }
+        });
+    }
+//    ==============================
     @Override
     public void onPageCurrent() {
         super.onPageCurrent();

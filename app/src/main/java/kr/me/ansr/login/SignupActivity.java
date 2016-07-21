@@ -203,6 +203,7 @@ public class SignupActivity extends Activity {
 				if (result.error.equals(false)) {
 					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
 					PropertyManager.getInstance().setUserId(result.user.user_id);
+					PropertyManager.getInstance().setUnivId(""+mUnivId);
 				} else {
 					Toast.makeText(SignupActivity.this, "error:true" + result.toString(), Toast.LENGTH_SHORT).show();
 					PropertyManager.getInstance().setUserId("");
