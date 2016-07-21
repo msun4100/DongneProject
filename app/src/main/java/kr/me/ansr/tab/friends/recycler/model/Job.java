@@ -4,8 +4,8 @@ package kr.me.ansr.tab.friends.recycler.model;
  * Created by KMS on 2016-07-21.
  */
 public class Job {
-    String team;
-    String name;
+    public String team;
+    public String name;
 
     public String getTeam() {
         return team;

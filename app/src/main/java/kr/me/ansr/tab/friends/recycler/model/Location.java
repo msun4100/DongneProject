@@ -4,8 +4,8 @@ package kr.me.ansr.tab.friends.recycler.model;
  * Created by KMS on 2016-07-21.
  */
 public class Location {
-    double lon;
-    double lat;
+    public double lon;
+    public double lat;
 
     public double getLon() {
         return lon;

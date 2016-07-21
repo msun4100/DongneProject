@@ -3,11 +3,12 @@ package kr.me.ansr.login;
 import java.io.Serializable;
 
 public class LoginResult implements Serializable{
-//	public int lastLogin;
+//    MySQL user schema
     public String user_id;
     public String name;
     public String email;
     public String created_at;
+    public String univId;
 
     @Override
     public String toString() {
@@ -16,6 +17,7 @@ public class LoginResult implements Serializable{
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", created_at='" + created_at + '\'' +
+                ", univId='" + univId + '\'' +
                 '}';
     }
 }

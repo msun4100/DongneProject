@@ -408,9 +408,9 @@ public class NetworkManager {
         return null;
     }
     private static final String URL_FRIEND_UNIV_USERS = SERVER_URL + "/friends/univ/:univId";
-    public Request getDongneUnivUsers(Context context, int univId, final OnResultListener<FriendsInfo> listener) {
+    public Request getDongneUnivUsers(Context context, String univId, final OnResultListener<FriendsInfo> listener) {
         try {
-            String url = URL_FRIEND_UNIV_USERS.replace("univId", ""+univId);
+            String url = URL_FRIEND_UNIV_USERS.replace(":univId", univId);
             final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
 
             Request request = new Request.Builder().url(url)

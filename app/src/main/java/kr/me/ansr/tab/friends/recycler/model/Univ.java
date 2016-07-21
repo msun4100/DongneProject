@@ -4,10 +4,21 @@ package kr.me.ansr.tab.friends.recycler.model;
  * Created by KMS on 2016-07-21.
  */
 public class Univ {
-    int univId;
-    int deptId;
-    int isGraduate; //boolean으로 안하는건 나중에 졸업 휴학 재학 등 여러 상태 표시를 위해
-    int enterYear;
+    public int univId;
+    public int deptId;
+    public String deptname;
+    public int isGraduate; //boolean으로 안하는건 나중에 졸업 휴학 재학 등 여러 상태 표시를 위해
+    public int enterYear;
+
+    public Univ(){}
+
+    public Univ(int univId, int deptId, String deptname, int isGraduate, int enterYear) {
+        this.univId = univId;
+        this.deptId = deptId;
+        this.deptname = deptname;
+        this.isGraduate = isGraduate;
+        this.enterYear = enterYear;
+    }
 
     public int getUnivId() {
         return univId;
@@ -23,6 +34,14 @@ public class Univ {
 
     public void setDeptId(int deptId) {
         this.deptId = deptId;
+    }
+
+    public String getDeptname() {
+        return deptname;
+    }
+
+    public void setDeptname(String deptname) {
+        this.deptname = deptname;
     }
 
     public int getIsGraduate() {

@@ -9,6 +9,7 @@
         android:id="@+id/image_friends_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:layout_margin="2dp"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_launcher" />
 
@@ -55,10 +56,10 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
-            android:id="@+id/text_friends_univ"
+            android:id="@+id/text_friends_dept"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="인하대"
+            android:text="컴퓨터 공학"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Random;
 
 import kr.me.ansr.R;
+import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-20.
@@ -23,7 +24,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     List<GroupItem> items = new ArrayList<GroupItem>();
 
     public interface OnAdapterItemClickListener {
-        public void onAdapterItemClick(SectionAdapter adapter, View view, ChildItem item, int type);
+        public void onAdapterItemClick(SectionAdapter adapter, View view, FriendsResult item, int type);
     }
     OnAdapterItemClickListener mListener;
     public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
@@ -31,9 +32,10 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void onLikeClick(View v, ChildItem item, int type) {
+    public void onLikeClick(View v, FriendsResult item, int type) {
         if (mListener != null) {
             mListener.onAdapterItemClick(this, v, item, type);
+
         }
     }
 
@@ -63,31 +65,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
     //for individual listener
 
-
-
-    public void put(String groupName, String childName) {
-        GroupItem group = null;
-        for (GroupItem g : items) {
-            if (g.groupName.equals(groupName)) {
-                group = g;
-                break;
-            }
-        }
-        if (group == null) {
-            group = new GroupItem();
-            group.groupName = groupName;
-            items.add(group);
-        }
-        if (!TextUtils.isEmpty(childName)) {
-            ChildItem child = new ChildItem();
-            child.name = childName;
-//            child.fontSize = 20 + r.nextInt(20);
-            group.children.add(child);
-        }
-
-        notifyDataSetChanged();
-    }
-    public void put(String groupName, ChildItem child) {
+    public void put(String groupName, FriendsResult child) {
         GroupItem group = null;
         for (GroupItem g : items) {
             if (g.groupName.equals(groupName)) {
@@ -159,7 +137,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             position--;
             int childCount = g.children.size();
             if (position < childCount) {
-                ChildItem child = g.children.get(position);
+                FriendsResult child = g.children.get(position);
                 ((ItemViewHolder)holder).setChildItem(child);
                 return;
             }
@@ -178,7 +156,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public final static int GROUP_PROFILE = 0;
     public final static int GROUP_FRIENDS = 1;
-    public ChildItem getItem(int position) {
+    public FriendsResult getItem(int position) {
         if(position < 0 || position > getItemCount()){
             return null;
         } else if(position < 2) {

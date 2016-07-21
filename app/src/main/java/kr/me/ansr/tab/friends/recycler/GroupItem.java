@@ -10,6 +10,6 @@ import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
  */
 public class GroupItem {
     String groupName;
-    List<ChildItem> children = new ArrayList<ChildItem>();
-//    List<FriendsResult> children = new ArrayList<FriendsResult>();
+//    List<ChildItem> children = new ArrayList<ChildItem>();
+    List<FriendsResult> children = new ArrayList<FriendsResult>();
 }

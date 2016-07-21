@@ -48,10 +48,10 @@ public class LoginActivity extends AppCompatActivity {
 							PropertyManager.getInstance().setEmail(email);
 							PropertyManager.getInstance().setPassword(password);
 							PropertyManager.getInstance().setUserId(result.user.user_id);
+							PropertyManager.getInstance().setUnivId(result.user.univId);
 							//for chatting PropertyManager
 							User user = new User("" + result.user.user_id, result.user.name, result.user.email);
 							MyApplication.getInstance().getPrefManager().storeUser(user);
-
 							Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 							startActivity(intent);
 							finish();

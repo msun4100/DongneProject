@@ -10,7 +10,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.R;
+import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-20.
@@ -23,9 +26,10 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
     ImageView iconThumbView;
     ImageView iconAddView;
     TextView nameView;
-    TextView univView;
+    TextView deptView;
     TextView stuIdView;
     TextView jobView;
+    TextView distanceView;
 
     public OnItemClickListener itemClickListener;
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -60,20 +64,21 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         iconThumbView = (ImageView)itemView.findViewById(R.id.image_friends_icon);
         iconAddView = (ImageView)itemView.findViewById(R.id.image_friends_add);
         nameView = (TextView)itemView.findViewById(R.id.text_friends_name);
-        univView = (TextView)itemView.findViewById(R.id.text_friends_univ);
+        deptView = (TextView)itemView.findViewById(R.id.text_friends_dept);
         stuIdView = (TextView)itemView.findViewById(R.id.text_friedns_stuid);
         jobView = (TextView)itemView.findViewById(R.id.text_friends_job);
+        distanceView = (TextView)itemView.findViewById(R.id.text_friends_distance);
 
         iconThumbView.setOnClickListener(viewListener);
         nameView.setOnClickListener(viewListener);
 
     }
 
-    public void setChildItem(ChildItem item) {
-//        titleView.setText(item.childName);
+    public void setChildItem(FriendsResult item) {
 //        titleView.setTextSize(item.fontSize);
+//        iconView.setImageResource(item.iconId);
         mItem = item;
-//        		iconView.setImageResource(item.iconId);
+
         if(item.isFriend){
             iconAddView.setVisibility(View.GONE);
             nameView.setVisibility(View.VISIBLE);
@@ -81,12 +86,15 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
             iconAddView.setVisibility(View.VISIBLE);
             nameView.setVisibility(View.GONE);
         }
-        nameView.setText(item.name);
-        univView.setText(item.univ);
-        stuIdView.setText(""+item.studentId);
-        jobView.setText(""+item.job);
-        if (!TextUtils.isEmpty(item.thumbnail)) {
-            Glide.with(mContext).load(item.thumbnail).into(iconThumbView);
+        nameView.setText(item.username);
+        String stuId = String.valueOf(item.univ.get(0).getEnterYear());
+        stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
+        deptView.setText(item.univ.get(0).getDeptname());
+        jobView.setText(""+item.job.getName() + " " + item.job.getTeam());
+        distanceView.setText(item.temp);
+        if (!TextUtils.isEmpty(item.pic)) {
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId);
+            Glide.with(mContext).load(url).into(iconThumbView);
         } else {
             iconThumbView.setImageResource(R.mipmap.ic_launcher);
         }
@@ -115,9 +123,9 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
     };
 
     //for individual row item button click
-    ChildItem mItem;
+    FriendsResult mItem;
     public interface OnLikeClickListener {
-        public void onLikeClick(View v, ChildItem item, int type);
+        public void onLikeClick(View v, FriendsResult item, int type);
     }
     OnLikeClickListener mListener;
     public void setOnLikeClickListener(OnLikeClickListener listener) {

@@ -3,6 +3,7 @@ package kr.me.ansr.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -15,9 +16,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import kr.me.ansr.MainActivity;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.ex.dept.DeptResult;
 import kr.me.ansr.login.autocomplete.ex.dept.MyDeptAdapter;
@@ -191,22 +195,34 @@ public class SignupActivity extends Activity {
 			Toast.makeText(SignupActivity.this, "직무를 입력해주세요.", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String name = inputName.getText().toString();
+		final String username = inputName.getText().toString();
 		String jobname = inputCompany.getText().toString();
 		String jobteam = inputJob.getText().toString();
 		int isGraduate = 1;
 		NetworkManager.getInstance().postDongneRegister(SignupActivity.this,
-				email, password, name, mUnivId, mDeptId, mSpinnerItem, isGraduate, jobname, jobteam,
+				email, password, username, mUnivId, mDeptId, mSpinnerItem, isGraduate, jobname, jobteam,
 				new NetworkManager.OnResultListener<LoginInfo>() {
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(false)) {
 					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
+					Log.e(TAG, result.user.toString());
 					PropertyManager.getInstance().setUserId(result.user.user_id);
 					PropertyManager.getInstance().setUnivId(""+mUnivId);
+					PropertyManager.getInstance().setEmail(email);
+					PropertyManager.getInstance().setPassword(password);
+					PropertyManager.getInstance().setUserName(username);
+
+
+					//프로퍼티 저장할 것들 저장하고 로그인 요청. --> 로그인 성공하면 메인액티비티로
+					//...
 				} else {
 					Toast.makeText(SignupActivity.this, "error:true" + result.toString(), Toast.LENGTH_SHORT).show();
 					PropertyManager.getInstance().setUserId("");
+					PropertyManager.getInstance().setUnivId("");
+					PropertyManager.getInstance().setEmail("");
+					PropertyManager.getInstance().setPassword("");
+					PropertyManager.getInstance().setUserName("");
 				}
 			}
 
@@ -215,9 +231,32 @@ public class SignupActivity extends Activity {
 
 			}
 		});
+	}
+	private void doLogin(){
+		final String email = PropertyManager.getInstance().getEmail();
+		final String password = PropertyManager.getInstance().getPassword();
+		NetworkManager.getInstance().postDongneLogin(SignupActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>() {
+			@Override
+			public void onSuccess(Request request, LoginInfo result) {
+				if (result.error.equals(true)) {
+					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+				} else {
+					PropertyManager.getInstance().setUserId(result.user.user_id);
+					PropertyManager.getInstance().setUnivId(result.user.univId);
+					//for chatting PropertyManager
+					User user = new User("" + result.user.user_id, result.user.name, result.user.email);
+					MyApplication.getInstance().getPrefManager().storeUser(user);
+					Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+					startActivity(intent);
+					finish();
+				}
+			}
 
-
-
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+				Toast.makeText(SignupActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	private void initData() {
