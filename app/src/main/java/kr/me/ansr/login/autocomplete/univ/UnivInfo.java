@@ -1,12 +1,12 @@
-package kr.me.ansr.login.autocomplete.ex.dept;
+package kr.me.ansr.login.autocomplete.univ;
 
 import java.util.ArrayList;
 
 /**
  * Created by KMS on 2016-07-14.
  */
-public class DeptInfo {
+public class UnivInfo {
     public Boolean error;
     public String message;
-    public ArrayList<DeptResult> result;
+    public ArrayList<UnivResult> result;
 }

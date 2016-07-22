@@ -1,4 +1,4 @@
-package kr.me.ansr.login.autocomplete.ex.dept;
+package kr.me.ansr.login.autocomplete.dept;
 
 import java.io.Serializable;
 

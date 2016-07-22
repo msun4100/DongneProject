@@ -84,6 +84,20 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
+    public void clearAllFriends() {
+//        items.clear();
+        if(items.size() < 2){
+            return;
+        }
+        items.get(GROUP_FRIENDS).children.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAllFriends(List<FriendsResult> items) {
+        this.items.get(GROUP_FRIENDS).children.addAll(items);
+        notifyDataSetChanged();
+    }
+
     public static final int VIEW_TYPE_SECTION_HEADER = 0;
     public static final int VIEW_TYPE_ITEM = 1;
 
@@ -154,15 +168,24 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return totalCount;
     }
 
+    private int totalCount; //학교사람들 전체 토탈
+    public int getTotalCount(){
+//        return getItemCount() - this.items.size();  //total - 그룹 갯수
+        return this.totalCount;
+    }
+    public void setTotalCount(int count){
+        this.totalCount = count;
+    }
+
     public final static int GROUP_PROFILE = 0;
     public final static int GROUP_FRIENDS = 1;
     public FriendsResult getItem(int position) {
         if(position < 0 || position > getItemCount()){
             return null;
         } else if(position < 2) {
-            return items.get(0).children.get(position-1);
+            return items.get(GROUP_PROFILE).children.get(position-1);
         }
-        return items.get(1).children.get(position-3); //postion 3 == 0헤더 1차일드뷰 2헤더
+        return items.get(GROUP_FRIENDS).children.get(position-3); //postion 3 == 0헤더 1차일드뷰 2헤더
     }
 
 }

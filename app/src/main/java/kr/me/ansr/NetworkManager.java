@@ -30,8 +30,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import kr.me.ansr.login.LoginInfo;
-import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
-import kr.me.ansr.login.autocomplete.ex.univ.UnivInfo;
+import kr.me.ansr.login.autocomplete.dept.DeptInfo;
+import kr.me.ansr.login.autocomplete.univ.UnivInfo;
 import kr.me.ansr.tab.friends.recycler.model.FriendsInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -417,6 +417,49 @@ public class NetworkManager {
                     .header("Accept", "application/json")
                     .tag(context)
                     .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    FriendsInfo result = gson.fromJson(response.body().charStream(), FriendsInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Request postDongneUnivUsers(Context context, String univId, String start, String display, String reqDate, final OnResultListener<FriendsInfo> listener) {
+        try {
+            String url = URL_FRIEND_UNIV_USERS.replace(":univId", ""+univId);
+            final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
 
             callbackObject.request = request;
             callbackObject.listener = listener;

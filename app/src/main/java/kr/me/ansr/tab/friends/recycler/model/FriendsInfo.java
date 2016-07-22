@@ -10,4 +10,5 @@ public class FriendsInfo {
     public Boolean error;
     public String message;
     public ArrayList<FriendsResult> result;
+    public int total;
 }

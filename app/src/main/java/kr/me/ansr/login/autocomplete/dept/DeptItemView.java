@@ -1,4 +1,4 @@
-package kr.me.ansr.login.autocomplete.ex.dept;
+package kr.me.ansr.login.autocomplete.dept;
 
 import android.content.Context;
 import android.widget.FrameLayout;

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,12 +21,12 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.model.User;
-import kr.me.ansr.login.autocomplete.ex.dept.DeptInfo;
-import kr.me.ansr.login.autocomplete.ex.dept.DeptResult;
-import kr.me.ansr.login.autocomplete.ex.dept.MyDeptAdapter;
-import kr.me.ansr.login.autocomplete.ex.univ.MyUnivAdapter;
-import kr.me.ansr.login.autocomplete.ex.univ.UnivInfo;
-import kr.me.ansr.login.autocomplete.ex.univ.UnivResult;
+import kr.me.ansr.login.autocomplete.dept.DeptInfo;
+import kr.me.ansr.login.autocomplete.dept.DeptResult;
+import kr.me.ansr.login.autocomplete.dept.MyDeptAdapter;
+import kr.me.ansr.login.autocomplete.univ.MyUnivAdapter;
+import kr.me.ansr.login.autocomplete.univ.UnivInfo;
+import kr.me.ansr.login.autocomplete.univ.UnivResult;
 import okhttp3.Request;
 
 public class SignupActivity extends Activity {

@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 	ViewPager pager;
 	TabsAdapter mAdapter;
 	TabWidget tabs;
-	
+	private static final int PAGER_OFFSET_LIMIT = 3;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,53 +43,42 @@ public class MainActivity extends AppCompatActivity {
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
-		//git 내용 변경위해
 		pager = (ViewPager)findViewById(R.id.pager);
+		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
-//		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), GcmChatFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator("TAB3"), BoardFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator("TAB4"), MeetFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab5").setIndicator("TAB5"), MypageFragment.class, null);
 		
-		
 		mAdapter.setOnTabChangedListener(new OnTabChangeListener() {
-			
 			@Override
 			public void onTabChanged(String tabId) {
 				// TODO Auto-generated method stub
-				
 			}
 		});
-		
 		mAdapter.setOnPageChangeListener(new OnPageChangeListener() {
-			
 			@Override
 			public void onPageSelected(int arg0) {
 				// TODO Auto-generated method stub
-				
 			}
-			
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
 				// TODO Auto-generated method stub
-				
 			}
-			
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
 				// TODO Auto-generated method stub
-				
 			}
 		});
-		
+
 		if (savedInstanceState != null) {
 			mAdapter.onRestoreInstanceState(savedInstanceState);
 			String tag = savedInstanceState.getString("tabTag");
 			tabHost.setCurrentTabByTag(tag);
 		}
-	}
+	} //onCreate
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {

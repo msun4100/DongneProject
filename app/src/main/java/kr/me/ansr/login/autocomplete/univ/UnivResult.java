@@ -1,4 +1,4 @@
-package kr.me.ansr.login.autocomplete.ex.univ;
+package kr.me.ansr.login.autocomplete.univ;
 
 import java.io.Serializable;
 

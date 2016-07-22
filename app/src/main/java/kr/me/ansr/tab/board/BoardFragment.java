@@ -23,7 +23,7 @@ public class BoardFragment extends PagerFragment {
 		
 		View v = inflater.inflate(R.layout.fragment_board, container, false);
 		activity = (AppCompatActivity) getActivity();
-//		activity.getSupportActionBar().setTitle("Board Fragment");
+
 		tabHost = (FragmentTabHost)v.findViewById(R.id.tabhost);
 		tabHost.setup(getActivity(), getChildFragmentManager(), R.id.realtabcontent);
 		tabHost.addTab(tabHost.newTabSpec("ct1").setIndicator("재학생"), ChildOneFragment.class, null);
