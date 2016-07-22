@@ -6,123 +6,53 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="kr.me.ansr.tab.friends.FriendsFragment" >
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fragment 1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <LinearLayout
-        android:id="@+id/LinearLayout1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:orientation="horizontal" >
 
-        <TextView
-            android:id="@+id/text_friends_univname"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/board_editText1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="학교명"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:layout_weight="1"
+            android:hint="검색어를 입력하세요.."
+            android:inputType="text" />
 
         <Button
-            android:id="@+id/btn_friends_univ"
+            android:id="@+id/board_btn_search"
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:text="v" />
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="글쓰기" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:baselineAligned="false" >
-
-        <Button
-            android:id="@+id/button1"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="ALL" />
-
-        <Button
-            android:id="@+id/button2"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="일촌" />
-
-    </LinearLayout>
-
-    <LinearLayout
+    <android.support.v4.app.FragmentTabHost
+        android:id="@+id/tabhost"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="검색구분"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
+        android:layout_height="match_parent" >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:focusable="false"
-                android:hint="이름" />
-
-            <EditText
-                android:id="@+id/editText2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:focusable="false"
-                android:hint="학과" />
-
-            <EditText
-                android:id="@+id/editText3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:focusable="false"
-                android:hint="학번" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </TabWidget>
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0" >
+            </FrameLayout>
+            <FrameLayout
+                android:id="@+id/realtabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" >
+            </FrameLayout>
         </LinearLayout>
-
-        <Button
-            android:id="@+id/button3"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="검색하기" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-
-        <ExpandableListView
-            android:id="@+id/expandableListView1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-        </ExpandableListView>
-
-    </LinearLayout>
+    </android.support.v4.app.FragmentTabHost>
 
 </LinearLayout>

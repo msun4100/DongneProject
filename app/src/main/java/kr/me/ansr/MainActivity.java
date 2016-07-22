@@ -44,9 +44,11 @@ public class MainActivity extends AppCompatActivity {
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
 		pager = (ViewPager)findViewById(R.id.pager);
+		
 		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
-		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
+//		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), GcmChatFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator("TAB3"), BoardFragment.class, null);
 		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator("TAB4"), MeetFragment.class, null);

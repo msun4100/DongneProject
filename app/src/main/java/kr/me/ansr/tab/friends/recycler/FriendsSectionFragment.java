@@ -206,6 +206,11 @@ public class FriendsSectionFragment extends PagerFragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.e("beforeInit on resume:", ""+mAdapter.getItemCount());
+        if(mAdapter.getItemCount() > 0){
+            return;
+        }
+
         start = 0;
         reqDate = getCurrentTimeStamp();
         initUnivUsers();

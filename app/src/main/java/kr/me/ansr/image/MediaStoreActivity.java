@@ -3,8 +3,6 @@ package kr.me.ansr.image;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.me.ansr.R;
-import kr.me.ansr.login.LoginActivity;
 
 public class MediaStoreActivity extends AppCompatActivity{
     private static final String TAG = MediaStoreActivity.class.getSimpleName();
@@ -150,7 +147,7 @@ public class MediaStoreActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.a_menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_empty_main, menu);
         return true;
     }
 

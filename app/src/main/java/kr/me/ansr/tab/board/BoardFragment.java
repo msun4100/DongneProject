@@ -37,15 +37,12 @@ public class BoardFragment extends PagerFragment {
 	@Override
 	public void onPageCurrent() {
 		super.onPageCurrent();
-		
 	}
 	
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
-			// ...
-//			Toast.makeText(getActivity(), ""+ PropertyManager.getInstance().getIsTab2Visible(), Toast.LENGTH_SHORT).show();
 			if(activity != null){
 				activity.getSupportActionBar().setTitle("Board Fragment");
 			}
