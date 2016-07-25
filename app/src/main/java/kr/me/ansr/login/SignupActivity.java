@@ -211,8 +211,6 @@ public class SignupActivity extends Activity {
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
 					PropertyManager.getInstance().setUserName(username);
-
-
 					//프로퍼티 저장할 것들 저장하고 로그인 요청. --> 로그인 성공하면 메인액티비티로
 					//...
 				} else {

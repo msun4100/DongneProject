@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.friends.recycler;
+package kr.me.ansr.tab.friends.tabtwo;
 
 import android.app.ProgressDialog;
 import android.graphics.Color;
@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -23,30 +24,31 @@ import java.util.Date;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
-
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.MyDecoration;
 import okhttp3.Request;
 
 /**
- * Created by KMS on 2016-07-20.
+ * Created by KMS on 2016-07-25.
  */
-public class FriendsSectionFragment extends Fragment
-{
-    private static final String TAG = FriendsSectionFragment.class.getSimpleName();
+public class FriendsTwoFragment extends Fragment {
+
+    private static final String TAG = FriendsTwoFragment.class.getSimpleName();
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
-    SectionAdapter mAdapter;
-//    RecyclerView.LayoutManager layoutManager;
+    MyFriendsAdapter mAdapter;
+    //    RecyclerView.LayoutManager layoutManager;
     LinearLayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;
     boolean isLast = false;
     Handler mHandler = new Handler(Looper.getMainLooper());
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends_section, container, false);
         activity = (AppCompatActivity) getActivity();
 //        getActivity().getWindow().setSoftInputMode(
@@ -63,12 +65,35 @@ public class FriendsSectionFragment extends Fragment
                         if(!dialog.isShowing()){
                             refreshLayout.setRefreshing(false);
                         }
-                        Log.e(TAG, "onRefresh");
                     }
                 }, 2000);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
+        recyclerView.addOnItemTouchListener(new MyFriendsAdapter.RecyclerTouchListener(getActivity(), recyclerView, new MyFriendsAdapter.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                // when chat is clicked, launch full chat thread activity
+                FriendsResult data = mAdapter.getItem(position);
+                switch (view.getId()) {
+                    case 100:
+                        Toast.makeText(getActivity(), "nameView click" + data.toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case 200:
+                        Toast.makeText(getActivity(), "imageView click" + data.toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(getActivity(), "data Click: " + data.toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                FriendsResult data = mAdapter.getItem(position);
+                Toast.makeText(getActivity(), "data Long Click\n: " + data.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -84,28 +109,21 @@ public class FriendsSectionFragment extends Fragment
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                Log.e("111",""+lastVisibleItemPosition);
-                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
+                Log.e("111lastVisiblePosition",""+lastVisibleItemPosition);
+                Log.e("222 != NO_POSITION",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
+                Log.e("333 itemCount<lastPos",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-                Log.e(TAG+"onscrolled","");
+                Log.e("444 isLast:",""+isLast);
             }
         });
-        mAdapter = new SectionAdapter();
-        mAdapter.setOnItemClickListener(new OnItemClickListener() {
+        mAdapter = new MyFriendsAdapter();
+        mAdapter.setOnAdapterItemClickListener(new MyFriendsAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                Toast.makeText(getActivity(), "data : " + data.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        mAdapter.setOnAdapterItemClickListener(new SectionAdapter.OnAdapterItemClickListener() {
-            @Override
-            public void onAdapterItemClick(SectionAdapter adapter, View view, FriendsResult item, int type) {
+            public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type) {
                 switch (type) {
                     case 100:
                         Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
@@ -116,13 +134,7 @@ public class FriendsSectionFragment extends Fragment
                 }
             }
         });
-        mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                Toast.makeText(getActivity(), "Long click data\n" + data.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
+
         recyclerView.setAdapter(mAdapter);
         layoutManager = new LinearLayoutManager(getActivity());
 //        layoutManager.scrollToPosition(5);
@@ -138,15 +150,6 @@ public class FriendsSectionFragment extends Fragment
         return view;
     }
 
-    private void initData() {
-//        initUnivUsers();   //get
-//        mAdapter.put("내 프로필", new ChildItem(SectionAdapter.GROUP_PROFILE, true, "http://10.0.3.2:3000/getPic/0","user0","inha univ",16,"jobname"));
-//        for(int i=0; i<10; i++){
-//            boolean isFriend = true;
-//            if(i % 3 == 0) isFriend = false;
-//            mAdapter.put("학교 사람들", new ChildItem(SectionAdapter.GROUP_FRIENDS, isFriend, ""+ someUrls[r.nextInt(4)],("user"+i),"univ",i,"job"));
-//        }
-    }
     private void initUnivUsers(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
         if(mUnivId == ""){
@@ -156,7 +159,7 @@ public class FriendsSectionFragment extends Fragment
         }
         reqDate = getCurrentTimeStamp();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
-                0,
+                1, //mode
                 mUnivId,
                 ""+start,
                 ""+DISPLAY_NUM,
@@ -165,9 +168,10 @@ public class FriendsSectionFragment extends Fragment
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
                         if (result.error.equals(false)) {
-                            if(result.result != null){
+                            if(result.result != null && !result.message.equals("has no more accepted friends") ){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
+                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 for(int i=0; i < items.size(); i++){
@@ -175,18 +179,14 @@ public class FriendsSectionFragment extends Fragment
                                     Log.e(TAG, ""+child);
                                     if(i==0 && mAdapter.getItem(1) == null){ //임시코드
                                         mAdapter.put("내 프로필", child); //내 정보 불러와서
-                                        FriendsDataManager.getInstance().items.add(child);
                                     }
                                     mAdapter.put("학교 사람들", child);
-                                    FriendsDataManager.getInstance().items.add(child);
                                 }
                                 start++;
                             }
                         } else {
 //                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             mAdapter.items.clear();
-                            FriendsDataManager.getInstance().items.clear();
-
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
@@ -205,44 +205,27 @@ public class FriendsSectionFragment extends Fragment
         dialog.show();
     }
 
-    private void turnOnLoading(){
-        dialog = new ProgressDialog(getActivity());
-        dialog.setTitle("Loading....");
-        dialog.show();
-    }
-    private void turnOffLoading(){
-        dialog.dismiss();
-        refreshLayout.setRefreshing(false);
-    }
-
     boolean isMoreData = false;
     ProgressDialog dialog = null;
-    private static final int DISPLAY_NUM = 2;
+    private static final int DISPLAY_NUM = 4;
     private int start=0;
     private String reqDate = null;
 
     @Override
     public void onResume() {
         super.onResume();
-//        if(mAdapter.getItemCount() > 0){
-//            start = mAdapter.getItemCount() / DISPLAY_NUM;
-//            isLast = false;
-//            Log.e("onResume", ""+start+"\n"+mAdapter.getItemCount());
-//            return;
-//        }
-//        start = 0;
-//        reqDate = getCurrentTimeStamp();
-//        initUnivUsers();
     }
 
     private void getMoreItem() {
         if (isMoreData) return;
         isMoreData = true;
-        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount()) {
+//        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount()) {
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount()) {
+            //기존 코드에서 +DIS_NUM 한 것은 마지막 디스플레이가 리프레쉬 안되서 디스플레이 수만큼 +시킴.
 //            int start = mAdapter.getItemCount() + 1;
 //            int display = 50;
             NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
-                    0, //mode
+                    1, //mode
                     PropertyManager.getInstance().getUnivId(),
                     ""+start,
                     ""+DISPLAY_NUM,
@@ -250,9 +233,13 @@ public class FriendsSectionFragment extends Fragment
                     new NetworkManager.OnResultListener<FriendsInfo>() {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
-                            Log.e(TAG+"getMore:", result.result.toString());
-                            mAdapter.addAllFriends(result.result);
-                            FriendsDataManager.getInstance().items.addAll(result.result);
+                            Log.e(TAG+"getMore:", ""+result.message);
+                            if(!result.message.equals("has no more accepted friends")){
+                                Log.e(TAG+"getMore:", result.result.toString());
+                                mAdapter.addAllFriends(result.result);
+                            } else {
+                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                            }
                             isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -278,23 +265,5 @@ public class FriendsSectionFragment extends Fragment
         return currentDateandTime;
     }
 
-//    ==============================
-//    @Override
-//    public void onPageCurrent() {
-//        super.onPageCurrent();
-//    }
-
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser) {
-//            // ...
-//            if(activity != null){
-//                activity.getSupportActionBar().setTitle("Friends Fragment");
-//            }
-//        }
-//    }
-    public FriendsSectionFragment() {
-        // Required empty public constructor
-    }
+    public FriendsTwoFragment(){}
 }

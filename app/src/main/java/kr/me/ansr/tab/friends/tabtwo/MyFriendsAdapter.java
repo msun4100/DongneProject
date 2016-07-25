@@ -1,7 +1,10 @@
-package kr.me.ansr.tab.friends.recycler;
+package kr.me.ansr.tab.friends.tabtwo;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -11,16 +14,19 @@ import java.util.Random;
 
 import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.GroupItem;
+import kr.me.ansr.tab.friends.recycler.ItemViewHolder;
+import kr.me.ansr.tab.friends.recycler.SectionHeaderViewHolder;
 
 /**
- * Created by KMS on 2016-07-20.
+ * Created by KMS on 2016-07-25.
  */
-public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements OnItemClickListener, OnItemLongClickListener, ItemViewHolder.OnLikeClickListener{
+public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements  ItemViewHolder.OnLikeClickListener{
     public List<GroupItem> items = new ArrayList<GroupItem>();
 
     public interface OnAdapterItemClickListener {
-        public void onAdapterItemClick(SectionAdapter adapter, View view, FriendsResult item, int type);
+        public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type);
     }
     OnAdapterItemClickListener mListener;
     public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
@@ -36,31 +42,6 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     Random r = new Random();
-
-    //start recyclerView.OnItemClick implements
-    OnItemClickListener itemClickListener;
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        itemClickListener = listener;
-    }
-    @Override
-    public void onItemClick(View view, int position) {
-        if (itemClickListener != null) {
-            itemClickListener.onItemClick(view, position);
-        }
-    }//end of recyclerView.OnItemClick implements
-
-    OnItemLongClickListener itemLongClickListener;
-    public void setOnItemLongClickListener(OnItemLongClickListener listener){
-        itemLongClickListener = listener;
-    }
-    @Override
-    public void onItemLongClick(View view, int position) {
-        if (itemLongClickListener != null) {
-            itemLongClickListener.onItemLongClick(view, position);
-        }
-    }
-    //for individual listener
-
     public void put(String groupName, FriendsResult child) {
         GroupItem group = null;
         for (GroupItem g : items) {
@@ -121,16 +102,8 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case VIEW_TYPE_ITEM :
                 view = inflater.inflate(R.layout.view_section_child, parent, false);
                 ItemViewHolder holder = new ItemViewHolder(view, parent.getContext());
-                holder.setOnItemClickListener(this);
-                holder.setOnItemLongClickListener(this);
+
                 holder.setOnLikeClickListener(this);
-//                if (!TextUtils.isEmpty(holder..image)) {
-//                    Glide.with(getContext())
-//                            .load(item.image)
-//                            .into(iconView);
-//                } else {
-//                    iconView.setImageResource(R.mipmap.ic_launcher);
-//                }
                 return holder;
         }
         return null;
@@ -187,4 +160,54 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public List getFriendsList(){
         return this.items;
     }
+
+    public interface ClickListener {
+        void onClick(View view, int position);
+
+        void onLongClick(View view, int position);
+    }
+
+    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private GestureDetector gestureDetector;
+        private MyFriendsAdapter.ClickListener clickListener;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final MyFriendsAdapter.ClickListener clickListener) {
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null && clickListener != null) {
+                        clickListener.onLongClick(child, recyclerView.getChildPosition(child));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
+                clickListener.onClick(child, rv.getChildPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
+    }
+
 }

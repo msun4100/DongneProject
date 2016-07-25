@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
 		pager = (ViewPager)findViewById(R.id.pager);
-		
+
 		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
 //		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);

@@ -1,6 +1,5 @@
-package kr.me.ansr.tab.friends.recycler.model;
+package kr.me.ansr.tab.friends.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**

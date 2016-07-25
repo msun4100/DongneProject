@@ -111,11 +111,12 @@ public class ImageHomeFragment extends Fragment {
 //        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
 //    @Override
-//    public void onResume() {
-//        super.onResume();
-//        // destroy all menu and re-call onCreateOptionsMenu
+    public void onResume() {
+        super.onResume();
+        // destroy all menu and re-call onCreateOptionsMenu
 //        getActivity().invalidateOptionsMenu();
-//    }
+//        Toast.makeText(getActivity(),"ImageHome onresume", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

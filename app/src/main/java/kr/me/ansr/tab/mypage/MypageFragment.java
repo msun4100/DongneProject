@@ -1,6 +1,9 @@
 package kr.me.ansr.tab.mypage;
 
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
+import kr.me.ansr.tab.friends.recycler.SectionAdapter;
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -30,6 +33,8 @@ public class MypageFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			// ...
+//			FriendsDataManager.getInstance().items.clear();
+//			SectionAdapter.items.clear();
 		}
 	}
 }

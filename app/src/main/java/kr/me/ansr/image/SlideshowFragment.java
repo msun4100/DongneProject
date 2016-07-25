@@ -94,12 +94,13 @@ public class SlideshowFragment extends Fragment {
         setHasOptionsMenu(true);
 //        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        // destroy all menu and re-call onCreateOptionsMenu
+    @Override
+    public void onResume() {
+        super.onResume();
+        // destroy all menu and re-call onCreateOptionsMenu
 //        getActivity().invalidateOptionsMenu();
-//    }
+//        Toast.makeText(getActivity(),"Slideshow f onresume", Toast.LENGTH_SHORT).show();
+    }
 
     private void setCurrentItem(int position) {
         viewPager.setCurrentItem(position, false);

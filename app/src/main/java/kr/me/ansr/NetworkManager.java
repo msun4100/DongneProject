@@ -32,7 +32,7 @@ import javax.net.ssl.TrustManagerFactory;
 import kr.me.ansr.login.LoginInfo;
 import kr.me.ansr.login.autocomplete.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
-import kr.me.ansr.tab.friends.recycler.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -446,9 +446,14 @@ public class NetworkManager {
         return null;
     }
 
-    public Request postDongneUnivUsers(Context context, String univId, String start, String display, String reqDate, final OnResultListener<FriendsInfo> listener) {
+//    private static final String URL_FRIEND_UNIV_MY = SERVER_URL + "/friends/test/my";
+    public Request postDongneUnivUsers(Context context, int mode, String univId, String start, String display, String reqDate, final OnResultListener<FriendsInfo> listener) {
         try {
             String url = URL_FRIEND_UNIV_USERS.replace(":univId", ""+univId);
+            if(mode == 1){
+                url += "/my";
+            }
+
             final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
 
             JsonObject json = new JsonObject();

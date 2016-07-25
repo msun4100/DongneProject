@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.friends.recycler.model;
+package kr.me.ansr.tab.friends.model;
 
 /**
  * Created by KMS on 2016-07-21.

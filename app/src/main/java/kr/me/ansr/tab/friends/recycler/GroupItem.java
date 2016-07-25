@@ -3,13 +3,13 @@ package kr.me.ansr.tab.friends.recycler;
 import java.util.ArrayList;
 import java.util.List;
 
-import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-20.
  */
 public class GroupItem {
-    String groupName;
+    public String groupName;
 //    List<ChildItem> children = new ArrayList<ChildItem>();
-    List<FriendsResult> children = new ArrayList<FriendsResult>();
+    public List<FriendsResult> children = new ArrayList<FriendsResult>();
 }

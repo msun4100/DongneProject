@@ -3,17 +3,15 @@ package kr.me.ansr.tab.friends.recycler;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import kr.me.ansr.NetworkManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
-import kr.me.ansr.tab.friends.recycler.model.FriendsResult;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-20.
