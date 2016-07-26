@@ -3,10 +3,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:context="kr.me.ansr.tab.board.BoardFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Button1"
+            android:layout_weight="1"
+            android:id="@+id/btn_board_child_one" />
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Button2"
+            android:layout_weight="1"
+            android:id="@+id/btn_board_child_two" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-    <android.support.v4.app.FragmentTabHost
-        android:id="@+id/tabhost"
+        <TextView
+            android:id="@+id/text_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="아이콘"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/board_editText1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="검색어를 입력하세요.."
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/board_btn_search"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="글쓰기" />
+    </LinearLayout>
+    <TabHost
+        android:id="@android:id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
@@ -18,51 +65,25 @@
             <TabWidget
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-            </TabWidget>
-
-            <LinearLayout
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:id="@+id/text_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="아이콘"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/board_editText1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="검색어를 입력하세요.."
-                    android:inputType="text" />
-
-                <Button
-                    android:id="@+id/board_btn_search"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="80dp"
-                    android:layout_height="match_parent"
-                    android:text="글쓰기" />
-            </LinearLayout>
+                android:divider="@null">
+            </TabWidget>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0" >
+                android:layout_height="0dp" >
             </FrameLayout>
 
-            <FrameLayout
-                android:id="@+id/realtabcontent"
+            <kr.me.ansr.tab.board.BoardViewPager
+                android:id="@+id/pager"
                 android:layout_width="match_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_height="0dp"
-                android:layout_weight="1" >
-            </FrameLayout>
+                android:layout_weight="1" />
         </LinearLayout>
-    </android.support.v4.app.FragmentTabHost>
+
+    </TabHost>
+
 
 </LinearLayout>

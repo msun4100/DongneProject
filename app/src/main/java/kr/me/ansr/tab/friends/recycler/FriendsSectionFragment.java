@@ -278,22 +278,6 @@ public class FriendsSectionFragment extends Fragment
         return currentDateandTime;
     }
 
-//    ==============================
-//    @Override
-//    public void onPageCurrent() {
-//        super.onPageCurrent();
-//    }
-
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser) {
-//            // ...
-//            if(activity != null){
-//                activity.getSupportActionBar().setTitle("Friends Fragment");
-//            }
-//        }
-//    }
     public FriendsSectionFragment() {
         // Required empty public constructor
     }

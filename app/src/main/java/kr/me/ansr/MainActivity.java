@@ -1,19 +1,9 @@
 package kr.me.ansr;
 
-import kr.me.ansr.login.LoginActivity;
-import kr.me.ansr.login.SplashActivity;
-import kr.me.ansr.tab.board.BoardFragment;
-import kr.me.ansr.tab.chat.GcmChatFragment;
-import kr.me.ansr.tab.friends.FriendsFragment;
-import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
-import kr.me.ansr.tab.meet.MeetFragment;
-import kr.me.ansr.tab.mypage.MypageFragment;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,6 +15,13 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.Toast;
+
+import kr.me.ansr.login.SplashActivity;
+import kr.me.ansr.tab.board.BoardFragment;
+import kr.me.ansr.tab.chat.GcmChatFragment;
+import kr.me.ansr.tab.friends.FriendsFragment;
+import kr.me.ansr.tab.meet.MeetFragment;
+import kr.me.ansr.tab.mypage.MypageFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
 		pager = (ViewPager)findViewById(R.id.pager);
-
 		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
 //		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);

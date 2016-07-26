@@ -12,6 +12,8 @@ import com.android.volley.toolbox.Volley;
 
 
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import kr.me.ansr.gcmchat.helper.MyPreferenceManager;
 
@@ -76,4 +78,9 @@ public class MyApplication extends Application {
 		startActivity(intent);
 	}
 
+	public String getCurrentTimeStampString(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		String currentDateandTime = sdf.format(new Date());
+		return currentDateandTime;
+	}
 }

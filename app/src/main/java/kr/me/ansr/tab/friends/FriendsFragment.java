@@ -6,6 +6,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,11 @@ public class FriendsFragment extends PagerFragment {
 		tabHost.setup(getActivity(), getChildFragmentManager(), R.id.realtabcontent);
 		tabHost.addTab(tabHost.newTabSpec("friends1").setIndicator("학교사람들"), FriendsSectionFragment.class, null);
 		tabHost.addTab(tabHost.newTabSpec("friends2").setIndicator("일촌"), FriendsTwoFragment.class, null);
+		//activity group을 extends해야 쓸 수 있는 듯--> 메인액티비티가
+//		tabHost.addTab(tabHost.newTabSpec("friends1").setIndicator("학교사람들")
+//				.setContent(new Intent(getActivity(), FriendsSectionFragment.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)));
+//		tabHost.addTab(tabHost.newTabSpec("friends2").setIndicator("일촌")
+//				.setContent(new Intent(getActivity(), FriendsTwoFragment.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)));
 //		tabHost.setCurrentTabByTag("friends1");
 		tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			@Override

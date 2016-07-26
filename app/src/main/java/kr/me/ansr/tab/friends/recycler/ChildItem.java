@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by KMS on 2016-07-20.
+ * Deprecated on 2016-07-20.
  */
 public class ChildItem {
     public int groupIndex;
