@@ -2,7 +2,9 @@ package kr.me.ansr.tab.board.one;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +21,8 @@ import java.util.List;
 
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.board.preview.PreReply;
+import kr.me.ansr.tab.board.preview.PreReplyAdapter;
 
 /**
  * Created by KMS on 2016-07-27.
@@ -28,8 +32,10 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     Context mContext;
     ImageView iconThumbView;
     TextView nameView;
+    TextView contentView;
+    TextView contentAddView;
     ListView listView;
-    ArrayAdapter<String> mAdapter;
+    PreReplyAdapter mAdapter;
     LinearLayout listViewLayout;
 
     public OnItemClickListener itemClickListener;
@@ -63,8 +69,16 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         });
         iconThumbView = (ImageView)itemView.findViewById(R.id.image_board_icon);
         nameView = (TextView)itemView.findViewById(R.id.text_board_name);
+        contentView = (TextView)itemView.findViewById(R.id.text_board_content);
+        contentAddView = (TextView)itemView.findViewById(R.id.text_board_content_add);
         listView = (ListView)itemView.findViewById(R.id.listView_board);
-		mAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1);
+		mAdapter = new PreReplyAdapter(context);
+        mAdapter.setOnAdapterItemClickListener(new PreReplyAdapter.OnAdapterItemClickListener() {
+            @Override
+            public void onAdapterItemClick(PreReplyAdapter adapter, View view, PreReply item, int type) {
+                mListener.onLikeClick(view, mItem, 300);
+            }
+        });
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -83,8 +97,13 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     public void setBoardItem(BoardResult item) {
 //        titleView.setTextSize(item.fontSize);
         listView.setVisibility(View.GONE);
+        contentAddView.setVisibility(View.GONE);
         this.mItem = item;
         nameView.setText(item.username);
+        contentView.setText(item.content);
+        if(contentView.getText().toString().length() > 80){
+            contentAddView.setVisibility(View.VISIBLE);
+        }
         if (!TextUtils.isEmpty(item.pic)) {
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId);
             Glide.with(mContext).load(url).into(iconThumbView);
@@ -92,12 +111,11 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             iconThumbView.setImageResource(R.mipmap.ic_launcher);
         }
 
-        if(item.repArr != null){
+        if(item.replies != null){
             listView.setVisibility(View.VISIBLE);
             mAdapter.clear();
-            for(String str : item.repArr){
-//              termText.setText(Html.fromHtml("<u>" + str + "</u>"));
-                mAdapter.add(str);
+            for(PreReply reply : item.replies){
+                mAdapter.add(reply);
             }
             mAdapter.notifyDataSetChanged();
             setListViewHeightBasedOnItems(listView);    //listAdapter가 null이 아니면 true 리턴

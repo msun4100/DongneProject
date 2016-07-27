@@ -100,8 +100,17 @@
             android:id="@+id/text_board_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="교양 수업 스포츠 문화 책 구합니다"/>
-
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:text="교양 수업 스포츠 문화 책 구합니다."/>
+        <TextView
+            android:id="@+id/text_board_content_add"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="...더 보기"
+            android:textColor="#FF303F9F"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

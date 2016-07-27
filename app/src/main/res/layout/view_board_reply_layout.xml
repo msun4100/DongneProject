@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="익 명"
+
         android:id="@+id/text_board_preview_reply_name"
         android:layout_gravity="center_vertical" />
 
@@ -18,6 +19,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="댓글 내용..."
+        android:singleLine="true"
+        android:ellipsize="end"
         android:id="@+id/text_board_preview_reply_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="20dp"/>

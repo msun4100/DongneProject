@@ -21,7 +21,7 @@ public class ChildTwoFragment extends PagerFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_board_two, container, false);
 
-        Toast.makeText(getActivity(),"Two create", Toast.LENGTH_SHORT).show();
+
 
         initData();
         return view;

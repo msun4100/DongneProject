@@ -24,6 +24,7 @@ import java.util.Random;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.PagerFragment;
+import kr.me.ansr.tab.board.preview.PreReply;
 
 /**
  * Created by KMS on 2016-07-25.
@@ -120,24 +121,30 @@ public class ChildOneFragment extends PagerFragment {
 //        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        initUnivUsers();
+        initBoard();
         initData();
         return view;
     }
-    private void initUnivUsers(){}
+    private void initBoard(){}
     private void initData() {
         for (int i = 0; i < 10; i++) {
+            String text = "교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.";
             BoardResult data = new BoardResult();
             Random r = new Random();
             data.username = "item " + i;
+            data.content = text.substring(0, (r.nextInt(3)+1)*40);
             int num = r.nextInt(4);
             Log.e(TAG+" num:", ""+num );
             if(num != 0){
-                ArrayList<String> list = new ArrayList<String>();
+                ArrayList<PreReply> list = new ArrayList<PreReply>();
                 for(int j=0; j<num; j++){
-                    list.add("username"+j+" "+"댓글내용.."+j);
+                    PreReply pr = new PreReply();
+                    pr.userId=j;
+                    pr.username = "username"+j;
+                    pr.body = "body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j;
+                    list.add(pr);
                 }
-                data.repArr = list;
+                data.replies = list;
             }
             mAdapter.add(data);
         }
