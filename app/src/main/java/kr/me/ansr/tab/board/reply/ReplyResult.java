@@ -13,11 +13,19 @@ public class ReplyResult implements Serializable {
     public String username;
     public ArrayList<Integer> likes;
     public int likeCount;
+
     public ArrayList<ReplyResult> replies;
     public String updatedAt;
 
 
     public ReplyResult(){}
+
+    public ReplyResult(String _id, String body, int userId, String username) {
+        this._id = _id;
+        this.body = body;
+        this.userId = userId;
+        this.username = username;
+    }
 
     public ReplyResult(String _id, String body, int userId, String username, ArrayList<Integer> likes, int likeCount, ArrayList<ReplyResult> replies, String updatedAt) {
         this._id = _id;

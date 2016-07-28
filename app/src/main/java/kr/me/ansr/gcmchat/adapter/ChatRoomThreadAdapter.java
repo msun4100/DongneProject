@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.model.Message;
 
@@ -85,8 +86,8 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         Message message = messageArrayList.get(position);
         ((ViewHolder) holder).message.setText(message.getMessage());
 
-        String timestamp = getTimeStamp(message.getCreatedAt());
-
+        String timestamp = MyApplication.getTimeStamp(message.getCreatedAt());
+//        String timestamp = getTimeStamp(message.getCreatedAt());
         if (message.getUser().getName() != null)
             timestamp = message.getUser().getName() + ", " + timestamp;
 

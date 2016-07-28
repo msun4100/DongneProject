@@ -2,13 +2,11 @@ package kr.me.ansr.tab.board.one;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -17,12 +15,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+import kr.me.ansr.MyApplication;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
-import kr.me.ansr.tab.board.preview.PreReply;
-import kr.me.ansr.tab.board.preview.PreReplyAdapter;
+import kr.me.ansr.tab.board.reply.PreReplyAdapter;
+import kr.me.ansr.tab.board.reply.ReplyResult;
 
 /**
  * Created by KMS on 2016-07-27.
@@ -30,13 +32,22 @@ import kr.me.ansr.tab.board.preview.PreReplyAdapter;
 public class BoardViewHolder extends RecyclerView.ViewHolder{
 
     Context mContext;
-    ImageView iconThumbView;
+    ImageView iconThumb;
     TextView nameView;
-    TextView contentView;
-    TextView contentAddView;
+    TextView stuIdView;
+    TextView deptView;
+    TextView timeStampView;
+    TextView bodyView;
+    TextView bodyAddView;
+    ImageView iconReply;
+    TextView replyCountView;
+    ImageView iconLike;
+    TextView likeCountView;
+
     ListView listView;
     PreReplyAdapter mAdapter;
     LinearLayout listViewLayout;
+    LinearLayout likeLayout;
 
     public OnItemClickListener itemClickListener;
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -67,54 +78,83 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
                 return true;
             }
         });
-        iconThumbView = (ImageView)itemView.findViewById(R.id.image_board_icon);
+        iconThumb = (ImageView)itemView.findViewById(R.id.image_board_thumb);
         nameView = (TextView)itemView.findViewById(R.id.text_board_name);
-        contentView = (TextView)itemView.findViewById(R.id.text_board_content);
-        contentAddView = (TextView)itemView.findViewById(R.id.text_board_content_add);
+        stuIdView = (TextView)itemView.findViewById(R.id.text_board_stuid);
+        deptView = (TextView)itemView.findViewById(R.id.text_board_dept);
+        timeStampView = (TextView)itemView.findViewById(R.id.text_board_timestamp);
+        bodyView = (TextView)itemView.findViewById(R.id.text_board_body);
+        bodyAddView = (TextView)itemView.findViewById(R.id.text_board_body_add);
+        iconReply = (ImageView)itemView.findViewById(R.id.image_board_reply);
+        replyCountView = (TextView)itemView.findViewById(R.id.text_board_reply_count);
+        iconLike = (ImageView)itemView.findViewById(R.id.image_board_like);
+        likeCountView = (TextView)itemView.findViewById(R.id.text_board_like_count);
+
+        //for adapter item click
+        likeLayout = (LinearLayout)itemView.findViewById(R.id.linear_like_layout);
+
         listView = (ListView)itemView.findViewById(R.id.listView_board);
 		mAdapter = new PreReplyAdapter(context);
         mAdapter.setOnAdapterItemClickListener(new PreReplyAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onAdapterItemClick(PreReplyAdapter adapter, View view, PreReply item, int type) {
-                mListener.onLikeClick(view, mItem, 300);
+            public void onAdapterItemClick(PreReplyAdapter adapter, View view, ReplyResult item, int type) {
+                mListener.onLikeClick(view, getAdapterPosition(), mItem, 300);
             }
         });
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mListener.onLikeClick(view, mItem, 300);
+                mListener.onLikeClick(view, getAdapterPosition(), mItem, 300);
             }
         });
 
 //        listViewLayout = (LinearLayout)itemView.findViewById(R.id.linear_board_reply_layout);
 //        listViewLayout.setOnClickListener(viewListener);
-        iconThumbView.setOnClickListener(viewListener);
+        iconThumb.setOnClickListener(viewListener);
         nameView.setOnClickListener(viewListener);
+        likeLayout.setOnClickListener(viewListener);
 
     }
 
     public void setBoardItem(BoardResult item) {
 //        titleView.setTextSize(item.fontSize);
         listView.setVisibility(View.GONE);
-        contentAddView.setVisibility(View.GONE);
+        bodyAddView.setVisibility(View.GONE);
         this.mItem = item;
-        nameView.setText(item.username);
-        contentView.setText(item.content);
-        if(contentView.getText().toString().length() > 80){
-            contentAddView.setVisibility(View.VISIBLE);
+        nameView.setText(item.user.username);
+        bodyView.setText(item.body);
+        if(bodyView.getText().toString().length() > 80){
+            bodyAddView.setVisibility(View.VISIBLE);
         }
-        if (!TextUtils.isEmpty(item.pic)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId);
-            Glide.with(mContext).load(url).into(iconThumbView);
+        if (!TextUtils.isEmpty(item.user.pic)) {
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
+            Glide.with(mContext).load(url).into(iconThumb);
         } else {
-            iconThumbView.setImageResource(R.mipmap.ic_launcher);
+            iconThumb.setImageResource(R.mipmap.ic_launcher);
         }
-
-        if(item.replies != null){
+        nameView.setText(item.user.username);
+        String stuId = String.valueOf(item.user.enterYear);
+        stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
+        deptView.setText(item.user.deptname);
+//        String ts = item._id.toString().substring(0, 8);
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+//        String currentDateandTime = sdf.format(item.createdAt);
+        timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
+//        iconLike.setImageResource(R.mipmap.ic_launcher);
+        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
+            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
+        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
+        likeCountView.setText(""+item.likeCount);
+        replyCountView.setText("0");
+//        iconReply...
+//        iconLike...
+        //preReplies 처리
+        if(item.preReplies != null){
+            replyCountView.setText(""+item.repCount);
             listView.setVisibility(View.VISIBLE);
             mAdapter.clear();
-            for(PreReply reply : item.replies){
+            for(ReplyResult reply : item.preReplies){
                 mAdapter.add(reply);
             }
             mAdapter.notifyDataSetChanged();
@@ -129,19 +169,19 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             switch(v.getId()){
                 case R.id.text_board_name:
                     if (mListener != null) {
-                        mListener.onLikeClick(v, mItem, 100);
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 100);
                     }
                     break;
-                case R.id.image_board_icon:
+                case R.id.image_board_thumb:
                     if (mListener != null) {
-                        mListener.onLikeClick(v, mItem, 200);
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 200);
                     }
                     break;
-//                case R.id.linear_board_reply_layout:
-//                    if (mListener != null) {
-//                        mListener.onLikeClick(v, mItem, 300);
-//                    }
-//                    break;
+                case R.id.linear_like_layout:
+                    if (mListener != null) {
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 400);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -151,7 +191,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     //for individual row item button click
     BoardResult mItem;
     public interface OnLikeClickListener {
-        public void onLikeClick(View v, BoardResult item, int type);
+        public void onLikeClick(View v, int position, BoardResult item, int type);
     }
     OnLikeClickListener mListener;
     public void setOnLikeClickListener(OnLikeClickListener listener) {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.model.ChatRoom;
 
@@ -65,7 +66,8 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
             holder.count.setVisibility(View.GONE);
         }
 
-        holder.timestamp.setText(getTimeStamp(chatRoom.getTimestamp()));
+//        holder.timestamp.setText(getTimeStamp(chatRoom.getTimestamp()));
+        holder.timestamp.setText(MyApplication.getTimeStamp(chatRoom.getTimestamp()));
     }
 
     @Override

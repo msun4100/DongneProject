@@ -3,28 +3,41 @@ package kr.me.ansr.tab.board.one;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import kr.me.ansr.tab.board.preview.PreReply;
+import kr.me.ansr.tab.board.reply.ReplyResult;
 
 /**
  * Created by KMS on 2016-07-27.
  */
 public class BoardResult implements Serializable {
-    public int userId;
-    public String email;
-    public String username;
-    public String pic;
-    public String content;
-    ArrayList<PreReply> replies;
+    public String _id;
+    public int boardId;
+    public int univId;
+    public int writer;
+    public int pageId;
+    public String title;
+    public String commentId;
+    public String updatedAt;
+    public String createdAt;
+    public ArrayList<Integer> likes;
+    public int likeCount;
+    public int viewCount;
+    public int repCount;    //client용 value. 댓글 수 표시를 위해
+    public String body;
+    public String type;
+    public BoardUser user;
+//    public ArrayList<PreReply> preReplies;
+    public ArrayList<ReplyResult> preReplies;
+    public BoardResult(){
+//        this.user = new FriendsResult(-1, "name", "");
+        this.user = new BoardUser();
+    }
 
-
-    public BoardResult(){}
-    public BoardResult(int userId, String email, String username, String pic, String content, ArrayList<PreReply> replies) {
-        this.userId = userId;
-        this.email = email;
-        this.username = username;
-        this.pic = pic;
-        this.content = content;
-        this.replies = replies;
+    public class BoardUser {
+        public int enterYear;
+        public String username;
+        public String deptname;
+        public String pic;
+        public BoardUser(){}
     }
 
 }

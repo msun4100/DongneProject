@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.board.preview;
+package kr.me.ansr.tab.board.reply;
 
 import android.content.Context;
 import android.text.Html;
@@ -26,13 +26,13 @@ public class PreReplyItemView extends FrameLayout{
 
     // =======================================
     // ImageView backgroundView;
-    PreReply mItem;
+    ReplyResult mItem;
     TextView usernameView;
     TextView bodyView;
 
 
     public interface OnLikeClickListener {
-        public void onLikeClick(View v, PreReply item, int type);
+        public void onLikeClick(View v, ReplyResult item, int type);
     }
     OnLikeClickListener mListener;
     public void setOnLikeClickListener(OnLikeClickListener listener) {
@@ -67,7 +67,7 @@ public class PreReplyItemView extends FrameLayout{
         bodyView.setOnClickListener(viewListener);
     }
 
-    public void setItemData(PreReply item) {
+    public void setItemData(ReplyResult item) {
         mItem = item;
 //        termText.setText(Html.fromHtml("<u>" + str + "</u>"));
         usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));

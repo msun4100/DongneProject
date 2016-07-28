@@ -29,6 +29,11 @@ public void clearProperties() {
 	setLatitude("");
 	setLongitude("");
 	setUsingLocation(0);
+	setUnivId("");
+	setUserId("");
+	setUserName("");
+	setProfile("");
+//	setRegistrationId("");
 }
 
 	private static final String FIELD_USER_NAME = "username";

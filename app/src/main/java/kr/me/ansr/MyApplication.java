@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import com.android.volley.Request;
@@ -12,8 +13,11 @@ import com.android.volley.toolbox.Volley;
 
 
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import kr.me.ansr.gcmchat.helper.MyPreferenceManager;
 
@@ -79,8 +83,52 @@ public class MyApplication extends Application {
 	}
 
 	public String getCurrentTimeStampString(){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
 		String currentDateandTime = sdf.format(new Date());
 		return currentDateandTime;
 	}
+
+	public static String getTimeStamp(String dateStr) {
+//        2016-07-06T05:47:19.000Z
+		Calendar calendar = Calendar.getInstance();
+		String today = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+		String year = String.valueOf(calendar.get(Calendar.YEAR));
+//		Log.e("My year: ", ""+year);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String timestamp = "";
+
+		today = today.length() < 2 ? "0" + today : today;
+
+		try {
+			Date date = format.parse(dateStr);
+
+			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.KOREAN);
+			String dateYear = yearFormat.format(date);
+			if(year.equals(dateYear)){
+//				Log.e("year check", "true"); Log.e("dateYear", ""+dateYear);
+				SimpleDateFormat todayFormat = new SimpleDateFormat("dd", Locale.KOREAN);
+				String dateToday = todayFormat.format(date);
+//				format = dateToday.equals(today) ? new SimpleDateFormat("hh:mm a") : new SimpleDateFormat("MMM dd, hh:mm a");	//MMM이랑 LLL 이랑 같은 듯 MMM == "x월"
+//				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm", Locale.KOREAN) : new SimpleDateFormat("MM.dd E ahh:mm", Locale.KOREAN);
+				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm", Locale.KOREAN) : new SimpleDateFormat("MM.dd ahh:mm", Locale.KOREAN);
+				String date1 = format.format(date);
+				timestamp = date1.toString();
+			} else {
+//				Log.e("year check", "false");
+				SimpleDateFormat todayFormat = new SimpleDateFormat("dd");
+				format = new SimpleDateFormat("yyyy.MM.dd a hh:mm", Locale.KOREAN);
+				String date1 = format.format(date);
+				timestamp = date1.toString();
+			}
+
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return timestamp;
+	}
+
+
 }

@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.board.one;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ public class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public List<BoardResult> items = new ArrayList<BoardResult>();
 
     public interface OnAdapterItemClickListener {
-        public void onAdapterItemClick(BoardAdapter adapter, View view, BoardResult item, int type);
+        public void onAdapterItemClick(BoardAdapter adapter, View view, int position, BoardResult item, int type);
     }
     OnAdapterItemClickListener mListener;
     public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
@@ -27,14 +28,11 @@ public class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onLikeClick(View v, BoardResult item, int type) {
+    public void onLikeClick(View v, int position, BoardResult item, int type) {
         if (mListener != null) {
-            mListener.onAdapterItemClick(this, v, item, type);
+            mListener.onAdapterItemClick(this, v, position,item, type);
         }
     }
-
-    Random r = new Random();
-
     //start recyclerView.OnItemClick implements
     OnItemClickListener itemClickListener;
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -108,7 +106,22 @@ public class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void setTotalCount(int count){
         this.totalCount = count;
     }
-
-
+    //like
+    public void setLike(int position, int userId){
+        if(getItem(position).likes.contains(userId)){
+            if(getItem(position).likeCount == 0) return;
+            else {
+                getItem(position).likeCount--;
+                //remove(userId) 하면 인덱스기반 remove(index(===userId))가 실행되서 boundException 발생하기 때문에 idx 따로 처리
+                //ArrayList<Integer> likes 니까 new Integer(userId) 로 넣어야 되나?
+                int idx = getItem(position).likes.lastIndexOf(userId);
+                getItem(position).likes.remove(idx);
+            }
+        } else {
+            getItem(position).likeCount++;
+            getItem(position).likes.add(userId);    //add는 indexOf 하면 현재 배열에 없으니까 -1 리턴 됨.
+        }
+        notifyDataSetChanged();
+    }
 }
 

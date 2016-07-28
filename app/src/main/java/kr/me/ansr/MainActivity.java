@@ -100,7 +100,15 @@ public class MainActivity extends AppCompatActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation() +"\nlatitude: "+PropertyManager.getInstance().getLatitude()+"\nlongitude"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation()
+					+"\nlatitude: "+PropertyManager.getInstance().getLatitude()
+					+"\nlongitude"+PropertyManager.getInstance().getLongitude()
+					+"\nemail"+PropertyManager.getInstance().getEmail()
+					+"\nuserId"+PropertyManager.getInstance().getUserId()
+					+"\nusername"+PropertyManager.getInstance().getUserName()
+					+"\nunivId"+PropertyManager.getInstance().getUnivId()
+					+"\nprofile"+PropertyManager.getInstance().getProfile()
+					, Toast.LENGTH_LONG).show();
 			return true;
 		}
         if (id == R.id.logout) {

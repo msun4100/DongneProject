@@ -25,6 +25,12 @@ public class FriendsResult implements Serializable{
 
     public FriendsResult(){}
 
+    public FriendsResult(int userId, String username, String pic) {
+        this.userId = userId;
+        this.username = username;
+        this.pic = pic;
+    }
+
     public int getGroupIndex() {
         return groupIndex;
     }

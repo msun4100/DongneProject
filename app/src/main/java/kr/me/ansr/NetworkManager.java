@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -32,6 +33,8 @@ import javax.net.ssl.TrustManagerFactory;
 import kr.me.ansr.login.LoginInfo;
 import kr.me.ansr.login.autocomplete.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
+import kr.me.ansr.tab.board.like.LikeInfo;
+import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -494,4 +497,91 @@ public class NetworkManager {
         return null;
     }
 
+    private static final String URL_BOARD_LIST = SERVER_URL + "/board/list/:univId/:tab";
+    public Request postDongneBoardList(Context context, String univId, String tab, String start, String display, String reqDate, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST.replace(":univId", ""+univId).replace(":tab", ""+tab);
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private static final String URL_BOARD_LIKE = SERVER_URL + "/board/like";
+    public Request postDongneBoardLike(Context context, int like, String boardId, String userId, final OnResultListener<LikeInfo> listener) {
+        try {
+            String url = "";
+            if(like < 2 && like == LikeInfo.DISLIKE){
+                url = URL_BOARD_LIKE.replace("like", "dislike");
+            } else if(like < 2 && like == LikeInfo.LIKE){
+                url = URL_BOARD_LIKE;
+            }
+            final CallbackObject<LikeInfo> callbackObject = new CallbackObject<LikeInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("boardId", boardId);
+            json.addProperty("userId", userId);
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    LikeInfo result = gson.fromJson(response.body().charStream(), LikeInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

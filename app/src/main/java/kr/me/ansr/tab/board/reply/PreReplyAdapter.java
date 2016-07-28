@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.board.preview;
+package kr.me.ansr.tab.board.reply;
 
 import android.content.Context;
 import android.view.View;
@@ -15,7 +15,7 @@ public class PreReplyAdapter extends BaseAdapter
     implements Serializable, PreReplyItemView.OnLikeClickListener{
 
         public interface OnAdapterItemClickListener {
-            public void onAdapterItemClick(PreReplyAdapter adapter, View view, PreReply item, int type);
+            public void onAdapterItemClick(PreReplyAdapter adapter, View view, ReplyResult item, int type);
         }
 
         OnAdapterItemClickListener mListener;
@@ -25,7 +25,7 @@ public class PreReplyAdapter extends BaseAdapter
     }
 
     //	===============
-    ArrayList<PreReply> items = new ArrayList<PreReply>();
+    ArrayList<ReplyResult> items = new ArrayList<ReplyResult>();
     Context mContext;
     int totalCount;
     String keyword;
@@ -34,11 +34,11 @@ public class PreReplyAdapter extends BaseAdapter
         mContext = context;
     }
 
-    public void add(PreReply item){
+    public void add(ReplyResult item){
         items.add(item);
         notifyDataSetChanged();
     }
-    public void addAll(ArrayList<PreReply> items) {
+    public void addAll(ArrayList<ReplyResult> items) {
         this.items.addAll(items);
         notifyDataSetChanged();
     }
@@ -75,7 +75,7 @@ public class PreReplyAdapter extends BaseAdapter
     }
 
     @Override
-    public void onLikeClick(View v, PreReply item, int type) {
+    public void onLikeClick(View v, ReplyResult item, int type) {
         if (mListener != null) {
             mListener.onAdapterItemClick(this, v, item, type);
         }
