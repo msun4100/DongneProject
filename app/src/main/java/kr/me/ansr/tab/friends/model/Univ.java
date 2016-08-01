@@ -1,9 +1,13 @@
 package kr.me.ansr.tab.friends.model;
 
+import android.widget.SectionIndexer;
+
+import java.io.Serializable;
+
 /**
  * Created by KMS on 2016-07-21.
  */
-public class Univ {
+public class Univ implements Serializable{
     public int univId;
     public int deptId;
     public String deptname;
@@ -11,7 +15,6 @@ public class Univ {
     public int enterYear;
 
     public Univ(){}
-
     public Univ(int univId, int deptId, String deptname, int isGraduate, int enterYear) {
         this.univId = univId;
         this.deptId = deptId;

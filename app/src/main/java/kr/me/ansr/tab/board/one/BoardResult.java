@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import kr.me.ansr.tab.board.reply.ReplyResult;
+import kr.me.ansr.tab.friends.model.Pic;
 
 /**
  * Created by KMS on 2016-07-27.
@@ -31,13 +32,20 @@ public class BoardResult implements Serializable {
 //        this.user = new FriendsResult(-1, "name", "");
         this.user = new BoardUser();
     }
-
-    public class BoardUser {
+    public class BoardUser implements Serializable{
         public int enterYear;
         public String username;
         public String deptname;
-        public String pic;
+        public Pic pic;
         public BoardUser(){}
     }
 
+    @Override
+    public String toString() {
+        return "BoardResult{" +
+                "_id='" + _id + '\'' +
+                ", boardId=" + boardId +
+                ", user=" + user +
+                '}';
+    }
 }

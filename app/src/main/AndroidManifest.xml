@@ -37,8 +37,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -55,7 +54,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.SignupActivity" />
-        <activity android:name=".tab.board.detail.BoardDetailActivity" />
         <!-- ==================================== -->
         <activity
             android:name=".gcmchat.activity.MainActivity"
@@ -131,6 +129,9 @@
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
         -->
         <meta-data
+            android:name="kr.me.ansr.image.MyGlideModule"
+            android:value="GlideModule" />
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
@@ -159,7 +160,12 @@
         <activity
             android:name=".image.MediaStoreActivity"
             android:label="@string/title_activity_media_store"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.board.detail.BoardDetailActivity"
+            android:label="@string/title_activity_board_detail"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

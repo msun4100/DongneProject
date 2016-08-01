@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.AndroidMultiPartEntity;
@@ -182,7 +183,8 @@ public class ImageHomeFragment extends Fragment {
                 // Adding file data to http body
                 entity.addPart("photo", new FileBody(sourceFile));
                 // Extra parameters if you want to pass to server
-//                entity.addPart("email", new StringBody("abc@gmail.com"));
+                String reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                entity.addPart("reqDate", new StringBody(reqDate));
 //                entity.addPart("title", new StringBody("new title string"));
                 totalSize = entity.getContentLength();
                 httppost.setEntity(entity);
@@ -231,7 +233,7 @@ public class ImageHomeFragment extends Fragment {
                 textView3.setText("프로필 사진 등록 완료");
                 btn.setText("완료");
 //                Glide.with(getActivity()).load(filePath).into(profileView);
-                final String url = Config.FILE_GET_URL.replace(":userId", ""+1);
+                final String url = Config.FILE_GET_URL.replace(":userId", ""+1).replace(":size", "small");
 //                Glide.with(getActivity()).load(url).into(profileView);
                 profileView.postDelayed(new Runnable() {
                     @Override

@@ -1,10 +1,12 @@
 package kr.me.ansr.tab.board.one;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,7 +25,10 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.tab.board.ActivityResultEvent;
+import kr.me.ansr.tab.board.EventBus;
 import kr.me.ansr.tab.board.PagerFragment;
+import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
@@ -53,14 +60,13 @@ public class ChildOneFragment extends PagerFragment {
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-//                        if(!dialog.isShowing()){
-//                            refreshLayout.setRefreshing(false);
-//                        }
-                        refreshLayout.setRefreshing(false);
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        initBoard();
                     }
                 }, 2000);
             }
-        });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
+        });
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -69,7 +75,6 @@ public class ChildOneFragment extends PagerFragment {
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     getMoreItem();
                 }
-
             }
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -88,7 +93,11 @@ public class ChildOneFragment extends PagerFragment {
             @Override
             public void onItemClick(View view, int position) {
                 BoardResult data = mAdapter.getItem(position);
-                Toast.makeText(getActivity(), "data : " + data.toString(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), BoardDetailActivity.class);
+//                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
+                intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
+                intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
+                getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
             }
         });
         mAdapter.setOnAdapterItemClickListener(new BoardAdapter.OnAdapterItemClickListener() {
@@ -106,7 +115,7 @@ public class ChildOneFragment extends PagerFragment {
                         Toast.makeText(getActivity(), "listViewLayout click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         break;
                     case 400:
-                        Toast.makeText(getActivity(), "like view click:\n"+data.likes.toString() + "\n" + position, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "like view click:\n"+data.likes.toString(), Toast.LENGTH_SHORT).show();
                         int likeMode =2;    //likeMode가 2면 요청 안하고 리턴
                         int mUserId = Integer.valueOf(PropertyManager.getInstance().getUserId());
                         if(data.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
@@ -193,47 +202,25 @@ public class ChildOneFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
-//                        dialog.dismiss();
-//                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(getActivity(), TAG + "Board init() onFailure:" + cause, Toast.LENGTH_LONG).show();
-//                        dialog.dismiss();
-//                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
                     }
                 });
-//        dialog = new ProgressDialog(getActivity());
-//        dialog.setTitle("Loading....");
-//        dialog.show();
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Loading....");
+        dialog.show();
     }
-    private void initData() {
-        for (int i = 0; i < 10; i++) {
-            String text = "교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.교양 수업 스포츠 문화 책 구합니다.";
-            BoardResult data = new BoardResult();
-            Random r = new Random();
-            data.user.username = "item " + i;
-            data.body = text.substring(0, (r.nextInt(3)+1)*40);
-            int num = r.nextInt(4);
-            Log.e(TAG+" num:", ""+num );
-//            if(num != 0){
-//                ArrayList<PreReply> list = new ArrayList<PreReply>();
-//                for(int j=0; j<num; j++){
-//                    PreReply pr = new PreReply();
-//                    pr.userId=j;
-//                    pr.username = "username"+j;
-//                    pr.body = "body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j+"body"+j;
-//                    list.add(pr);
-//                }
-//                data.preReplies = list;
-//            }
-            mAdapter.add(data);
-        }
-    }
+    //request values
     boolean isMoreData = false;
     ProgressDialog dialog = null;
-    private static final int DISPLAY_NUM = 5;
+    private static final int DISPLAY_NUM = BoardInfo.BOARD_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
 
@@ -303,7 +290,37 @@ public class ChildOneFragment extends PagerFragment {
             }
         });
     }
+    private void ModifiedSetItem(int position, BoardResult result){
+        if(position == -1 || result == null) return;
+        mAdapter.getItem(position).likes = result.likes;
+        mAdapter.getItem(position).likeCount = result.likeCount;
+        mAdapter.getItem(position).repCount = result.repCount;
+        mAdapter.notifyDataSetChanged();
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle extraBundle;
+//        Toast.makeText(getActivity(),"fragment reqCode:"+requestCode+"\nresultCode:"+resultCode, Toast.LENGTH_SHORT).show();
+        switch (requestCode) {
+            case BoardInfo.BOARD_RC_NUM:
+                if (resultCode == getActivity().RESULT_OK) {
+                    extraBundle = data.getExtras();
+                    int position = (int)extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+                    BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+//                    Toast.makeText(getActivity(),"result ok->likes.size()"+ result.likes.size()+" position:" + position , Toast.LENGTH_SHORT).show();
+                    ModifiedSetItem(position, result);
+                    break;
+                }
+        }
+    }
+    //EventBus의 post를 통해 ActivityResultEvent 를 매개변수로 받아서 현재 프래그먼트의 (오버라이드한)onActivityResult를 호출
+    //register/unregister 하는 과정은 baseFragment인 PagerFragment에서
+    @Subscribe
+    public void onEvent(ActivityResultEvent activityResultEvent){
+       onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
+    }
 
     public ChildOneFragment(){}
     //보드 프래그먼트의 커스텀뷰페이저 오버라이드

@@ -3,6 +3,7 @@ package kr.me.ansr.tab.board.one;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,6 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,21 +131,23 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         if(bodyView.getText().toString().length() > 80){
             bodyAddView.setVisibility(View.VISIBLE);
         }
-        if (!TextUtils.isEmpty(item.user.pic)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
-            Glide.with(mContext).load(url).into(iconThumb);
-        } else {
-            iconThumb.setImageResource(R.mipmap.ic_launcher);
-        }
+        String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
+        //isEmpty() 체크를 안하면 pic="" 인 유저들은 placeholder이미지가 뿌려짐
+        Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
+//        if (!TextUtils.isEmpty(item.user.pic)) {
+//            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
+//            Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
+//
+//        } else {
+//            iconThumb.setImageResource(R.mipmap.ic_launcher);
+//        }
         nameView.setText(item.user.username);
         String stuId = String.valueOf(item.user.enterYear);
-        stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
+        if(stuId.length()==4){
+            stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
+        } else { stuIdView.setText("17"); }
         deptView.setText(item.user.deptname);
-//        String ts = item._id.toString().substring(0, 8);
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//        String currentDateandTime = sdf.format(item.createdAt);
         timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
-//        iconLike.setImageResource(R.mipmap.ic_launcher);
         if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
             iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
         } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}

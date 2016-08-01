@@ -90,8 +90,8 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         deptView.setText(item.univ.get(0).getDeptname());
         jobView.setText(""+item.job.getName() + " " + item.job.getTeam());
         distanceView.setText(item.temp);
-        if (!TextUtils.isEmpty(item.pic)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId);
+        if (!TextUtils.isEmpty(item.pic.small)) {
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
             Glide.with(mContext).load(url).into(iconThumbView);
         } else {
             iconThumbView.setImageResource(R.mipmap.ic_launcher);

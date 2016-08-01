@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import kr.me.ansr.gcmchat.helper.MyPreferenceManager;
 
@@ -83,7 +84,8 @@ public class MyApplication extends Application {
 	}
 
 	public String getCurrentTimeStampString(){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currentDateandTime = sdf.format(new Date());
 		return currentDateandTime;
 	}

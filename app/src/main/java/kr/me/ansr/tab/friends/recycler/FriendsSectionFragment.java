@@ -164,6 +164,7 @@ public class FriendsSectionFragment extends Fragment
                 new NetworkManager.OnResultListener<FriendsInfo>() {
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
+//                        if(!result.message.equals("HAS_NO_BOARD_ITEM")  && result.result != null ){
                         if (result.error.equals(false)) {
                             if(result.result != null){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.

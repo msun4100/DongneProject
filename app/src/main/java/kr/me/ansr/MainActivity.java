@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import kr.me.ansr.login.SplashActivity;
 import kr.me.ansr.tab.board.BoardFragment;
+import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.meet.MeetFragment;
@@ -140,6 +141,4 @@ public class MainActivity extends AppCompatActivity {
 			tabs.startAnimation(anim);
 		}
 	}
-	
-	
 }

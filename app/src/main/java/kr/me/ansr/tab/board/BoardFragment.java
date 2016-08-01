@@ -6,6 +6,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -96,4 +97,18 @@ public class BoardFragment extends PagerFragment {
 			}
 		}
 	}
+
+	/**
+	 * NestedFragment에서 startactivityForresult실행시 fragment에 들어오지 않는 문제
+	 *
+	 * @param activityResultEvent
+	 */
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+	}
+
+
 }

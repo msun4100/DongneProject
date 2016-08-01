@@ -13,7 +13,7 @@ public class FriendsResult implements Serializable{
     public int userId;
     public String email;
     public String username;
-    public String pic;
+    public Pic pic;
     public String provider;
     public boolean isFriend;
     public String temp;
@@ -25,7 +25,7 @@ public class FriendsResult implements Serializable{
 
     public FriendsResult(){}
 
-    public FriendsResult(int userId, String username, String pic) {
+    public FriendsResult(int userId, String username, Pic pic) {
         this.userId = userId;
         this.username = username;
         this.pic = pic;
@@ -63,11 +63,11 @@ public class FriendsResult implements Serializable{
         this.username = username;
     }
 
-    public String getPic() {
+    public Pic getPic() {
         return pic;
     }
 
-    public void setPic(String pic) {
+    public void setPic(Pic pic) {
         this.pic = pic;
     }
 
@@ -136,7 +136,7 @@ public class FriendsResult implements Serializable{
         this.univ = univ;
     }
 
-    public FriendsResult(int groupIndex, int userId, String email, String username, String pic, String provider, boolean isFriend, String temp, Location location, ArrayList<String> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ) {
+    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<String> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ) {
         this.groupIndex = groupIndex;
         this.userId = userId;
         this.email = email;

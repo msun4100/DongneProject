@@ -584,4 +584,39 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_BOARD_DETAIL = SERVER_URL + "/board/:boardId";
+    public Request getDongneBoardDetail(Context context, int boardId, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_DETAIL.replace(":boardId", ""+boardId);
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
