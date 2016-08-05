@@ -63,12 +63,16 @@ public class FriendsSectionFragment extends Fragment
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if(!dialog.isShowing()){
-                            refreshLayout.setRefreshing(false);
-                        }
-                        Log.e(TAG, "onRefresh");
+//                        if(!dialog.isShowing()){
+//                            refreshLayout.setRefreshing(false);
+//                        }
+//                        Log.e(TAG, "onRefresh");
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        initUnivUsers();
                     }
                 }, 2000);
+//                refreshLayout.setRefreshing(false);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -109,6 +113,7 @@ public class FriendsSectionFragment extends Fragment
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                Log.e("sectionFragment->.sns", data.sns.get(0).toString());
                 getParentFragment().startActivityForResult(intent, FriendsInfo.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
             }
         });
@@ -202,41 +207,21 @@ public class FriendsSectionFragment extends Fragment
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
-                        dialog.dismiss();
+//                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        dialog.dismiss();
+//                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
                 });
-        dialog = new ProgressDialog(getActivity());
-        dialog.setTitle("Loading....");
-        dialog.show();
+//        dialog = new ProgressDialog(getActivity());
+//        dialog.setTitle("Loading....");
+//        dialog.show();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(dialog.isShowing()){
-            dialog.dismiss();
-        }
-        if(dialog != null){
-            dialog = null;
-        }
-    }
-
-    private void turnOnLoading(){
-        dialog = new ProgressDialog(getActivity());
-        dialog.setTitle("Loading....");
-        dialog.show();
-    }
-    private void turnOffLoading(){
-        dialog.dismiss();
-        refreshLayout.setRefreshing(false);
-    }
 
     boolean isMoreData = false;
     ProgressDialog dialog = null;
@@ -277,7 +262,7 @@ public class FriendsSectionFragment extends Fragment
                             mAdapter.addAllFriends(result.result);
                             FriendsDataManager.getInstance().items.addAll(result.result);
                             isMoreData = false;
-                            dialog.dismiss();
+//                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                             start++;
                             Log.e(TAG+"getMoreItem() start=", ""+start);
@@ -285,13 +270,13 @@ public class FriendsSectionFragment extends Fragment
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
                             isMoreData =false;
-                            dialog.dismiss();
+//                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                         }
                     });
-            dialog = new ProgressDialog(getActivity());
-            dialog.setTitle("Loading....");
-            dialog.show();
+//            dialog = new ProgressDialog(getActivity());
+//            dialog.setTitle("Loading....");
+//            dialog.show();
         }
     }
 

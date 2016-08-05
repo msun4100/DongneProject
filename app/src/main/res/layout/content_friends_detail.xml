@@ -178,7 +178,7 @@
 
     <ListView
         android:layout_below="@+id/LinearLayout2"
-        android:id="@+id/listView1"
+        android:id="@+id/listView_profile"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></ListView>
 

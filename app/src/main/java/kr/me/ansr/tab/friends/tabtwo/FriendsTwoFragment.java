@@ -59,14 +59,14 @@ public class FriendsTwoFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!dialog.isShowing()){
-                            refreshLayout.setRefreshing(false);
-                        }
-                    }
-                }, 2000);
+//                mHandler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if(!dialog.isShowing()){
+//                            refreshLayout.setRefreshing(false);
+//                        }
+//                    }
+//                }, 2000);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -190,23 +190,17 @@ public class FriendsTwoFragment extends Fragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
-                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
                 });
-        dialog = new ProgressDialog(getActivity());
-        dialog.setTitle("Loading....");
-        dialog.show();
     }
 
     boolean isMoreData = false;
-    ProgressDialog dialog = null;
     private static final int DISPLAY_NUM = 4;
     private int start=0;
     private String reqDate = null;
@@ -241,7 +235,6 @@ public class FriendsTwoFragment extends Fragment {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
                             isMoreData = false;
-                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                             start++;
                             Log.e(TAG+"getMoreItem() start=", ""+start);
@@ -249,13 +242,9 @@ public class FriendsTwoFragment extends Fragment {
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
                             isMoreData =false;
-                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                         }
                     });
-            dialog = new ProgressDialog(getActivity());
-            dialog.setTitle("Loading....");
-            dialog.show();
         }
     }
 
