@@ -45,7 +45,10 @@ public class BoardResult implements Serializable {
         return "BoardResult{" +
                 "_id='" + _id + '\'' +
                 ", boardId=" + boardId +
-                ", user=" + user +
+                ", writer=" + writer +
+                ", commentId='" + commentId + '\'' +
+                ", likeCount=" + likeCount +
+                ", repCount=" + repCount +
                 '}';
     }
 }

@@ -12,6 +12,9 @@ import android.widget.Toast;
 
 import kr.me.ansr.R;
 
+/**
+ * Created by KMS on 2016-07-11.
+ */
 public class SignupWayActivity extends AppCompatActivity {
 
     private String TAG = SignupWayActivity.class.getSimpleName();

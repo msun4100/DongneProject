@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import kr.me.ansr.R;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 
 /**
@@ -88,4 +89,37 @@ public class DetailReplyAdapter extends BaseAdapter
             mListener.onAdapterItemClick(this, v, item, type);
         }
     }
+
+
+    public void setLike(int position, int userId){
+        ReplyResult mItem = ((ReplyResult)getItem(position));
+        if(mItem.likes.contains(userId)){
+            if(mItem.likeCount == 0) return;
+            else {
+                mItem.likeCount--;
+                int idx = mItem.likes.lastIndexOf(userId);
+                mItem.likes.remove(idx);
+            }
+        } else {
+            mItem.likeCount++;
+            mItem.likes.add(userId);    //add 때는 indexOf 하면 현재 배열에 없으니까 -1 리턴 됨.
+        }
+        notifyDataSetChanged();
+    }
+    public void setLike(ReplyResult mItem, int userId){
+//        ReplyResult mItem = ((ReplyResult)getItem(position));
+        if(mItem.likes.contains(userId)){
+            if(mItem.likeCount == 0) return;
+            else {
+                mItem.likeCount--;
+                int idx = mItem.likes.lastIndexOf(userId);
+                mItem.likes.remove(idx);
+            }
+        } else {
+            mItem.likeCount++;
+            mItem.likes.add(userId);    //add 때는 indexOf 하면 현재 배열에 없으니까 -1 리턴 됨.
+        }
+        notifyDataSetChanged();
+    }
+
 }

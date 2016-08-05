@@ -4,8 +4,8 @@ package kr.me.ansr.common;
 import java.io.Serializable;
 
 public class CommonInfo {
-	boolean error;
-    String message;
+	public Boolean error;
+    public String message;
 
     @Override
     public String toString() {
@@ -15,7 +15,7 @@ public class CommonInfo {
                 '}';
     }
     public CommonInfo(){}
-    public CommonInfo(boolean error, String message) {
+    public CommonInfo(Boolean error, String message) {
         this.error = error;
         this.message = message;
     }

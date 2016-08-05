@@ -19,6 +19,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Created by KMS on 2016-07-11.
+ */
+
 public class LoginActivity extends AppCompatActivity {
 
 
@@ -49,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
 							PropertyManager.getInstance().setPassword(password);
 							PropertyManager.getInstance().setUserId(result.user.user_id);
 							PropertyManager.getInstance().setUnivId(result.user.univId);
+							PropertyManager.getInstance().setUserName(result.user.name);
 							//for chatting PropertyManager
 							User user = new User("" + result.user.user_id, result.user.name, result.user.email);
 							MyApplication.getInstance().getPrefManager().storeUser(user);

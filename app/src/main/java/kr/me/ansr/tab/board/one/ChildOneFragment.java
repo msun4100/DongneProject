@@ -298,6 +298,19 @@ public class ChildOneFragment extends PagerFragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    private void refreshList(){
+        mHandler.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                mAdapter.clearAll();
+                start = 0;
+                reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                initBoard();
+            }
+        }, 1000);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -307,12 +320,15 @@ public class ChildOneFragment extends PagerFragment {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == getActivity().RESULT_OK) {
                     extraBundle = data.getExtras();
-                    int position = (int)extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+                    int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
                     BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
-//                    Toast.makeText(getActivity(),"result ok->likes.size()"+ result.likes.size()+" position:" + position , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),""+ result.toString() , Toast.LENGTH_SHORT).show();
                     ModifiedSetItem(position, result);
                     break;
                 }
+            case 100:
+                refreshList();
+                break;
         }
     }
     //EventBus의 post를 통해 ActivityResultEvent 를 매개변수로 받아서 현재 프래그먼트의 (오버라이드한)onActivityResult를 호출
@@ -321,6 +337,8 @@ public class ChildOneFragment extends PagerFragment {
     public void onEvent(ActivityResultEvent activityResultEvent){
        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
+
+
 
     public ChildOneFragment(){}
     //보드 프래그먼트의 커스텀뷰페이저 오버라이드

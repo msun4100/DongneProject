@@ -164,7 +164,7 @@ public class GcmChatFragment extends PagerFragment {
          * */
         if (checkPlayServices()) {
             registerGCM();
-            fetchChatRooms();
+//            fetchChatRooms();
         }
 
 

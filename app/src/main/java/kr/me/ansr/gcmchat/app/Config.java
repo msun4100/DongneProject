@@ -1,7 +1,7 @@
 package kr.me.ansr.gcmchat.app;
 
 /**
- * Created by Lincoln on 05/01/16.
+ * Created by KMS on 2016-07-01.
  */
 public class Config {
 

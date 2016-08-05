@@ -30,9 +30,12 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
+import kr.me.ansr.common.CommonInfo;
 import kr.me.ansr.login.LoginInfo;
 import kr.me.ansr.login.autocomplete.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
+import kr.me.ansr.tab.board.CommentInfo;
+import kr.me.ansr.tab.board.WriteInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -54,19 +57,6 @@ public class NetworkManager {
 			instance = new NetworkManager();
 		}
 		return instance;
-	}
-
-	public interface OnLoginResultListener {
-		public void onSuccess(String message);
-	}
-	public void login(String id, String password, final OnLoginResultListener listener) {
-		mHandler.postDelayed(new Runnable() {
-			
-			@Override
-			public void run() {
-				listener.onSuccess("success");
-			}
-		}, 1000);
 	}
 
     OkHttpClient mClient;
@@ -256,6 +246,45 @@ public class NetworkManager {
         return null;
     }
 
+    private static final String URL_PUT_USER = SERVER_URL + "/user/:userId";
+    public Request putDongnePutUser(Context context, final String token, String userId, final OnResultListener<CommonInfo> listener) {
+        try {
+            String url = URL_PUT_USER.replace(":userId", userId);
+
+            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("gcm_registration_id", token);
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").put(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     private static final String URL_UNIV = SERVER_URL + "/univ";
     public Request getDongneUniv(Context context, final OnResultListener<UnivInfo> listener) {
@@ -605,6 +634,99 @@ public class NetworkManager {
                 public void onResponse(Call call, Response response) throws IOException {
                     Gson gson = new Gson();
                     BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_COMMENTS_ADD = SERVER_URL + "/comments/add";
+    public Request postDongneCommentAdd(Context context, int boardId, String parentCommentId, String content, final OnResultListener<CommentInfo> listener) {
+        try {
+            String url = URL_COMMENTS_ADD;
+
+            final CallbackObject<CommentInfo> callbackObject = new CallbackObject<CommentInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("boardId", ""+boardId);
+            json.addProperty("userId", ""+PropertyManager.getInstance().getUserId());
+            json.addProperty("username", ""+PropertyManager.getInstance().getUserName());
+            json.addProperty("parentCommentId", ""+parentCommentId);
+            json.addProperty("body", ""+content);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommentInfo result = gson.fromJson(response.body().charStream(), CommentInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_BOARD_WRITE = SERVER_URL + "/board/write";
+    public Request postDongneBoardWrite(Context context, int pageId, String type, String title, String content, final OnResultListener<WriteInfo> listener) {
+        try {
+            String url = URL_BOARD_WRITE;
+
+            final CallbackObject<WriteInfo> callbackObject = new CallbackObject<WriteInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("pageId", ""+pageId);
+            json.addProperty("univId", ""+PropertyManager.getInstance().getUnivId());
+            json.addProperty("writer", ""+PropertyManager.getInstance().getUserId());
+            json.addProperty("type", type);
+            json.addProperty("title", title);
+            json.addProperty("body", content);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    WriteInfo result = gson.fromJson(response.body().charStream(), WriteInfo.class);
                     callbackObject.result = result;
                     Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
                     mHandler.sendMessage(msg);

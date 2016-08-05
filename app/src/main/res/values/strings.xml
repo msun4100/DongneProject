@@ -150,6 +150,8 @@
     <string name="title_activity_media_store">MediaStoreActivity</string>
     <string name="title_activity_board_detail">게 시 글</string>
     <string name="board_anonymous_name">익 명</string>
+    <string name="title_activity_board_write">BoardWriteActivity</string>
+    <string name="title_activity_friends_detail">FriendsDetailActivity</string>
 
 
 </resources>

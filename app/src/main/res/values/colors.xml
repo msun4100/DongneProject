@@ -9,4 +9,7 @@
     <color name="invalid_password">#fff14249</color>
     <color name="lightGray">#e0e0e0</color>
 
+    <!--for custom dialog-->
+    <drawable name="dialog_background">#00000000</drawable>
+
 </resources>

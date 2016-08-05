@@ -8,7 +8,7 @@ import kr.me.ansr.gcmchat.model.User;
 
 
 /**
- * Created by Lincoln on 07/01/16.
+ * Created by KMS on 2016-07-01.
  */
 public class MyPreferenceManager {
 

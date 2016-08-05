@@ -132,8 +132,9 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             bodyAddView.setVisibility(View.VISIBLE);
         }
         String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-        //isEmpty() 체크를 안하면 pic="" 인 유저들은 placeholder이미지가 뿌려짐
         Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
+
+
 //        if (!TextUtils.isEmpty(item.user.pic)) {
 //            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
 //            Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
@@ -152,12 +153,12 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
         } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
         likeCountView.setText(""+item.likeCount);
-        replyCountView.setText("0");
-//        iconReply...
-//        iconLike...
-        //preReplies 처리
-        if(item.preReplies != null){
+        if(item.repCount != 0){
             replyCountView.setText(""+item.repCount);
+        } else {
+            replyCountView.setText("0");
+        }
+        if(item.preReplies != null){
             listView.setVisibility(View.VISIBLE);
             mAdapter.clear();
             for(ReplyResult reply : item.preReplies){

@@ -2,6 +2,9 @@ package kr.me.ansr.image;
 
 import java.io.Serializable;
 
+/**
+ * Created by KMS on 2016-07-18.
+ */
 
 public class ImageItem implements Serializable{
     private String name;

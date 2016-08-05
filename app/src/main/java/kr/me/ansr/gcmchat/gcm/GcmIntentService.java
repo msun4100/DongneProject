@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CommonInfo;
 import kr.me.ansr.gcmchat.app.Config;
 import kr.me.ansr.gcmchat.app.EndPoints;
 import kr.me.ansr.gcmchat.model.User;
@@ -76,6 +78,7 @@ public class GcmIntentService extends IntentService {
             Log.e(TAG, "GCM Registration Token: " + token);
 
             // sending the registration id to our server
+//            sendRegistrationToServerVolley(token);
             sendRegistrationToServer(token);
 
             sharedPreferences.edit().putBoolean(Config.SENT_TOKEN_TO_SERVER, true).apply();
@@ -89,7 +92,7 @@ public class GcmIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
-    private void sendRegistrationToServer(final String token) {
+    private void sendRegistrationToServerVolley(final String token) {
 
         // checking for valid login session
         User user = MyApplication.getInstance().getPrefManager().getUser();
@@ -102,7 +105,6 @@ public class GcmIntentService extends IntentService {
         String endPoint = EndPoints.USER.replace("_ID_", user.getId());
 
         Log.e(TAG, "endpoint: " + endPoint);
-
         StringRequest strReq = new StringRequest(Request.Method.PUT,
                 endPoint, new Response.Listener<String>() {
 
@@ -150,6 +152,36 @@ public class GcmIntentService extends IntentService {
         //Adding request to request queue
         MyApplication.getInstance().addToRequestQueue(strReq);
     }
+
+    private void sendRegistrationToServer(final String token) {
+
+        // checking for valid login session
+        User user = MyApplication.getInstance().getPrefManager().getUser();
+        if (user == null) {
+            // TODO
+            // user not found, redirecting him to login screen
+            return;
+        }
+
+        NetworkManager.getInstance().putDongnePutUser(getApplicationContext(), token, ""+user.getId(), new NetworkManager.OnResultListener<CommonInfo>() {
+            @Override
+            public void onSuccess(okhttp3.Request request, CommonInfo result) {
+                if (result.error.equals(false)) {
+                    // broadcasting token sent to server
+                    Intent registrationComplete = new Intent(Config.SENT_TOKEN_TO_SERVER);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Unable to send gcm registration id to our sever. " + result.message, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                Toast.makeText(getApplicationContext(), "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     /**
      * Subscribe to a topic

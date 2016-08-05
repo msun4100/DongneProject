@@ -31,7 +31,6 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onLikeClick(View v, FriendsResult item, int type) {
         if (mListener != null) {
             mListener.onAdapterItemClick(this, v, item, type);
-
         }
     }
 

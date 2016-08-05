@@ -3,7 +3,7 @@ package kr.me.ansr.gcmchat.model;
 import java.io.Serializable;
 
 /**
- * Created by KMS on 01/07/16.
+ * Created by KMS on 2016-07-01.
  */
 public class ChatRoom implements Serializable {
     String id, name, lastMessage, timestamp;

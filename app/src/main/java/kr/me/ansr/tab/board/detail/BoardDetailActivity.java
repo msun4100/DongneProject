@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -21,11 +22,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.board.one.BoardResult;
@@ -37,7 +41,7 @@ public class BoardDetailActivity extends AppCompatActivity
 {
     private static final String TAG = BoardDetailActivity.class.getSimpleName();
     ProgressDialog dialog = null;
-    private BoardResult mItem = null;
+    public BoardResult mItem = null;
     private CommentThread ct;
     private int reqBoardId, mPosition;
 
@@ -55,7 +59,8 @@ public class BoardDetailActivity extends AppCompatActivity
     ListView listView;
     DetailReplyAdapter mAdapter;
     LinearLayout likeLayout;
-
+    //reply input Views
+    EditText inputReply;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +91,10 @@ public class BoardDetailActivity extends AppCompatActivity
                     case 200:
                         Toast.makeText(BoardDetailActivity.this,"reply body click", Toast.LENGTH_SHORT).show();
                         break;
+                    case 300:
+                        mAdapter.setLike(item, Integer.valueOf(PropertyManager.getInstance().getUserId()));
+                        Toast.makeText(BoardDetailActivity.this, ""+item._id, Toast.LENGTH_SHORT).show();
+                        break;
                     default:
                         break;
                 }
@@ -103,9 +112,48 @@ public class BoardDetailActivity extends AppCompatActivity
         likeLayout.setOnClickListener(viewListener);
         bodyView.setOnClickListener(viewListener);
 
+        //implements reply
+        inputReply = (EditText)findViewById(R.id.edit_detail_input);
+        Button btn = (Button)findViewById(R.id.btn_detail_send);
+        btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                sendReply();
+            }
+        });
+
         initData();
     }
+    private void sendReply(){
+        final String content = inputReply.getText().toString();
+        NetworkManager.getInstance().postDongneCommentAdd(this, reqBoardId, mItem.commentId, content, new NetworkManager.OnResultListener<CommentInfo>() {
+            @Override
+            public void onSuccess(Request request, CommentInfo result) {
+                if(result.error.equals(false)){
+//                    mAdapter.clear();
+//                    mAdapter.addAll(result.comment.get(0).replies);
+                    inputReply.setText("");
+                    int userId = Integer.valueOf(PropertyManager.getInstance().getUserId());
+                    String username = PropertyManager.getInstance().getUserName();
 
+                    ReplyResult rr = new ReplyResult("", content, userId, username, new ArrayList<Integer>(), 0, new ArrayList<ReplyResult>(), null);
+                    mAdapter.add(rr);
+                    mItem.repCount = mAdapter.getCount();
+                    Log.e("mAdapter.getCount():", ""+mAdapter.getCount());
+                    int cnt = Integer.valueOf(replyCountView.getText().toString());
+                    replyCountView.setText(""+(cnt+1));
+                } else {
+                    inputReply.setText("");
+                    Toast.makeText(BoardDetailActivity.this, "error: true" +  result.message, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Request request, int code, Throwable cause) {
+                Toast.makeText(BoardDetailActivity.this, "onFailure:"+ cause, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void initData(){
         NetworkManager.getInstance().getDongneBoardDetail(this, reqBoardId, new NetworkManager.OnResultListener<BoardInfo>() {
@@ -127,10 +175,10 @@ public class BoardDetailActivity extends AppCompatActivity
                             mAdapter.clear();
                         }
                         mItem = result.result.get(0);
+                        mItem.repCount = mAdapter.getCount();   //client용 repCount 초기화
                         setBoardItem(mItem);
                     }
                 } else {
-                    //error: true
                     Toast.makeText(BoardDetailActivity.this, "error: true" + result.message, Toast.LENGTH_LONG).show();
                 }
                 dialog.dismiss();
@@ -222,8 +270,6 @@ public class BoardDetailActivity extends AppCompatActivity
             if(mItem.likeCount == 0) return;
             else {
                 mItem.likeCount--;
-                //remove(userId) 하면 인덱스기반 remove(index(===userId))가 실행되서 boundException 발생하기 때문에 idx 따로 처리
-                //ArrayList<Integer> likes 니까 new Integer(userId) 로 넣어야 되나?
                 int idx = mItem.likes.lastIndexOf(userId);
                 mItem.likes.remove(idx);
 

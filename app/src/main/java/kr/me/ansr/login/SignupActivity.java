@@ -29,6 +29,10 @@ import kr.me.ansr.login.autocomplete.univ.UnivInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivResult;
 import okhttp3.Request;
 
+/**
+ * Created by KMS on 2016-07-11.
+ */
+
 public class SignupActivity extends Activity {
 	private static final String TAG = SignupActivity.class.getSimpleName();
 	AutoCompleteTextView textViewUniv, textViewDept;

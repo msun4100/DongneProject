@@ -213,4 +213,19 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 
+	//user's isGraduate
+	private static final String FIELD_IS_GRADUATE = "isGraduate";
+	private String mIsGraduate;
+
+	public String getIsGraduate(){
+		if (mIsGraduate == null) {
+			mIsGraduate = mPrefs.getString(FIELD_IS_GRADUATE, "");
+		}
+		return mIsGraduate;
+	}
+	public void setIsGraduate(String isGraduate) {
+		mIsGraduate = isGraduate;
+		mEditor.putString(FIELD_IS_GRADUATE, isGraduate);
+		mEditor.commit();
+	}
 }

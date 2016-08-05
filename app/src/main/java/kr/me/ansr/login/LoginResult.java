@@ -2,6 +2,10 @@ package kr.me.ansr.login;
 
 import java.io.Serializable;
 
+/**
+ * Created by KMS on 2016-07-11.
+ */
+
 public class LoginResult implements Serializable{
 //    MySQL user schema
     public String user_id;

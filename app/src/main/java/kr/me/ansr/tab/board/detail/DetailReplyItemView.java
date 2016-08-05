@@ -6,8 +6,11 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 
@@ -28,6 +31,13 @@ public class DetailReplyItemView extends FrameLayout{
     TextView usernameView;
     TextView bodyView;
 
+    ImageView iconReply;
+    TextView replyCountView;
+    ImageView iconLike;
+    TextView likeCountView;
+
+    LinearLayout likeLayout;
+
     public interface OnLikeClickListener {
         public void onLikeClick(View v, ReplyResult item, int type);
     }
@@ -40,14 +50,19 @@ public class DetailReplyItemView extends FrameLayout{
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.text_board_preview_reply_name:
+                case R.id.text_board_reply_reply_name:
                     if (mListener != null) {
                         mListener.onLikeClick(DetailReplyItemView.this, mItem, 100);
                     }
                     break;
-                case R.id.text_board_preview_reply_content:
+                case R.id.text_board_reply_reply_content:
                     if (mListener != null) {
                         mListener.onLikeClick(DetailReplyItemView.this, mItem, 200);
+                    }
+                    break;
+                case R.id.linear_board_reply_like_layout:
+                    if (mListener != null) {
+                        mListener.onLikeClick(DetailReplyItemView.this, mItem, 300);
                     }
                     break;
                 default:
@@ -57,11 +72,20 @@ public class DetailReplyItemView extends FrameLayout{
     };
 
     private void init() {
-        LayoutInflater.from(getContext()).inflate( R.layout.view_board_reply_layout, this);
-        usernameView = (TextView)findViewById(R.id.text_board_preview_reply_name);
-        bodyView = (TextView)findViewById(R.id.text_board_preview_reply_content);
+        LayoutInflater.from(getContext()).inflate( R.layout.view_board_detail_reply_layout, this);
+        usernameView = (TextView)findViewById(R.id.text_board_reply_reply_name);
+        bodyView = (TextView)findViewById(R.id.text_board_reply_reply_content);
         usernameView.setOnClickListener(viewListener);
         bodyView.setOnClickListener(viewListener);
+
+        iconReply = (ImageView)findViewById(R.id.image_board_reply_reply);
+        replyCountView = (TextView)findViewById(R.id.text_board_reply_reply_count);
+        iconLike = (ImageView) findViewById(R.id.image_board_reply_like);
+        likeCountView = (TextView)findViewById(R.id.text_board_reply_like_count);
+
+        likeLayout = (LinearLayout)findViewById(R.id.linear_board_reply_like_layout);
+        likeLayout.setOnClickListener(viewListener);
+
     }
 
     public void setItemData(ReplyResult item) {
@@ -69,6 +93,15 @@ public class DetailReplyItemView extends FrameLayout{
 //        termText.setText(Html.fromHtml("<u>" + str + "</u>"));
         usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
         bodyView.setText(item.body);
+
+        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
+            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
+        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
+        likeCountView.setText(""+item.likes.size());
+        replyCountView.setText("0");
+        if(item.replies != null) {
+            replyCountView.setText("" + item.replies.size());
+        }
     }
 
 }

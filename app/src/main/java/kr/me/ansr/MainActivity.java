@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 					+"\nlongitude"+PropertyManager.getInstance().getLongitude()
 					+"\nemail"+PropertyManager.getInstance().getEmail()
 					+"\nuserId"+PropertyManager.getInstance().getUserId()
-					+"\nusername"+PropertyManager.getInstance().getUserName()
+					+"\nusername:"+PropertyManager.getInstance().getUserName()
 					+"\nunivId"+PropertyManager.getInstance().getUnivId()
 					+"\nprofile"+PropertyManager.getInstance().getProfile()
 					, Toast.LENGTH_LONG).show();

@@ -35,7 +35,7 @@ import kr.me.ansr.gcmchat.app.Config;
 
 
 /**
- * Created by Ravi on 01/06/15.
+ * Created by KMS on 2016-07-01.
  */
 public class NotificationUtils {
 

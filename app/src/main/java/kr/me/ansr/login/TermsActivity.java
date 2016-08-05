@@ -12,7 +12,9 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import kr.me.ansr.R;
-
+/**
+ * Created by KMS on 2016-07-11.
+ */
 public class TermsActivity extends AppCompatActivity {
 
     CheckBox checkBox1, checkBox2;

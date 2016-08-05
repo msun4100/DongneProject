@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.HttpCookie;
-
 /**
  * Created by dongja94 on 2015-11-27.
  */

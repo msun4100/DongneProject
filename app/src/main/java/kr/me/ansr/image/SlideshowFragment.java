@@ -25,7 +25,9 @@ import java.util.ArrayList;
 
 import kr.me.ansr.R;
 
-
+/**
+ * Created by KMS on 2016-07-18.
+ */
 public class SlideshowFragment extends Fragment {
     private String TAG = SlideshowFragment.class.getSimpleName();
     private ArrayList<ImageItem> images;

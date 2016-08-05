@@ -11,7 +11,7 @@ import kr.me.ansr.R;
 
 
 /**
- * Created by Lincoln on 30/10/15.
+ * Created by KMS on 2016-07-01.
  */
 public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
     private Drawable mDivider;

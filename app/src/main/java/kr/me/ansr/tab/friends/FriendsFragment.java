@@ -65,6 +65,7 @@ public class FriendsFragment extends PagerFragment {
 		if (isVisibleToUser) {
 			if(activity != null){
 				activity.getSupportActionBar().setTitle("Friends Fragment");
+
 			}
 		}
 	}

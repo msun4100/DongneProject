@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
-
+/**
+ * Created by KMS on 2016-07-11.
+ */
 public class SplashBActivity extends AppCompatActivity {
 
     Button btn1;

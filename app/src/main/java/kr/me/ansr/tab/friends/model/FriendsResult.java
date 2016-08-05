@@ -18,7 +18,7 @@ public class FriendsResult implements Serializable{
     public boolean isFriend;
     public String temp;
     public Location location;
-    public ArrayList<String> sns;
+    public ArrayList<Sns> sns;
     public ArrayList<String> desc;
     public Job job;
     public ArrayList<Univ> univ;
@@ -103,11 +103,11 @@ public class FriendsResult implements Serializable{
         this.location = location;
     }
 
-    public ArrayList<String> getSns() {
+    public ArrayList<Sns> getSns() {
         return sns;
     }
 
-    public void setSns(ArrayList<String> sns) {
+    public void setSns(ArrayList<Sns> sns) {
         this.sns = sns;
     }
 
@@ -136,7 +136,7 @@ public class FriendsResult implements Serializable{
         this.univ = univ;
     }
 
-    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<String> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ) {
+    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ) {
         this.groupIndex = groupIndex;
         this.userId = userId;
         this.email = email;

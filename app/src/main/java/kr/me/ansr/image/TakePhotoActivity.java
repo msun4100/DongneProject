@@ -23,6 +23,10 @@ import java.io.File;
 
 import kr.me.ansr.R;
 
+/**
+ * Created by KMS on 2016-07-18.
+ */
+
 public class TakePhotoActivity extends AppCompatActivity {
 
     ImageView photoView;

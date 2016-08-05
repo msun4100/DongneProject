@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.friends.recycler;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,10 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import okhttp3.Request;
@@ -101,6 +104,12 @@ public class FriendsSectionFragment extends Fragment
             public void onItemClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
                 Toast.makeText(getActivity(), "data : " + data.toString(), Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                getParentFragment().startActivityForResult(intent, FriendsInfo.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
             }
         });
         mAdapter.setOnAdapterItemClickListener(new SectionAdapter.OnAdapterItemClickListener() {
@@ -132,8 +141,10 @@ public class FriendsSectionFragment extends Fragment
 //        initUnivUsers(); //onResume에서 호출
 
         start = 0;
-        reqDate = getCurrentTimeStamp();
+//        reqDate = getCurrentTimeStamp();
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initUnivUsers();
+
 
         return view;
     }
@@ -154,7 +165,7 @@ public class FriendsSectionFragment extends Fragment
 //            return;
             mUnivId = ""+ (0); //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
         }
-        reqDate = getCurrentTimeStamp();
+//        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                 0,
                 mUnivId,
@@ -206,6 +217,17 @@ public class FriendsSectionFragment extends Fragment
         dialog.show();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(dialog.isShowing()){
+            dialog.dismiss();
+        }
+        if(dialog != null){
+            dialog = null;
+        }
+    }
+
     private void turnOnLoading(){
         dialog = new ProgressDialog(getActivity());
         dialog.setTitle("Loading....");
@@ -218,7 +240,7 @@ public class FriendsSectionFragment extends Fragment
 
     boolean isMoreData = false;
     ProgressDialog dialog = null;
-    private static final int DISPLAY_NUM = 2;
+    private static final int DISPLAY_NUM = FriendsInfo.FRIEND_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
 

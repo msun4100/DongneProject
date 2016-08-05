@@ -11,6 +11,7 @@ public class ReplyResult implements Serializable {
     public String body;
     public int userId;
     public String username;
+
     public ArrayList<Integer> likes;
     public int likeCount;
 

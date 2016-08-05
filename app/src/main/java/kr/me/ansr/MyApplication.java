@@ -84,7 +84,7 @@ public class MyApplication extends Application {
 	}
 
 	public String getCurrentTimeStampString(){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currentDateandTime = sdf.format(new Date());
 		return currentDateandTime;

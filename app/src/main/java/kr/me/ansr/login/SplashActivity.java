@@ -2,11 +2,13 @@ package kr.me.ansr.login;
 
 
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.gcm.QuickstartPreferences;
 import kr.me.ansr.gcm.RegistrationIntentService;
+import kr.me.ansr.gcmchat.model.User;
 import okhttp3.Request;
 
 import android.Manifest;
@@ -45,7 +47,9 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
-
+/**
+ * Created by KMS on 2016-07-11.
+ */
 public class SplashActivity extends Activity {
 
     //for GCM
@@ -350,14 +354,22 @@ public class SplashActivity extends Activity {
         public void run() {
 //            PropertyManager.getInstance().setUserId("Todo..");
 //            String userId = PropertyManager.getInstance().getUserId();
-            String email = PropertyManager.getInstance().getEmail();
+            final String email = PropertyManager.getInstance().getEmail();
             if (!email.equals("")) {
-                String password = PropertyManager.getInstance().getPassword();
+                final String password = PropertyManager.getInstance().getPassword();
 //                final String id = "user01@gmail.com";
 //                final String password = "1234";
                 NetworkManager.getInstance().postDongneLogin(SplashActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>(){
                     @Override
                     public void onSuccess(Request request, LoginInfo result) {
+                        PropertyManager.getInstance().setEmail(email);
+                        PropertyManager.getInstance().setPassword(password);
+                        PropertyManager.getInstance().setUserId(result.user.user_id);
+                        PropertyManager.getInstance().setUnivId(result.user.univId);
+                        PropertyManager.getInstance().setUserName(result.user.name);
+                        //for chatting PropertyManager
+                        User user = new User("" + result.user.user_id, result.user.name, result.user.email);
+                        MyApplication.getInstance().getPrefManager().storeUser(user);
                         Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                         startActivity(intent);

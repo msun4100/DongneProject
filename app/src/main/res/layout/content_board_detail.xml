@@ -1,50 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="kr.me.ansr.tab.board.detail.BoardDetailActivity"
-    tools:showIn="@layout/activity_board_detail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="kr.me.ansr.tab.board.detail.BoardDetailActivity"
+    tools:showIn="@layout/activity_board_detail">
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
 
         <ImageView
             android:id="@+id/image_board_thumb"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_margin="2dp"
             android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
             android:src="@drawable/ic_launcher" />
+
         <LinearLayout
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/text_board_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="유저명"
-                    android:visibility="visible"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:visibility="visible" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
                 <TextView
                     android:id="@+id/text_board_stuid"
                     android:layout_width="wrap_content"
@@ -76,64 +82,74 @@
             android:layout_marginLeft="25dp"
 
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/text_board_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
                 android:text="타임스탬프"
-                android:textSize="12sp"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="12sp" />
+
             <TextView
                 android:id="@+id/text_board_imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
                 android:text="imageView"
-                android:textSize="12sp"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
     <!-- 상단 뷰-->
 
     <LinearLayout
+        android:id="@+id/layout_content"
+        android:layout_below="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:layout_marginLeft="36dp"
+        android:layout_marginTop="4dp"
         android:orientation="vertical">
+
         <TextView
             android:id="@+id/text_board_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="교양 수업 스포츠 문화 책 구합니다."/>
+            android:text="교양 수업 스포츠 문화 책 구합니다." />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
             android:layout_gravity="end"
+            android:background="@color/colorPrimaryDark"
             android:orientation="horizontal">
+
             <ImageView
                 android:id="@+id/image_board_reply"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:background="@mipmap/ic_launcher"/>
+                android:background="@mipmap/ic_launcher" />
+
             <TextView
                 android:id="@+id/text_board_reply_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5"/>
+                android:text="5" />
 
             <LinearLayout
                 android:id="@+id/linear_like_layout"
-                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
                 <ImageView
                     android:id="@+id/image_board_like"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:background="@drawable/b_main_view_contents_icon_05_off" />
+
                 <TextView
                     android:id="@+id/text_board_like_count"
                     android:layout_width="wrap_content"
@@ -148,25 +164,72 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/board_padding_size"
         android:background="@color/list_divider"
-        android:orientation="horizontal">
-    </LinearLayout>
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:orientation="horizontal"
+        android:layout_below="@+id/layout_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/linearLayout2"></LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/linear_board_reply_layout"
+    <LinearLayout
+        android:id="@+id/linear_board_reply_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/linear_board_send_layout">
+        <ListView
+            android:id="@+id/listView_board"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@null"
+            android:visibility="visible"></ListView>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/linear_board_send_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:weightSum="4">
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:elevation="20dp"
-            android:orientation="vertical">
-            <ListView
-                android:id="@+id/listView_board"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@null"
-                android:elevation="9dp"
-                android:visibility="gone"></ListView>
-        </LinearLayout>
-    </FrameLayout>
-</LinearLayout>
+            android:text="익명"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+        <CheckBox
+            android:id="@+id/check_detail_anonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+             />
+        <EditText
+            android:id="@+id/edit_detail_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:background="@null"
+            android:layout_weight="3"
+            android:hint="Enter message"
+            android:lines="1"
+            android:paddingLeft="10dp" />
+
+        <Button
+            android:id="@+id/btn_detail_send"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SEND"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16dp" />
+        <!--android:background="@null"-->
+    </LinearLayout>
+
+</RelativeLayout>

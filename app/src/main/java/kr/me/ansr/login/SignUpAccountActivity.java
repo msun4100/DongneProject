@@ -36,6 +36,10 @@ import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.app.EndPoints;
 import kr.me.ansr.gcmchat.model.User;
 
+/**
+ * Created by KMS on 2016-07-11.
+ */
+
 public class SignUpAccountActivity extends AppCompatActivity {
 
     private String TAG = SignUpAccountActivity.class.getSimpleName();
