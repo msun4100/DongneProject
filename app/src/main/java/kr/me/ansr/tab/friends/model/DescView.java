@@ -20,8 +20,8 @@ public class DescView extends FrameLayout{
     TextView descView;
     ImageView iconView;
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.view_profile_desc_layout, this);
-//        inflate(getContext(), R.layout.view_profile_desc_layout, this);
+//        LayoutInflater.from(getContext()).inflate(R.layout.view_profile_desc_layout, this);
+        inflate(getContext(), R.layout.view_profile_desc_layout, this);
         iconView = (ImageView)findViewById(R.id.image_profile_desc_icon);
         descView = (TextView)findViewById(R.id.text_profile_desc);
     }

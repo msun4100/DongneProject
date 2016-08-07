@@ -22,6 +22,7 @@ public class FriendsResult implements Serializable{
     public ArrayList<String> desc;
     public Job job;
     public ArrayList<Univ> univ;
+    public String updatedAt;
 
     public FriendsResult(){}
 
@@ -152,16 +153,42 @@ public class FriendsResult implements Serializable{
         this.univ = univ;
     }
 
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ, String updatedAt) {
+        this.groupIndex = groupIndex;
+        this.userId = userId;
+        this.email = email;
+        this.username = username;
+        this.pic = pic;
+        this.provider = provider;
+        this.isFriend = isFriend;
+        this.temp = temp;
+        this.location = location;
+        this.sns = sns;
+        this.desc = desc;
+        this.job = job;
+        this.univ = univ;
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         return "FriendsResult{" +
                 "userId=" + userId +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
-                ", pic='" + pic + '\'' +
+                ", pic=" + pic +
                 ", isFriend=" + isFriend +
                 ", temp='" + temp + '\'' +
                 ", univ=" + univ +
+                ", updatedAt='" + updatedAt + '\'' +
                 '}';
     }
 }

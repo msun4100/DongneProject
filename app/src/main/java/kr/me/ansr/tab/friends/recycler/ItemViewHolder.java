@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
 
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
@@ -90,9 +91,14 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         deptView.setText(item.univ.get(0).getDeptname());
         jobView.setText(""+item.job.getName() + " " + item.job.getTeam());
         distanceView.setText(item.temp);
+//        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+//        Glide.with(mContext).load(url).into(iconThumbView);
         if (!TextUtils.isEmpty(item.pic.small)) {
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-            Glide.with(mContext).load(url).into(iconThumbView);
+            Glide.with(mContext).load(url)
+                    .placeholder(R.drawable.ic_stub)
+                    .signature(new StringSignature(item.getUpdatedAt()))
+                    .into(iconThumbView);
         } else {
             iconThumbView.setImageResource(R.mipmap.ic_launcher);
         }

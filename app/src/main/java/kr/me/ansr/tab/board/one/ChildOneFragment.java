@@ -202,19 +202,25 @@ public class ChildOneFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(getActivity(), TAG + "Board init() onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
                 });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Board List Loading....");
+        dialog.show();
     }
 
     //request values
     boolean isMoreData = false;
+    ProgressDialog dialog = null;
     private static final int DISPLAY_NUM = BoardInfo.BOARD_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
@@ -247,6 +253,7 @@ public class ChildOneFragment extends PagerFragment {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
                             isMoreData = false;
+                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                             start++;
                             Log.e(TAG+"getMoreItem() start=", ""+start);
@@ -254,9 +261,13 @@ public class ChildOneFragment extends PagerFragment {
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
                             isMoreData =false;
+                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                         }
                     });
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("Board List Loading....");
+            dialog.show();
         }
     }
 

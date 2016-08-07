@@ -21,8 +21,7 @@ public class MeetFragment extends PagerFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_meet, container,
-				false);
+		View view = inflater.inflate(R.layout.fragment_meet, container, false);
 		
 		TextView tv = (TextView)view.findViewById(R.id.textView1);
 		tv.setText("fragment 4");

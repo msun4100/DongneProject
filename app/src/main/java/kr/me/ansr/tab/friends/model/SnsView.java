@@ -18,8 +18,8 @@ public class SnsView extends FrameLayout {
     TextView urlView;
     ImageView iconView;
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.view_profile_sns_layout, this);
-//        inflate(getContext(), R.layout.view_profile_sns_layout, this);
+//        LayoutInflater.from(getContext()).inflate(R.layout.view_profile_sns_layout, this);
+        inflate(getContext(), R.layout.view_profile_sns_layout, this);
         iconView = (ImageView)findViewById(R.id.image_profile_sns_icon);
         urlView = (TextView)findViewById(R.id.text_profile_sns);
     }

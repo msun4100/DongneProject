@@ -1,11 +1,13 @@
 package kr.me.ansr.tab.mypage;
 
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
 import kr.me.ansr.tab.friends.recycler.SectionAdapter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +15,17 @@ import android.widget.TextView;
 
 public class MypageFragment extends PagerFragment {
 
+	AppCompatActivity activity;
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		TextView tv = new TextView(getActivity());
-		tv.setText("Fragment 5");
-		return tv;
+
+		View view = inflater.inflate(R.layout.fragment_mypage, container, false);
+		activity = (AppCompatActivity) getActivity();
+
+
+
+		return view;
 	}
 	
 	
@@ -33,8 +40,9 @@ public class MypageFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			// ...
-//			FriendsDataManager.getInstance().items.clear();
-//			SectionAdapter.items.clear();
+			if(activity != null){
+				activity.getSupportActionBar().setTitle("더 보 기");
+			}
 		}
 	}
 }

@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.StringSignature;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -239,7 +240,10 @@ public class ImageHomeFragment extends Fragment {
                 profileView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Glide.with(getActivity()).load(url).into(profileView);
+                        Glide.with(getActivity()).load(url)
+                                .placeholder(R.drawable.ic_stub)
+                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
+                                .into(profileView);
                     }
                 },1500);
             } else {

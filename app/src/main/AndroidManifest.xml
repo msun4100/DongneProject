@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="kr.me.ansr">
+    package="kr.me.ansr" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -34,7 +34,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -47,7 +47,7 @@
             android:label="@string/app_name" />
         <activity
             android:name=".login.SplashActivity"
-            android:label="@string/title_activity_splash">
+            android:label="@string/title_activity_splash" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -68,7 +68,7 @@
             android:name=".gcmchat.activity.ChatRoomActivity"
             android:label="@string/title_activity_chat_room_discussion"
             android:parentActivityName=".gcmchat.activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".gcmchat.activity.MainActivity" />
@@ -78,7 +78,7 @@
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
@@ -95,7 +95,7 @@
         <!-- [START instanceId_listener_service] -->
         <service
             android:name=".gcm.MyInstanceIDListenerService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
@@ -113,14 +113,14 @@
         <!-- ===================================== -->
         <service
             android:name=".gcmchat.gcm.MyGcmPushReceiver"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
             android:name=".gcmchat.gcm.GcmIntentService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
@@ -149,7 +149,7 @@
             android:name=".login.SignUpAccountActivity"
             android:label="@string/title_activity_sign_up_account"
             android:parentActivityName=".login.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="kr.me.ansr.login.LoginActivity" />
@@ -173,7 +173,7 @@
         <activity
             android:name=".tab.friends.detail.FriendsDetailActivity"
             android:label="@string/title_activity_friends_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

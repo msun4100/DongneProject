@@ -13,4 +13,6 @@
     <dimen name="activity_padding_zero">0dp</dimen>
     <dimen name="board_padding_size">4dp</dimen>
     <dimen name="board_write_layout_margin">10dp</dimen>
+
+    <dimen name="mypage_padding_size">4dp</dimen>
 </resources>
