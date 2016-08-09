@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by KMS on 2016-07-21.
  */
 public class FriendsInfo {
-    public static final int FRIEND_DISPLAY_NUM = 3;
+    public static final int FRIEND_DISPLAY_NUM = 5;
     public static final int FRIENDS_RC_NUM = 222;
     public static final String FRIENDS_DETAIL_USER_ID = "detailFriendsId";
 //    public static final String FRIENDS_DETAIL_OBJECT = "detailObject";
@@ -18,4 +18,5 @@ public class FriendsInfo {
     public String message;
     public ArrayList<FriendsResult> result;
     public int total;
+    public FriendsResult user;
 }

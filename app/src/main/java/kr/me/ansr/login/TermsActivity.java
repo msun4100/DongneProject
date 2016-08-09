@@ -1,7 +1,6 @@
 package kr.me.ansr.login;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -20,15 +19,19 @@ public class TermsActivity extends AppCompatActivity {
     CheckBox checkBox1, checkBox2;
     boolean isTermBoxChecked = false;
     boolean isPrivacyBoxChecked = false;
+
+    Button btn1, btn2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terms);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.common_back);
+        toolbar.setBackgroundResource(R.drawable.a_join_agree_titlebar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("약관 동의");
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         checkBox1 = (CheckBox)findViewById(R.id.check_term1);
         checkBox1.setChecked(false);
@@ -37,6 +40,14 @@ public class TermsActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 isTermBoxChecked=checkBox1.isChecked();
+                if(!isTermBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_1);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_icon_1);
+                }
+                if(isTermBoxChecked && isPrivacyBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_btn_selector);
+                }
             }
         });
         checkBox2 = (CheckBox)findViewById(R.id.check_term2);
@@ -46,19 +57,28 @@ public class TermsActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 isPrivacyBoxChecked=checkBox2.isChecked();
+                if(!isPrivacyBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_1);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_icon_1);
+                }
+                if(isTermBoxChecked && isPrivacyBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_btn_selector);
+                }
             }
         });
 
-        Button btn = (Button)findViewById(R.id.btn_terms_all);
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn1 = (Button)findViewById(R.id.btn_terms_all);
+        btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkBox1.setChecked(true);
                 checkBox2.setChecked(true);
+                btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
             }
         });
-        btn = (Button)findViewById(R.id.btn_terms_confirm);
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn2 = (Button)findViewById(R.id.btn_terms_confirm);
+        btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(isTermBoxChecked == true && isPrivacyBoxChecked == true){

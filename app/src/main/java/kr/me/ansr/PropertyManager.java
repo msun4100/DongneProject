@@ -3,6 +3,9 @@ package kr.me.ansr;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class PropertyManager {
 	private static PropertyManager instance;
@@ -197,7 +200,23 @@ public void clearProperties() {
 		mEditor.putString(FIELD_PROFILE, profile);
 		mEditor.commit();
 	}
-	//user's univId
+	//user's univName
+	private static final String FIELD_UNIV_NAME = "univName";
+	private String mUnivName;
+
+	public String getUnivName(){
+		if (mUnivName == null) {
+			mUnivName = mPrefs.getString(FIELD_UNIV_NAME, "");
+		}
+		return mUnivName;
+	}
+	public void setUnivName(String univName) {
+		mUnivName = univName;
+		mEditor.putString(FIELD_UNIV_NAME, univName);
+		mEditor.commit();
+	}
+
+	//univId
 	private static final String FIELD_UNIV_ID = "univId";
 	private String mUnivId;
 
@@ -210,6 +229,53 @@ public void clearProperties() {
 	public void setUnivId(String univId) {
 		mUnivId = univId;
 		mEditor.putString(FIELD_UNIV_ID, univId);
+		mEditor.commit();
+	}
+
+	//deptId
+	private static final String FIELD_DEPT_ID = "deptId";
+	private String mDeptId;
+
+	public String getDeptId(){
+		if (mDeptId == null) {
+			mDeptId = mPrefs.getString(FIELD_DEPT_ID, "");
+		}
+		return mDeptId;
+	}
+	public void setDeptId(String deptId) {
+		mDeptId = deptId;
+		mEditor.putString(FIELD_DEPT_ID, deptId);
+		mEditor.commit();
+	}
+
+	//user's deptName
+	private static final String FIELD_DEPT_NAME = "deptName";
+	private String mDeptName;
+
+	public String getDeptName(){
+		if (mDeptName == null) {
+			mDeptName = mPrefs.getString(FIELD_DEPT_NAME, "");
+		}
+		return mDeptName;
+	}
+	public void setDeptName(String deptName) {
+		mDeptName = deptName;
+		mEditor.putString(FIELD_DEPT_NAME, deptName);
+		mEditor.commit();
+	}
+	//user's enterYear
+	private static final String FIELD_ENTER_YEAR = "enterYear";
+	private String mEnterYear;
+
+	public String getEnterYear(){
+		if (mEnterYear == null) {
+			mEnterYear = mPrefs.getString(FIELD_ENTER_YEAR, "");
+		}
+		return mEnterYear;
+	}
+	public void setEnterYear(String enterYear) {
+		mEnterYear = enterYear;
+		mEditor.putString(FIELD_ENTER_YEAR, enterYear);
 		mEditor.commit();
 	}
 
@@ -228,4 +294,42 @@ public void clearProperties() {
 		mEditor.putString(FIELD_IS_GRADUATE, isGraduate);
 		mEditor.commit();
 	}
+
+
+
+
+
+	//==============================
+	public void storeUser(FriendsResult user) {
+		setUnivId(""+user.univ.get(0).univId);
+		setUserId(""+user.userId);
+		setUserName(user.username);
+		setEmail(user.email);
+		setProfile(user.pic.small);
+//		setPassword();
+//		setLatitude(""+user.location.lat);
+//		setLongitude(""+user.location.lon);
+//		setUsingLocation(0);
+		Log.e("PropertyManager", "(FriendsResult)User is stored in shared preferences. " + user.getUsername() + ", " + user.getEmail());
+	}
+
+	public FriendsResult getUser() {
+		if(getUserId() != null && getEmail() != null){
+			FriendsResult user = new FriendsResult();
+			user.univ.get(0).univId = Integer.valueOf(getUnivId());
+			user.userId = Integer.valueOf(getUserId());
+			user.email = getEmail();
+			user.location.lat = Double.valueOf(getLatitude());
+			user.location.lon = Double.valueOf(getLatitude());
+			user.pic.small = getProfile();
+
+			user.univ.get(0).univId = Integer.valueOf(getUnivId());
+			user.univ.get(0).deptname = getDeptName();
+			user.univ.get(0).deptId = Integer.valueOf(getDeptId());
+			user.univ.get(0).enterYear = Integer.valueOf(getEnterYear());
+			return user;
+		}
+		return null;
+	}
+
 }

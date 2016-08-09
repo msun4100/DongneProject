@@ -9,8 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
@@ -31,11 +33,13 @@ public class MainActivity extends AppCompatActivity {
 	TabsAdapter mAdapter;
 	TabWidget tabs;
 	private static final int PAGER_OFFSET_LIMIT = 3;
+	public ImageView toolbarIcon;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
@@ -77,8 +81,27 @@ public class MainActivity extends AppCompatActivity {
 			String tag = savedInstanceState.getString("tabTag");
 			tabHost.setCurrentTabByTag(tag);
 		}
+
+		toolbarIcon = (ImageView)toolbar.findViewById(R.id.image_toolbar);
+//		toolbar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//			@Override
+//			public void onGlobalLayout() {
+//				toolbarIcon = (ImageView)toolbar.findViewById(R.id.image_toolbar);
+//				if( toolbar == null ){
+//					return;
+//				}
+//				int toolbarWidth = toolbar.getWidth();
+//				int imageWidth = toolbarIcon.getWidth();
+//				toolbarIcon.setX((toolbarWidth-imageWidth)/2);
+//				toolbarIcon.setImageResource(R.drawable.ic_notification_small);
+//			}
+//		});
 	} //onCreate
-	
+
+	public ImageView getToolbarIcon() {
+		return toolbarIcon;
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);

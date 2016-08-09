@@ -23,6 +23,9 @@ public class MyDeptAdapter extends BaseAdapter implements Filterable {
     public int getDeptId(int position){
         return items.get(position).deptId;
     }
+    public String getDeptName(int position){
+        return items.get(position).deptname;
+    }
 
     @Override
     public int getCount() {

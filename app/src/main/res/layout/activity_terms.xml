@@ -4,17 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffffff"
     tools:context="kr.me.ansr.login.TermsActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <include
+            layout="@layout/common_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="@dimen/common_toolbar_size"/>
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
@@ -26,36 +26,42 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="34dp"
+            android:layout_marginLeft="34dp"
             android:orientation="horizontal"
             android:weightSum="4">
             <TextView
+                android:layout_marginLeft="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="서비스 이용약관 동의(필수)            "
+                android:text="서비스 이용약관 동의(필수)"
+                android:textStyle="bold"
+                android:textColor="#383535"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="3"/>
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_weight="4"/>
             <CheckBox
                 android:id="@+id/check_term1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="11dp"
                 android:layout_weight="1" />
             <!--android:button="@null"android:background="@drawable/check_selector" -->
         </LinearLayout>
         <ScrollView
+            android:layout_marginRight="34dp"
+            android:layout_marginLeft="34dp"
+            android:background="@drawable/layout_border"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/scrollview_size"
-            >
+            android:layout_height="@dimen/scrollview_size">
             <TextView
-                android:background="@android:color/white"
+                android:padding="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/text_margin"
                 android:layout_marginRight="@dimen/text_margin"
-                android:text="@string/large_text"
-                />
+                android:text="@string/large_text"/>
         </ScrollView>
         <LinearLayout
             android:layout_marginTop="20dp"
@@ -66,57 +72,66 @@
             <!--app:layout_anchorGravity="bottom"-->
 
             <LinearLayout
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginRight="34dp"
+                android:layout_marginLeft="34dp"
                 android:orientation="horizontal"
                 android:weightSum="4">
                 <TextView
+                    android:layout_marginLeft="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="개인정보 수집 및 이용 동의(필수)"
+                    android:textStyle="bold"
+                    android:textColor="#383535"
                     android:layout_gravity="center_vertical"
-                    android:layout_weight="3"/>
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_weight="4"/>
                 <CheckBox
                     android:id="@+id/check_term2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="11dp"
-                    android:layout_weight="1"
-                    />
+                    android:layout_weight="1" />
                 <!--android:button="@null"android:background="@drawable/check_selector" -->
             </LinearLayout>
             <ScrollView
+                android:layout_marginRight="34dp"
+                android:layout_marginLeft="34dp"
+                android:background="@drawable/layout_border"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/scrollview_size"
-                >
+                android:layout_height="@dimen/scrollview_size">
                 <TextView
-                    android:background="@android:color/white"
+                    android:padding="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/text_margin"
                     android:layout_marginRight="@dimen/text_margin"
-                    android:text="@string/large_text"
-                    />
+                    android:text="@string/large_text"/>
             </ScrollView>
         </LinearLayout>
         <LinearLayout
             android:layout_marginTop="30dp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="bottom|center_horizontal">
+            android:gravity="center_horizontal"
+            android:layout_gravity="bottom">
             <Button
                 android:id="@+id/btn_terms_all"
-                android:layout_width="160dp"
-                android:layout_height="wrap_content"
-                android:text="전체 동의"/>
+                android:layout_width="292dp"
+                android:layout_height="36dp"
+                android:background="@drawable/a_join_agree_icon_1"
+                android:text=""/>
             <Button
+                android:layout_marginTop="8dp"
                 android:id="@+id/btn_terms_confirm"
-                android:layout_width="160dp"
-                android:layout_height="wrap_content"
-                android:text="확인"/>
+                android:layout_width="292dp"
+                android:layout_height="36dp"
+                android:background="@drawable/a_join_confirm_icon_1"
+                android:text=""/>
         </LinearLayout>
     </LinearLayout>
 

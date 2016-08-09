@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -51,11 +52,15 @@ public class SignUpAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_sign_up_account);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.common_back);
+        toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         inputLayoutPw = (TextInputLayout) findViewById(R.id.input_layout_pw);
         inputLayoutPwConfirm = (TextInputLayout) findViewById(R.id.input_layout_pw_confirm);
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
@@ -190,7 +195,7 @@ public class SignUpAccountActivity extends AppCompatActivity {
     // Validating name
     private boolean validatePassword(int step) {
         if(step == 1){
-            if (inputPw.getText().toString().trim().isEmpty()) {
+            if (inputPw.getText().toString().isEmpty()) {
                 inputLayoutPw.setError(getString(R.string.err_msg_pw));
                 requestFocus(inputPw);
                 return false;
@@ -198,13 +203,13 @@ public class SignUpAccountActivity extends AppCompatActivity {
                 inputLayoutPw.setErrorEnabled(false);
             }
         } else if(step == 2){
-            if (inputPwConfirm.getText().toString().trim().isEmpty()) {
+            if (inputPwConfirm.getText().toString().isEmpty()) {
                 textConfirm.setVisibility(View.GONE);
                 inputLayoutPwConfirm.setError(getString(R.string.err_msg_pw_confirm));
                 requestFocus(inputPwConfirm);
                 return false;
             } else if(!isConfirmPassword()){
-                inputLayoutPwConfirm.setError("Invalid password");
+                inputLayoutPwConfirm.setError(getString(R.string.err_msg_pw_confirm));
                 inputLayoutPwConfirm.setErrorEnabled(false);
                 requestFocus(inputPwConfirm);
                 return false;
@@ -219,14 +224,16 @@ public class SignUpAccountActivity extends AppCompatActivity {
         String pw2 = inputPwConfirm.getText().toString();
         if(!pw1.equals(pw2)){
             textConfirm.setVisibility(View.VISIBLE);
-            textConfirm.setTextColor(0xfff14249);
-            textConfirm.setText("Invalid Password");
+//            textConfirm.setTextColor(R.color.invalid_input);
+            textConfirm.setTextColor(ContextCompat.getColor(this, android.support.design.R.color.design_textinput_error_color_light));
+            textConfirm.setText(getString(R.string.err_msg_pw_confirm));
 //            Toast.makeText(getApplicationContext(), "같지 않음", Toast.LENGTH_SHORT).show();
             return false;
         }
         textConfirm.setVisibility(View.VISIBLE);
-        textConfirm.setTextColor(0xffEA80FC);
-        textConfirm.setText("valid Password");
+        textConfirm.setTextColor(ContextCompat.getColor(this, R.color.valid_input));
+//        textConfirm.setTextColor(0xffEA80FC);
+        textConfirm.setText("입력하신 비밀번호가 일치합니다.");
         return true;
     }
     // Validating email

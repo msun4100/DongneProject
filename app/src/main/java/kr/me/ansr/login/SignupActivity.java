@@ -3,6 +3,10 @@ package kr.me.ansr.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -33,7 +37,7 @@ import okhttp3.Request;
  * Created by KMS on 2016-07-11.
  */
 
-public class SignupActivity extends Activity {
+public class SignupActivity extends AppCompatActivity {
 	private static final String TAG = SignupActivity.class.getSimpleName();
 	AutoCompleteTextView textViewUniv, textViewDept;
 //	ArrayAdapter<String> mUnivAdapter, mDeptAdapter;
@@ -46,11 +50,20 @@ public class SignupActivity extends Activity {
 	EditText inputName, inputCompany, inputJob;
 	String email, password, mSpinnerItem;
 	int mUnivId, mDeptId;
+	String mDeptname, mUnivname;
+
+	Handler mHandler = new Handler(Looper.getMainLooper());
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_signup);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar.setNavigationIcon(R.drawable.common_back);
+		toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
+		setSupportActionBar(toolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 		Intent intent = getIntent();
 		if(intent.getExtras() != null){
@@ -73,6 +86,13 @@ public class SignupActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //				Toast.makeText(getApplicationContext(), "univId: "+mUnivAdapter.getUnivId(position), Toast.LENGTH_SHORT).show();
 				mUnivId = mUnivAdapter.getUnivId(position);
+				mUnivname = mUnivAdapter.getUnivName(position);
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						getDept(Integer.valueOf(mUnivId));
+					}
+				}, 1000);
 			}
 		});
 
@@ -86,6 +106,7 @@ public class SignupActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //				Toast.makeText(getApplicationContext(), "deptId: "+mDeptAdapter.getDeptId(position), Toast.LENGTH_SHORT).show();
 				mDeptId = mDeptAdapter.getDeptId(position);
+				mDeptname = mDeptAdapter.getDeptName(position);
 			}
 		});
 
@@ -97,7 +118,6 @@ public class SignupActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				mSpinnerItem = (String)mySpinnerAdapter.getItem(position);
 			}
-
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				spinner.setSelection(0);
@@ -112,8 +132,8 @@ public class SignupActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-//				getDept(1);
-				doSignUp();
+				getDept(1);
+//				doSignUp();
 			}
 		});
 
@@ -157,12 +177,13 @@ public class SignupActivity extends Activity {
 						for(int i=0; i < list.size(); i ++){
 							mDeptAdapter.add(list.get(i));
 						}
+						Toast.makeText(SignupActivity.this, "학과명을 입력해 주세요.", Toast.LENGTH_SHORT).show();
 					} else {	//docs.size() returned zero
 						mDeptAdapter.clearAll();
 						Toast.makeText(SignupActivity.this, TAG + "result.size is zero", Toast.LENGTH_SHORT).show();
 					}
 				} else {
-					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(SignupActivity.this, TAG + "error: true" + result.message, Toast.LENGTH_SHORT).show();
 				}
 			}
 
@@ -182,7 +203,15 @@ public class SignupActivity extends Activity {
 			Toast.makeText(SignupActivity.this, "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
 			return;
 		}
+		if (!validateUnivName()) {
+			Toast.makeText(SignupActivity.this, "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		if (!validateDept()) {
+			Toast.makeText(SignupActivity.this, "학과명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!validateDeptName()) {
 			Toast.makeText(SignupActivity.this, "학과명을 입력해주세요.", Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -201,9 +230,9 @@ public class SignupActivity extends Activity {
 		final String username = inputName.getText().toString();
 		String jobname = inputCompany.getText().toString();
 		String jobteam = inputJob.getText().toString();
-		int isGraduate = 1;
+		final int isGraduate = 1;
 		NetworkManager.getInstance().postDongneRegister(SignupActivity.this,
-				email, password, username, mUnivId, mDeptId, mSpinnerItem, isGraduate, jobname, jobteam,
+				email, password, username, mUnivId, mDeptId, mDeptname, mSpinnerItem, isGraduate, jobname, jobteam,
 				new NetworkManager.OnResultListener<LoginInfo>() {
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
@@ -215,6 +244,13 @@ public class SignupActivity extends Activity {
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
 					PropertyManager.getInstance().setUserName(username);
+
+//					PropertyManager.getInstance().setProfile("");
+//					PropertyManager.getInstance().setUnivName(mUnivname);
+//					PropertyManager.getInstance().setDeptName(mDeptname);
+//					PropertyManager.getInstance().setDeptId(String.valueOf(mDeptId));
+//					PropertyManager.getInstance().setEnterYear(mSpinnerItem);
+//					PropertyManager.getInstance().setIsGraduate(String.valueOf(isGraduate));
 					//프로퍼티 저장할 것들 저장하고 로그인 요청. --> 로그인 성공하면 메인액티비티로
 					//...
 				} else {
@@ -229,7 +265,7 @@ public class SignupActivity extends Activity {
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-
+				Toast.makeText(SignupActivity.this, TAG+" onFailure:" + cause, Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -263,14 +299,10 @@ public class SignupActivity extends Activity {
 	private void initData() {
 		//서버에 요청해서 대학교 / 학과 리스트를 미리 받아서 리스트에 저장해둠.
 		String[] univArray = getResources().getStringArray(R.array.univ);
-		String[] deptArray = getResources().getStringArray(R.array.dept);
-		String[] yearArray = getResources().getStringArray(R.array.spinner_year_item);
 //		for (int i = 0; i < univArray.length; i++) {
 //			mUnivAdapter.add(univArray[i]);
 //		}
-//		for (int i = 0; i < deptArray.length; i++) {
-//			mDeptAdapter.add(deptArray[i]);
-//		}
+		String[] yearArray = getResources().getStringArray(R.array.spinner_year_item);
 		for (int i = 0; i < yearArray.length; i++) {
 			mySpinnerAdapter.add(yearArray[i]);
 		}
@@ -278,7 +310,6 @@ public class SignupActivity extends Activity {
 //		spinner.setDropDownVerticalOffset(100);
 
 		getUniv();
-		getDept(0);
 	}
 
 
@@ -334,6 +365,18 @@ public class SignupActivity extends Activity {
 		if (inputJob.getText().toString().trim().isEmpty()) {
 			inputJob.setText("");
 			requestFocus(inputJob);
+			return false;
+		}
+		return true;
+	}
+	private boolean validateDeptName() {
+		if (mDeptname == null || mDeptname == "") {
+			return false;
+		}
+		return true;
+	}
+	private boolean validateUnivName() {
+		if (mUnivname == null || mUnivname == "") {
 			return false;
 		}
 		return true;

@@ -328,10 +328,10 @@ public class NetworkManager {
 
         return null;
     }
-    private static final String URL_DEPT = SERVER_URL + "/dept";
+    private static final String URL_DEPT = SERVER_URL + "/dept/:univId";
     public Request getDongneDept(Context context, int univId, final OnResultListener<DeptInfo> listener) {
         try {
-            String url = URL_DEPT + "/" + univId;
+            String url = URL_DEPT.replace(":univId", ""+univId);
             final CallbackObject<DeptInfo> callbackObject = new CallbackObject<DeptInfo>();
 
             Request request = new Request.Builder().url(url)
@@ -349,7 +349,6 @@ public class NetworkManager {
                     Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
                     mHandler.sendMessage(msg);
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Gson gson = new Gson();
@@ -370,7 +369,7 @@ public class NetworkManager {
 
 
     private static final String URL_REGISTER = SERVER_URL + "/account/register";
-    public Request postDongneRegister(Context context, String email, String password, String name, int univId, int deptId, String enterYear, int isGraudate, String jobname, String jobteam, final OnResultListener<LoginInfo> listener) {
+    public Request postDongneRegister(Context context, String email, String password, String name, int univId, int deptId, String deptname,String enterYear, int isGraudate, String jobname, String jobteam, final OnResultListener<LoginInfo> listener) {
         try {
 //            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
             String url = URL_REGISTER;
@@ -385,6 +384,7 @@ public class NetworkManager {
             JsonObject univ = new JsonObject();
             univ.addProperty("univId", ""+univId);
             univ.addProperty("deptId", ""+deptId);
+            univ.addProperty("deptname", ""+deptname);
             univ.addProperty("enterYear", enterYear);
             univ.addProperty("isGraduate", isGraudate);
             // json 객체 생성

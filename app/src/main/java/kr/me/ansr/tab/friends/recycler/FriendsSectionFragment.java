@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -52,8 +53,7 @@ public class FriendsSectionFragment extends Fragment
 
         View view = inflater.inflate(R.layout.fragment_friends_section, container, false);
         activity = (AppCompatActivity) getActivity();
-//        getActivity().getWindow().setSoftInputMode(
-//                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
@@ -183,15 +183,17 @@ public class FriendsSectionFragment extends Fragment
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    mAdapter.put("내 프로필", result.user);
+                                }
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
                                     Log.e(TAG, ""+child);
-                                    if(i==0 && mAdapter.getItem(1) == null){ //임시코드
-                                        mAdapter.put("내 프로필", child); //내 정보 불러와서
-                                        FriendsDataManager.getInstance().items.add(child);
-                                    }
+//                                    if(i==0 && mAdapter.getItem(1) == null){ //임시코드
+//                                        mAdapter.put("내 프로필", child); //내 정보 불러와서
+//                                    }
                                     mAdapter.put("학교 사람들", child);
-                                    FriendsDataManager.getInstance().items.add(child);
                                 }
                                 start++;
                             }

@@ -2,14 +2,19 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--<color name="colorAccent">#FF4081</color>-->
+    <color name="colorAccent">#122545</color>
+
     <color name="list_divider">#dedede</color>
     <color name="bg_bubble_self">#E1E1E1</color>
 
-    <color name="invalid_password">#fff14249</color>
+    <color name="invalid_input">#fff14249</color>
+    <color name="valid_input">#4980C2</color>
     <color name="lightGray">#e0e0e0</color>
+
 
     <!--for custom dialog-->
     <drawable name="dialog_background">#00000000</drawable>
+
 
 </resources>

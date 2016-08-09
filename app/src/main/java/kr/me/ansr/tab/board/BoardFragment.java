@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.board;
 
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.one.BoardInfo;
@@ -9,7 +10,9 @@ import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -90,6 +94,7 @@ public class BoardFragment extends PagerFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.menu_f_board, menu);
+		getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		menuNext = menu.findItem(R.id.menu_board_write);
 		imageNext = new ImageView(getActivity());
 		imageNext.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -139,6 +144,9 @@ public class BoardFragment extends PagerFragment {
 		if (isVisibleToUser) {
 			if(activity != null){
 				activity.getSupportActionBar().setTitle("Board Fragment");
+//				((MainActivity)getActivity()).getToolbarIcon().setImageResource(R.drawable.btn_check_on);
+//				Drawable d = activity.getResources().getDrawable(R.mipmap.ic_album);
+//				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.a_launcher_button_check_on));
 			}
 		}
 	}
