@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_layout"
+    android:layout_width="335dp"
+    android:layout_height="221dp"
+    android:background="#ffffff"
+    android:orientation="vertical">
+    <FrameLayout
+        android:layout_width="335dp"
+        android:layout_height="221dp">
+        <ImageView
+            android:id="@+id/image_dialog_background"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/a_popup_search_school"/>
+        <LinearLayout
+            android:visibility="visible"
+            android:id="@+id/layout_dialog_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginTop="60dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/dialogHintColor"
+                android:layout_gravity="center_horizontal"
+                android:text="검색한 대학이 없습니다"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/dialogHintColor"
+                android:orientation="horizontal">
+            </LinearLayout>
+            <TextView
+                android:layout_marginTop="32dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/dialogFontColor"
+                android:layout_gravity="center_horizontal"
+                android:text="직접 입력하시겠습니까?"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/image_dialog_direct"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_width="79dp"
+                android:layout_height="45dp"
+                android:src="@drawable/a_popup_search_school_direct"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <AutoCompleteTextView
+                    android:paddingLeft="8dp"
+                    android:id="@+id/auto_text_signup_univ"
+                    android:hint="학교명을 입력하세요."
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/dialogFontColor"
+                    android:textColorHint="@color/dialogHintColor"
+                    android:textSize="14sp"
+                    android:background="@drawable/a_popup_search_school_input"
+                    android:dropDownHeight="195dp"
+                    android:popupBackground="#ffffff"
+                    android:completionThreshold="1"/>
+                <FrameLayout
+                    android:id="@+id/frame_dialog_search_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="right"
+                    />
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.friends;
 
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
@@ -72,8 +73,10 @@ public class FriendsFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			if(activity != null){
-				activity.getSupportActionBar().setTitle("       Friends Fragment");
+//				activity.getSupportActionBar().setTitle("       Friends Fragment");
 //				activity.getSupportActionBar().setBackgroundDrawable(R.drawable.d_write_bg);
+				activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+				((MainActivity)getActivity()).getToolbarTitle().setText("FriendsFragment");
 
 			}
 		}

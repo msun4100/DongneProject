@@ -56,7 +56,7 @@ public class MySpinnerAdapter extends BaseAdapter{
             tv = (TextView)convertView;
         }
         tv.setText(items.get(position));
-        tv.setBackgroundColor(Color.GREEN);
+        tv.setBackgroundColor(Color.DKGRAY);
 
         return tv;
     }

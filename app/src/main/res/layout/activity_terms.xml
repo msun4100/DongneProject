@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
         <include
-            layout="@layout/common_toolbar"
+            layout="@layout/common_toolbar_no_title"
             android:layout_width="match_parent"
             android:layout_height="@dimen/common_toolbar_size"/>
     </android.support.design.widget.AppBarLayout>

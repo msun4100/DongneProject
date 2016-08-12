@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import kr.me.ansr.login.SplashActivity;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 	TabWidget tabs;
 	private static final int PAGER_OFFSET_LIMIT = 3;
 	public ImageView toolbarIcon;
+	public TextView toolbarTitle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+		getSupportActionBar().setElevation(0);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
+		toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
 
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
@@ -48,12 +53,16 @@ public class MainActivity extends AppCompatActivity {
 		pager = (ViewPager)findViewById(R.id.pager);
 		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
-//		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), GcmChatFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator("TAB3"), BoardFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator("TAB4"), MeetFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab5").setIndicator("TAB5"), MypageFragment.class, null);
+		ImageView iv1 = new ImageView(this); iv1.setImageResource(R.drawable.z_tab_1_selector);
+		ImageView iv2 = new ImageView(this); iv2.setImageResource(R.drawable.z_tab_2_selector);
+		ImageView iv3 = new ImageView(this); iv3.setImageResource(R.drawable.z_tab_3_selector);
+		ImageView iv4 = new ImageView(this); iv4.setImageResource(R.drawable.z_tab_4_selector);
+		ImageView iv5 = new ImageView(this); iv5.setImageResource(R.drawable.z_tab_5_selector);
+		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator(iv1), FriendsFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator(iv2), GcmChatFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator(iv3), BoardFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab4").setIndicator(iv4), MeetFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab5").setIndicator(iv5), MypageFragment.class, null);
 		
 		mAdapter.setOnTabChangedListener(new OnTabChangeListener() {
 			@Override
@@ -82,24 +91,17 @@ public class MainActivity extends AppCompatActivity {
 			tabHost.setCurrentTabByTag(tag);
 		}
 
-		toolbarIcon = (ImageView)toolbar.findViewById(R.id.image_toolbar);
-//		toolbar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//			@Override
-//			public void onGlobalLayout() {
-//				toolbarIcon = (ImageView)toolbar.findViewById(R.id.image_toolbar);
-//				if( toolbar == null ){
-//					return;
-//				}
-//				int toolbarWidth = toolbar.getWidth();
-//				int imageWidth = toolbarIcon.getWidth();
-//				toolbarIcon.setX((toolbarWidth-imageWidth)/2);
-//				toolbarIcon.setImageResource(R.drawable.ic_notification_small);
-//			}
-//		});
 	} //onCreate
 
 	public ImageView getToolbarIcon() {
 		return toolbarIcon;
+	}
+
+	public TextView getToolbarTitle() {
+		if(toolbarTitle != null){
+			return toolbarTitle;
+		}
+		return null;
 	}
 
 	@Override

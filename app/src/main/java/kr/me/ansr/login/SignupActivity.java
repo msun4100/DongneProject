@@ -1,6 +1,5 @@
 package kr.me.ansr.login;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +7,7 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -15,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.SearchDeptDialogFragment;
+import kr.me.ansr.common.SearchUnivDialogFragment;
 import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.login.autocomplete.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.dept.DeptResult;
@@ -39,20 +42,21 @@ import okhttp3.Request;
 
 public class SignupActivity extends AppCompatActivity {
 	private static final String TAG = SignupActivity.class.getSimpleName();
-	AutoCompleteTextView textViewUniv, textViewDept;
+//	public AutoCompleteTextView textViewDept;
+	public TextView textViewUniv, textViewDept;
 //	ArrayAdapter<String> mUnivAdapter, mDeptAdapter;
-	MyUnivAdapter mUnivAdapter;
-	MyDeptAdapter mDeptAdapter;
+	public MyUnivAdapter mUnivAdapter;
+	public MyDeptAdapter mDeptAdapter;
 
 	Spinner spinner;
 	MySpinnerAdapter mySpinnerAdapter;
 
-	EditText inputName, inputCompany, inputJob;
-	String email, password, mSpinnerItem;
-	int mUnivId, mDeptId;
-	String mDeptname, mUnivname;
+	public EditText inputName, inputCompany, inputJob;
+	public String email, password, mSpinnerItem;
+	public int mUnivId, mDeptId;
+	public String mDeptname, mUnivname;
 
-	Handler mHandler = new Handler(Looper.getMainLooper());
+	public Handler mHandler = new Handler(Looper.getMainLooper());
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,38 +81,44 @@ public class SignupActivity extends AppCompatActivity {
 			password = null;
 			Toast.makeText(getApplicationContext(), "Account is null", Toast.LENGTH_SHORT).show();
 		}
-		textViewUniv = (AutoCompleteTextView)findViewById(R.id.auto_text_signup_univ);
+		textViewUniv = (TextView)findViewById(R.id.text_signup_univ);
 //		mUnivAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		mUnivAdapter = new MyUnivAdapter();
-		textViewUniv.setAdapter(mUnivAdapter);
-		textViewUniv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+		textViewUniv.setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				Toast.makeText(getApplicationContext(), "univId: "+mUnivAdapter.getUnivId(position), Toast.LENGTH_SHORT).show();
-				mUnivId = mUnivAdapter.getUnivId(position);
-				mUnivname = mUnivAdapter.getUnivName(position);
-				mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						getDept(Integer.valueOf(mUnivId));
-					}
-				}, 1000);
+			public void onClick(View v) {
+				SearchUnivDialogFragment mDialogFragment = new SearchUnivDialogFragment();
+				Bundle b = new Bundle();
+				b.putString("tag", SearchUnivDialogFragment.TAG_SIGN_UP);
+//				b.putSerializable("item", mItem);
+				mDialogFragment.setArguments(b);
+				mDialogFragment.show(getSupportFragmentManager(), "customDialog");
 			}
 		});
 
-
-		textViewDept = (AutoCompleteTextView)findViewById(R.id.auto_text_signup_dept);
+		textViewDept = (TextView)findViewById(R.id.text_signup_dept);
 		mDeptAdapter = new MyDeptAdapter();
-//		mDeptAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
-		textViewDept.setAdapter(mDeptAdapter);
-		textViewDept.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		textViewDept.setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				Toast.makeText(getApplicationContext(), "deptId: "+mDeptAdapter.getDeptId(position), Toast.LENGTH_SHORT).show();
-				mDeptId = mDeptAdapter.getDeptId(position);
-				mDeptname = mDeptAdapter.getDeptName(position);
+			public void onClick(View v) {
+				SearchDeptDialogFragment mDialogFragment = new SearchDeptDialogFragment();
+				Bundle b = new Bundle();
+				b.putString("tag", SearchDeptDialogFragment.TAG_SIGN_UP);
+//				b.putSerializable("item", mItem);
+				mDialogFragment.setArguments(b);
+				mDialogFragment.show(getSupportFragmentManager(), "customDialog");
 			}
 		});
+//		mDeptAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
+//		textViewDept.setAdapter(mDeptAdapter);
+//		textViewDept.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//			@Override
+//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+////				Toast.makeText(getApplicationContext(), "deptId: "+mDeptAdapter.getDeptId(position), Toast.LENGTH_SHORT).show();
+//				mDeptId = mDeptAdapter.getDeptId(position);
+//				mDeptname = mDeptAdapter.getDeptName(position);
+//			}
+//		});
 
 		spinner = (Spinner) findViewById(R.id.spinner);
 		mySpinnerAdapter = new MySpinnerAdapter();
@@ -116,7 +126,14 @@ public class SignupActivity extends AppCompatActivity {
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				mSpinnerItem = (String)mySpinnerAdapter.getItem(position);
+				String str = (String)mySpinnerAdapter.getItem(position);
+				try {
+					int num = Integer.valueOf(str);
+					mSpinnerItem = str;
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					spinner.setSelection(60);
+				}
 			}
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
@@ -132,14 +149,13 @@ public class SignupActivity extends AppCompatActivity {
 			
 			@Override
 			public void onClick(View v) {
-				getDept(1);
-//				doSignUp();
+				doSignUp();
 			}
 		});
 
 		initData();
 	}
-	private void getUniv(){
+	public void getUniv(){
 		NetworkManager.getInstance().getDongneUniv(getApplicationContext(), new NetworkManager.OnResultListener<UnivInfo>() {
 			@Override
 			public void onSuccess(Request request, UnivInfo result) {
@@ -166,7 +182,7 @@ public class SignupActivity extends AppCompatActivity {
 			}
 		});
 	}
-	private void getDept(int univId) {
+	public void getDept(int univId) {
 		NetworkManager.getInstance().getDongneDept(getApplicationContext(), univId, new NetworkManager.OnResultListener<DeptInfo>() {
 			@Override
 			public void onSuccess(Request request, DeptInfo result) {
@@ -245,6 +261,7 @@ public class SignupActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setPassword(password);
 					PropertyManager.getInstance().setUserName(username);
 
+					doLogin();
 //					PropertyManager.getInstance().setProfile("");
 //					PropertyManager.getInstance().setUnivName(mUnivname);
 //					PropertyManager.getInstance().setDeptName(mDeptname);
@@ -284,8 +301,9 @@ public class SignupActivity extends AppCompatActivity {
 					User user = new User("" + result.user.user_id, result.user.name, result.user.email);
 					MyApplication.getInstance().getPrefManager().storeUser(user);
 					Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
-					finish();
+//					finish();
 				}
 			}
 
@@ -382,4 +400,13 @@ public class SignupActivity extends AppCompatActivity {
 		return true;
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		if(id == android.R.id.home){
+			finish();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

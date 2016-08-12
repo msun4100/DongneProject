@@ -10,15 +10,14 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:elevation="0dp"
+        >
+        <!--app:elevation="0dp"-->
+        <include
+            layout="@layout/common_toolbar_no_title"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/common_toolbar_size"
-            android:background="@drawable/a_join_titlebar"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
+            android:layout_height="@dimen/common_toolbar_size"/>
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_sign_up_account" />

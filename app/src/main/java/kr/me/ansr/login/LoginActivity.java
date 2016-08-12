@@ -71,10 +71,12 @@ public class LoginActivity extends AppCompatActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
+//				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//				startActivity(intent);
+//				finish();
+				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
 				startActivity(intent);
-				finish();
 			}
 		});
 
@@ -131,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
 	// Validating name
 	private boolean validatePassword() {
 		String str = passwordView.getText().toString();
-		if (str.isEmpty() || str.length() < 8) {
+		if (str.isEmpty() || str.length() < 4) {
 //			inputLayoutPw.setError(getString(R.string.err_msg_pw));
 			passwordView.setTextColor(ContextCompat.getColor(this, R.color.invalid_input));
 			requestFocus(passwordView);

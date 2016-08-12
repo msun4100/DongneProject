@@ -101,6 +101,9 @@ public class SignUpAccountActivity extends AppCompatActivity {
             return;
         }
         if(isConfirmPassword() == true){
+//            inputPw.setText("");
+//            inputPwConfirm.setText("");
+//            inputEmail.setText("");
             Intent intent = new Intent(SignUpAccountActivity.this, SignupActivity.class);
             intent.putExtra("email", inputEmail.getText().toString());
             intent.putExtra("password", inputPwConfirm.getText().toString());
@@ -110,80 +113,6 @@ public class SignUpAccountActivity extends AppCompatActivity {
         }
 
 
-    }
-    private void login() {
-        if (!validateEmail()) {
-            return;
-        }
-        if (!validatePassword(1)) {
-            return;
-        }
-        if (!validatePassword(2)) {
-            return;
-        }
-
-        final String name = inputPw.getText().toString();
-        final String email = inputEmail.getText().toString();
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                EndPoints.LOGIN, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                Log.e(TAG, "response: " + response);
-
-                try {
-                    JSONObject obj = new JSONObject(response);
-
-                    // check for error flag
-                    if (obj.getBoolean("error") == false) {
-                        // user successfully logged in
-
-                        JSONObject userObj = obj.getJSONObject("user");
-                        User user = new User(userObj.getString("user_id"),
-                                userObj.getString("name"),
-                                userObj.getString("email"));
-
-                        // storing user in shared preferences
-                        MyApplication.getInstance().getPrefManager().storeUser(user);
-
-                        // start main activity
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
-
-                    } else {
-                        // login error - simply toast the message
-                        Toast.makeText(getApplicationContext(), "" + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show();
-                    }
-
-                } catch (JSONException e) {
-                    Log.e(TAG, "json parsing error: " + e.getMessage());
-                    Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                NetworkResponse networkResponse = error.networkResponse;
-                Log.e(TAG, "Volley error: " + error.getMessage() + ", code: " + networkResponse);
-                Toast.makeText(getApplicationContext(), "Volley error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("name", name);
-                params.put("email", email);
-
-                Log.e(TAG, "params: " + params.toString());
-                return params;
-            }
-        };
-
-        //Adding request to request queue
-        MyApplication.getInstance().addToRequestQueue(strReq);
     }
 
     private void requestFocus(View view) {

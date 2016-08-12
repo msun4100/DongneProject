@@ -28,7 +28,7 @@ public class UnivItemView extends FrameLayout {
     public void setData(UnivResult data) {
 //        iconView.setImageDrawable(data.icon);
         univnameView.setText(data.univname);
-        totalView.setText(""+data.total);
+        totalView.setText("("+data.total+"명)");
 //        univIdView.setText(""+data.univId);
     }
 }

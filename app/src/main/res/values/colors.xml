@@ -11,6 +11,10 @@
     <color name="invalid_input">#fff14249</color>
     <color name="valid_input">#4980C2</color>
     <color name="lightGray">#e0e0e0</color>
+    <color name="hintColor">#bcbbbd</color>
+
+    <color name="dialogHintColor">#a6a8ab</color>
+    <color name="dialogFontColor">#0a1824</color>
 
 
     <!--for custom dialog-->

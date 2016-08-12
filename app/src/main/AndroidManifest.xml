@@ -59,7 +59,13 @@
         <activity
             android:name=".login.SignupActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            />
+            android:parentActivityName=".login.SignUpAccountActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.SignUpAccountActivity" />
+        </activity>
+
+
         <!-- ==================================== -->
         <activity
             android:name=".gcmchat.activity.MainActivity"
