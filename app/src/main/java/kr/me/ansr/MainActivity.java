@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		getSupportActionBar().setElevation(0);
+		getSupportActionBar().setElevation(0);	//6.0이상 음영효과 제거
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
 
