@@ -6,27 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="kr.me.ansr.tab.friends.FriendsFragment" >
-    <LinearLayout
+    <include
+        layout="@layout/common_searchbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:id="@+id/edit_friends_search"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:hint="검색어를 입력하세요.."
-            android:inputType="text" />
-
-        <Button
-            android:id="@+id/btn_friends_search"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="80dp"
-            android:layout_height="match_parent"
-            android:text="글쓰기" />
-    </LinearLayout>
+        android:layout_height="wrap_content"/>
 
     <android.support.v4.app.FragmentTabHost
         android:id="@+id/tabhost"

@@ -63,7 +63,7 @@ public class SignupActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_signup);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		toolbar.setNavigationIcon(R.drawable.common_back);
+		toolbar.setNavigationIcon(R.drawable.z_icon_back);
 		toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);

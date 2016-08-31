@@ -13,6 +13,12 @@
         <item>abdccd</item>
         <item>dcba</item>
     </string-array>
+    <string-array name="search_items">
+        <item>기본정렬</item>
+        <item>학번순 정렬(오름차순)</item>
+        <item>학번순 정렬(내림차순)</item>
+        <item>가까이 있는 동문</item>
+    </string-array>
     <string-array name="univ">
         <item>인하대</item>
         <item>세종대</item>

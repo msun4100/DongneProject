@@ -16,7 +16,14 @@
     <color name="dialogHintColor">#a6a8ab</color>
     <color name="dialogFontColor">#0a1824</color>
 
-
+    <!--friends list colors-->
+    <color name="list_header_color">#374d60</color>
+    <color name="list_job_color">#374d60</color>
+    <color name="list_univ_color">#5b5b5d</color>
+    <color name="list_distance_color">#99999a</color>
+    <color name="list_name_color">#0b161e</color>
+    <color name="list_search_color">#6d6c6f</color>
+    <color name="list_search_colorHint">#484544</color>
     <!--for custom dialog-->
     <drawable name="dialog_background">#00000000</drawable>
 

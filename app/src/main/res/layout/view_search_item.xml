@@ -2,18 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="22dp"
+    android:layout_height="32dp"
     android:background="#ffffff">
-    <!--android:background="#e0e0e0"-->
     <TextView
-        android:layout_marginLeft="12dp"
         android:layout_marginTop="4dp"
+        android:layout_marginLeft="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Group Text"
-        android:id="@+id/text_section_header_title"
-        android:textColor="@color/list_header_color"
-        android:textSize="11sp"
+        android:gravity="center_vertical"
+        android:text="Search options.."
+        android:id="@+id/text_search"
+        android:textColor="@color/list_search_colorHint"
+        android:textSize="13sp"
         />
     <!--android:textStyle="bold" android:layout_gravity="center_horizontal"-->
 </LinearLayout>

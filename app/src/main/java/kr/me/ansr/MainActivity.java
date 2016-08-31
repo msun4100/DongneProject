@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 		getSupportActionBar().setElevation(0);	//6.0이상 음영효과 제거
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
-
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
