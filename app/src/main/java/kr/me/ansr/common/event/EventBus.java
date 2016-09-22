@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.board;
+package kr.me.ansr.common.event;
 
 import com.squareup.otto.Bus;
 

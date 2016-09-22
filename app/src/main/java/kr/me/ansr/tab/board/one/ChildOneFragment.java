@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
@@ -25,8 +25,8 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
-import kr.me.ansr.tab.board.ActivityResultEvent;
-import kr.me.ansr.tab.board.EventBus;
+import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.tab.board.PagerFragment;
 import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.like.LikeInfo;
@@ -47,6 +47,8 @@ public class ChildOneFragment extends PagerFragment {
     SwipeRefreshLayout refreshLayout;
     boolean isLast = false;
     Handler mHandler = new Handler(Looper.getMainLooper());
+    ImageView searchIcon;
+    CustomEditText searchInput;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,6 +99,7 @@ public class ChildOneFragment extends PagerFragment {
 //                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("currentTab", "0"); //재학생 탭 == 0
                 getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
             }
         });
@@ -119,7 +122,8 @@ public class ChildOneFragment extends PagerFragment {
                         int likeMode =2;    //likeMode가 2면 요청 안하고 리턴
                         int mUserId = Integer.valueOf(PropertyManager.getInstance().getUserId());
                         if(data.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
-                        postLike(likeMode, String.valueOf(data.boardId), PropertyManager.getInstance().getUserId(), position);
+                        String to = ""+data.writer;
+                        postLike(likeMode, String.valueOf(data.boardId), PropertyManager.getInstance().getUserId(), to, position);
                         break;
                 }
             }
@@ -139,6 +143,21 @@ public class ChildOneFragment extends PagerFragment {
 //        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+
+//        search views
+        searchInput = (CustomEditText)view.findViewById(R.id.custom_editText1);
+        searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
+        searchIcon.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String input = searchInput.getText().toString();
+                if(!input.equals("") && input != null){
+                    Toast.makeText(getActivity(), "searchInput:"+input, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
         initBoard();
 //        initData();
         return view;
@@ -271,10 +290,10 @@ public class ChildOneFragment extends PagerFragment {
         }
     }
 
-    private void postLike(int like, String boardId, final String userId, final int position){
+    private void postLike(int like, String boardId, final String userId, String to, final int position){
         if(like>1){Toast.makeText(getActivity(),"invalid like type",Toast.LENGTH_SHORT).show(); return;}
         if(boardId == null || userId == null) { Toast.makeText(getActivity(),"arg is null",Toast.LENGTH_SHORT).show(); return; }
-        NetworkManager.getInstance().postDongneBoardLike(getActivity(), like, boardId, userId, new NetworkManager.OnResultListener<LikeInfo>() {
+        NetworkManager.getInstance().postDongneBoardLike(getActivity(), like, boardId, userId, to, new NetworkManager.OnResultListener<LikeInfo>() {
             @Override
             public void onSuccess(Request request, LikeInfo result) {
                 if(result.error.equals(false)){
@@ -336,6 +355,7 @@ public class ChildOneFragment extends PagerFragment {
     //register/unregister 하는 과정은 baseFragment인 PagerFragment에서
     @Subscribe
     public void onEvent(ActivityResultEvent activityResultEvent){
+        Log.e("onEvent:", "ChildOne");
        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
 

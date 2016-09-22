@@ -32,7 +32,6 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView message, timestamp;
-
         public ViewHolder(View view) {
             super(view);
             message = (TextView) itemView.findViewById(R.id.message);
@@ -66,7 +65,6 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     .inflate(R.layout.a_chat_item_other, parent, false);
         }
 
-
         return new ViewHolder(itemView);
     }
 
@@ -74,7 +72,8 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public int getItemViewType(int position) {
         Message message = messageArrayList.get(position);
-        if (message.getUser().getId().equals(userId)) {
+        String id = ""+message.getUser().getId();
+        if (id.equals(userId)) {
             return SELF;
         }
 
@@ -85,12 +84,18 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         Message message = messageArrayList.get(position);
         ((ViewHolder) holder).message.setText(message.getMessage());
+        String timestamp;
+        if(message.getCreatedAt() != null){
+            timestamp = MyApplication.getTimeStamp(message.getCreatedAt());
+        } else {
+            timestamp = "timeStamp "+MyApplication.getInstance().getCurrentTimeStampString();
+        }
 
-        String timestamp = MyApplication.getTimeStamp(message.getCreatedAt());
 //        String timestamp = getTimeStamp(message.getCreatedAt());
-        if (message.getUser().getName() != null)
-            timestamp = message.getUser().getName() + ", " + timestamp;
-
+        //edited at PM 12:12 today
+//        if (message.getUser().getName() != null){
+//            timestamp = message.getUser().getName() + ", " + timestamp;
+//        }
         ((ViewHolder) holder).timestamp.setText(timestamp);
     }
 

@@ -1,18 +1,25 @@
 package kr.me.ansr.gcmchat.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
  * Created by KMS on 2016-07-01.
  */
 public class ChatRoom implements Serializable {
-    String id, name, lastMessage, timestamp;
+    @SerializedName("chat_room_id")
+    int id;
+    String name;
+    String lastMessage; //클라이언트용 변수
+    @SerializedName("created_at")
+    String timestamp;
     int unreadCount;
 
     public ChatRoom() {
     }
 
-    public ChatRoom(String id, String name, String lastMessage, String timestamp, int unreadCount) {
+    public ChatRoom(int id, String name, String lastMessage, String timestamp, int unreadCount) {
         this.id = id;
         this.name = name;
         this.lastMessage = lastMessage;
@@ -20,11 +27,11 @@ public class ChatRoom implements Serializable {
         this.unreadCount = unreadCount;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

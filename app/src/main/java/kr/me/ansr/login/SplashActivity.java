@@ -56,10 +56,10 @@ public class SplashActivity extends Activity {
     private static final String SENDER_ID = "146117892280"; //my app key
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = SplashActivity.class.getSimpleName();
-    private Button mRegistrationButton;
-    private ProgressBar mRegistrationProgressBar;
-    private TextView mInformationTextView;
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
+//    private Button mRegistrationButton;
+//    private ProgressBar mRegistrationProgressBar;
+//    private TextView mInformationTextView;
+//    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     /**
      * Instance ID를 이용하여 디바이스 토큰을 가져오는 RegistrationIntentService를 실행한다.
@@ -72,47 +72,7 @@ public class SplashActivity extends Activity {
         }
     }
 
-    /**
-     * LocalBroadcast 리시버를 정의한다. 토큰을 획득하기 위한 READY, GENERATING, COMPLETE 액션에 따라 UI에 변화를 준다.
-     */
 
-    public void registBroadcastReceiver() {
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-
-                if (action.equals(QuickstartPreferences.REGISTRATION_READY)) {
-                    // 액션이 READY일 경우
-//                    Toast.makeText(SplashActivity.this, QuickstartPreferences.REGISTRATION_READY, Toast.LENGTH_SHORT).show();
-                    mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
-                    mInformationTextView.setVisibility(View.GONE);
-
-                    tokenComplete = false;
-                } else if (action.equals(QuickstartPreferences.REGISTRATION_GENERATING)) {
-                    // 액션이 GENERATING일 경우
-//                    Toast.makeText(SplashActivity.this, QuickstartPreferences.REGISTRATION_GENERATING, Toast.LENGTH_SHORT).show();
-                    mRegistrationProgressBar.setVisibility(ProgressBar.VISIBLE);
-                    mInformationTextView.setVisibility(View.VISIBLE);
-                    mInformationTextView.setText(getString(R.string.registering_message_generating));
-
-                    tokenComplete = false;
-                } else if (action.equals(QuickstartPreferences.REGISTRATION_COMPLETE)) {
-                    // 액션이 COMPLETE일 경우
-                    mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
-                    mRegistrationButton.setText(getString(R.string.registering_message_complete));
-                    mRegistrationButton.setEnabled(false);
-                    String token = intent.getStringExtra("token");
-                    tokenComplete = true;
-                    //token을 프로퍼티매니저에 저장
-                    mInformationTextView.setText(token);
-                    Toast.makeText(SplashActivity.this, QuickstartPreferences.REGISTRATION_COMPLETE + "!!!!!\n" + token, Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        };
-    }
 
     boolean tokenComplete = false;
     //    String token=null;   //registBroadcastReceiver()의 Complete에서 받아오는 토큰 이값이 있으면 쓰레드 부분 패스함
@@ -126,27 +86,7 @@ public class SplashActivity extends Activity {
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //        mProvider = mLM.getBestProvider(criteria, true);
 //        mProvider = LocationManager.NETWORK_PROVIDER;
-        //for GCM
-        registBroadcastReceiver();
 
-        // 토큰을 보여줄 TextView를 정의
-        mInformationTextView = (TextView) findViewById(R.id.informationTextView);
-        mInformationTextView.setVisibility(View.GONE);
-        // 토큰을 가져오는 동안 인디케이터를 보여줄 ProgressBar를 정의
-        mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
-        mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
-        // 토큰을 가져오는 Button을 정의
-        mRegistrationButton = (Button) findViewById(R.id.registrationButton);
-        mRegistrationButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * 버튼을 클릭하면 토큰을 가져오는 getInstanceIdToken() 메소드를 실행한다.
-             * @param view
-             */
-            @Override
-            public void onClick(View view) {
-                getInstanceIdToken();
-            }
-        });
 
     }// onCreate
 
@@ -320,20 +260,27 @@ public class SplashActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(QuickstartPreferences.REGISTRATION_READY));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(QuickstartPreferences.REGISTRATION_GENERATING));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onResumeAction();
+            }
+        }, 800);
 
+        /*
+        아래의 기존 코드(onResumeAction())로 시작하면 스플래시 화면이 뜨기전에 메인액티비티로 넘어가져서 스플래시 이미지가
+        리쥼될때 보이지 않음
+        */
+//        onResumeAction();
+
+    }
+    private void onResumeAction(){
         if (checkPlayServices()) {
             String regId = PropertyManager.getInstance().getRegistrationId();
             if (!regId.equals("")) {
                 if(isPermissionOK){
                     runOnUiThread(nextAction);
                 }
-
             } else {
                 registerInBackground();
             }
@@ -345,7 +292,6 @@ public class SplashActivity extends Activity {
                 Toast.makeText(SplashActivity.this, "onResume GCM else clause", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     Runnable nextAction = new Runnable() {
@@ -368,7 +314,7 @@ public class SplashActivity extends Activity {
                         PropertyManager.getInstance().setUnivId(result.user.univId);
                         PropertyManager.getInstance().setUserName(result.user.name);
                         //for chatting PropertyManager
-                        User user = new User("" + result.user.user_id, result.user.name, result.user.email);
+                        User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
                         MyApplication.getInstance().getPrefManager().storeUser(user);
                         Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
@@ -467,7 +413,6 @@ public class SplashActivity extends Activity {
      */
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
 

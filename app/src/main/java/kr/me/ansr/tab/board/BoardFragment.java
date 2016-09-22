@@ -4,13 +4,13 @@ package kr.me.ansr.tab.board;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.ActivityResultEvent;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.tab.board.one.BoardInfo;
-import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -52,14 +52,24 @@ public class BoardFragment extends PagerFragment {
 		pager = (BoardViewPager)v.findViewById(R.id.pager);
 		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
 		mAdapter = new TabsAdapter(getActivity(), getChildFragmentManager(), tabHost, pager);
-//		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), FriendsSectionFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("ttab1").setIndicator("TTAB1"), ChildOneFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("ttab2").setIndicator("TTAB2"), ChildTwoFragment.class, null);
+		ImageView iv1 = new ImageView(getActivity()); iv1.setImageResource(R.drawable.e_board_tab1_selector);
+		ImageView iv2 = new ImageView(getActivity()); iv2.setImageResource(R.drawable.e_board_tab2_selector);
+		mAdapter.addTab(tabHost.newTabSpec("ttab1").setIndicator(iv1), ChildOneFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("ttab2").setIndicator(iv2), ChildTwoFragment.class, null);
 
 		mAdapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			@Override
 			public void onTabChanged(String tabId) {
 				Log.e("current tabId:", tabId);
+				switch (tabId){
+					case "ttab2":
+						currentTab = "1";
+						break;
+					case "ttab1":
+					default:
+						currentTab = "0";
+						break;
+				}
 				// TODO Auto-generated method stub
 			}
 		});
@@ -91,6 +101,9 @@ public class BoardFragment extends PagerFragment {
 
 	MenuItem menuNext;
 	ImageView imageNext;
+//	public static final String BOARD_TAB_ONE = "studentTab";
+//	public static final String BOARD_TAB_TWO = "graduateTab";
+	public String currentTab = "0";
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.menu_f_board, menu);
@@ -99,15 +112,16 @@ public class BoardFragment extends PagerFragment {
 		imageNext = new ImageView(getActivity());
 		imageNext.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		imageNext.setPadding(16, 0, 16, 0);
-		imageNext.setImageResource(R.drawable.a_write_menu_selector);
+		imageNext.setImageResource(R.drawable.e__write_2);
+//		imageNext.setImageResource(R.drawable.a_write_menu_selector);
 		imageNext.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 //				((WriteActivity)getActivity()).imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-				Toast.makeText(getActivity(), "custom img menu", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), "currentTab: " + currentTab, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(getActivity(), BoardWriteActivity.class);
-				intent.putExtra("putkey", "passed key");
+				intent.putExtra("currentTab", currentTab);
 				startActivityForResult(intent, 100); //tabHost가 있는 BoardFragment에서 리절트를 받음
 			}
 		});
@@ -137,16 +151,19 @@ public class BoardFragment extends PagerFragment {
 	public void onPageCurrent() {
 		super.onPageCurrent();
 	}
-	
+
+
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			if(activity != null){
 				activity.getSupportActionBar().setTitle("Board Fragment");
-//				((MainActivity)getActivity()).getToolbarIcon().setImageResource(R.drawable.btn_check_on);
-//				Drawable d = activity.getResources().getDrawable(R.mipmap.ic_album);
-//				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.a_launcher_button_check_on));
+				activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.e__titlebar_1));
+				activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false); //챗프래그먼트에서 백버튼 자리 메뉴를 사용하기 때문에
+				((MainActivity)getActivity()).getToolbarTitle().setText("");
+
 			}
 		}
 	}
@@ -177,7 +194,6 @@ public class BoardFragment extends PagerFragment {
 						Log.e("afterWrite", "failure");
 						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
 					}
-
 				}
 				break;
 		}

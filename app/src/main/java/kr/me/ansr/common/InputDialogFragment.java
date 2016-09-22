@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,22 +27,34 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.mypage.status.ReceiveFragment;
+import kr.me.ansr.tab.mypage.status.SendFragment;
 
 /**
  * Created by KMS on 2016-08-05.
  */
 public class InputDialogFragment extends DialogFragment {
     public static final String TAG_FRIENDS_DETAIL = "friendsDetail";
+    public static final String TAG_STATUS_RECEIVE = "statusReceive";
+    public static final String TAG_STATUS_SEND = "statusSend";
+    public static final String TAG_STATUS_BLOCK = "statusBlock";
 
     public InputDialogFragment(){
 
     }
-    TextView stuidView, deptnameView, jobnameView, jobteamView;
+    public static InputDialogFragment newInstance() {
+        InputDialogFragment f = new InputDialogFragment();
+        return f;
+    }
+    TextView stuidView, deptnameView, jobnameView, jobteamView, statusView;
     EditText inputView;
     ImageView thumbIcon, closeIcon;
-
+    LinearLayout btnLayout1, btnLayout2;
+    Button btnSend, btnCancel, btnOk;
     String tag = null;
+    String msg = "";
     FriendsResult mItem=null;
 
     @Override
@@ -50,7 +64,9 @@ public class InputDialogFragment extends DialogFragment {
         Bundle b = getArguments();
         if(b != null){
             tag = b.getString("tag", "0");
+            msg = b.getString("msg", "");
             mItem = (FriendsResult)b.getSerializable("item");
+            Log.e("inputDialog", mItem.toString());
         }
     }
     @Override
@@ -71,23 +87,76 @@ public class InputDialogFragment extends DialogFragment {
                 dismiss();
             }
         });
-        Button btn = (Button)view.findViewById(R.id.btn_dialog_input_ok);
-        btn.setOnClickListener(new View.OnClickListener() {
+        btnSend= (Button)view.findViewById(R.id.btn_dialog_input_send);
+        btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(tag != null){
                     if(tag.equals(TAG_FRIENDS_DETAIL)) {
                         String str = inputView.getText().toString();
-                        ((FriendsDetailActivity) (getActivity())).nextProcess(str);
+                        if(str == null || str.equals("")){
+                            str = getResources().getString(R.string.status_greeting_msg);
+                        }
+                        if(mItem.status == 0){
+                            //이미 status가 0이면 요청 취소
+                            ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");
+                        } else{
+                            ((FriendsDetailActivity) (getActivity())).nextProcess(str); //str==msg와 함께 친구 요청함 nextProcess의 else
+                        }
+
+                    }
+                    if(tag.equals(TAG_STATUS_SEND)) {
+                        SendFragment.removeStatus(mItem.userId, mItem);
                     }
                 }
                 dismiss();
             }//onClick
         });
+        btnOk = (Button)view.findViewById(R.id.btn_dialog_input_ok);
+        btnOk.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                //요청 수락 프로세스
+                if(tag != null){
+                    if(tag.equals(TAG_FRIENDS_DETAIL)) {
+                        ((FriendsDetailActivity) (getActivity())).nextProcess("_ok_");// 수락버튼 클릭
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_STATUS_RECEIVE)) {
+                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Accecpted", mItem);
+                        dismiss();
+                    }
+                }
+
+            }
+        });
+        btnCancel = (Button)view.findViewById(R.id.btn_dialog_input_cancel);
+        btnCancel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(tag != null){
+                    if(tag.equals(TAG_FRIENDS_DETAIL)) {
+                        ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_STATUS_RECEIVE)) {
+                        ReceiveFragment.removeStatus(mItem.userId, mItem);
+                        dismiss();
+//                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Removed", mItem);
+                    }
+
+                }
+
+            }
+        });
         stuidView = (TextView)view.findViewById(R.id.text_dialog_input_stuid);
         deptnameView = (TextView)view.findViewById(R.id.text_dialog_input_deptname);
         jobnameView = (TextView)view.findViewById(R.id.text_dialog_input_jobname);
         jobteamView = (TextView)view.findViewById(R.id.text_dialog_input_jobteam);
+        statusView = (TextView)view.findViewById(R.id.text_dialog_input_status);
+        //친구 요청 현황에 따라 버튼 노출
+        btnLayout1 = (LinearLayout)view.findViewById(R.id.dialog_btn_layout1);
+        btnLayout2 = (LinearLayout)view.findViewById(R.id.dialog_btn_layout2);
 		initData();
         return view;
     }
@@ -100,16 +169,47 @@ public class InputDialogFragment extends DialogFragment {
     }
     private void initData(){
         if(mItem != null){
-            stuidView.setText(""+(mItem.univ.get(0).enterYear));
+            if(mItem.status == 0){
+                if(msg != null && !msg.equals("")){
+                    inputView.setText(msg);
+                    inputView.setFocusable(false);
+                    inputView.setFocusableInTouchMode(false);
+                }
+                btnLayout1.setVisibility(View.VISIBLE);
+                btnLayout2.setVisibility(View.INVISIBLE);
+                btnSend.setText("요청 취소");
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("친구 신청 완료");
+            } else if(mItem.status == -100){
+                if(msg != null && !msg.equals("")){
+                    inputView.setText(msg);
+                    inputView.setFocusable(false);
+                    inputView.setFocusableInTouchMode(false);
+                }
+                btnLayout1.setVisibility(View.INVISIBLE);
+                btnLayout2.setVisibility(View.VISIBLE);
+                btnOk.setText("수 락");
+                btnCancel.setText("거 절");
+//                btnSend.setText("수락 하기");
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("받은 요청");
+            } else {
+                btnLayout1.setVisibility(View.VISIBLE);
+                btnLayout2.setVisibility(View.INVISIBLE);
+                btnSend.setText("보내기");
+                statusView.setVisibility(View.INVISIBLE);
+            }
+            String stuId = ""+(mItem.univ.get(0).enterYear);
+            stuidView.setText(stuId.substring(2,4));
             deptnameView.setText(mItem.univ.get(0).deptname);
             jobnameView.setText(mItem.job.getName());
             jobteamView.setText(mItem.job.getTeam());
             if (!TextUtils.isEmpty(mItem.pic.small)) {
                 String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
-                Glide.with(getContext()).load(url).placeholder(R.drawable.ic_stub)
+                Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon).centerCrop()
                 .signature(new StringSignature(mItem.getUpdatedAt())).into(thumbIcon);
             } else {
-                thumbIcon.setImageResource(R.mipmap.ic_launcher);
+                thumbIcon.setImageResource(R.drawable.e__who_icon);
             }
         }
     }

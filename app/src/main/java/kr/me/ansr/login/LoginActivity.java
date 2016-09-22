@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
@@ -61,6 +62,9 @@ public class LoginActivity extends AppCompatActivity {
 		btn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+//				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//				startActivity(intent);
 				doLogin();
 			}
 		});
@@ -71,12 +75,12 @@ public class LoginActivity extends AppCompatActivity {
 
 			@Override
 			public void onClick(View v) {
-//				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
+				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
 //				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-//				startActivity(intent);
-//				finish();
-				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
 				startActivity(intent);
+//				finish();
+//				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+//				startActivity(intent);
 			}
 		});
 
@@ -210,7 +214,7 @@ public class LoginActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setUnivId(result.user.univId);
 					PropertyManager.getInstance().setUserName(result.user.name);
 					//for chatting PropertyManager
-					User user = new User("" + result.user.user_id, result.user.name, result.user.email);
+					User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
 					MyApplication.getInstance().getPrefManager().storeUser(user);
 					Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 					startActivity(intent);
@@ -221,6 +225,7 @@ public class LoginActivity extends AppCompatActivity {
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				Log.e(TAG, cause.toString());
 			}
 		});
 	}

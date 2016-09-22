@@ -17,14 +17,22 @@ import android.widget.Toast;
 
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.BoardWriteActivity;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
+import kr.me.ansr.tab.mypage.status.BlockFragment;
 
 /**
  * Created by KMS on 2016-08-04.
  */
 public class CustomDialogFragment extends DialogFragment {
     public static final String TAG_BOARD_WRITE = "boardWrite";
+    public static final String TAG_STATUS_BLOCK = "statusBlock";
+    public static final String TAG_TAB_ONE = "tab1";
     public CustomDialogFragment(){
 
+    }
+    public static CustomDialogFragment newInstance() {
+        CustomDialogFragment f = new CustomDialogFragment();
+        return f;
     }
     TextView textView1, textView2;
     String tag = null;
@@ -45,10 +53,10 @@ public class CustomDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getDialog().getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
+//        getDialog().getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
         getDialog().getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
         getDialog().getWindow().setGravity(Gravity.CENTER_VERTICAL);
-//		getDialog().getWindow().setLayout(300,300);
+//		getDialog().getWindow().setLayout(289, 134);
 //		getDialog().getWindow().setGravity(Gravity.LEFT | Gravity.TOP);
 //		getDialog().getWindow().getAttributes().x = 120;
 //		getDialog().getWindow().getAttributes().y = -18;
@@ -78,10 +86,22 @@ public class CustomDialogFragment extends DialogFragment {
 //                UnsignPWDialogFragment f = new UnsignPWDialogFragment();
 //                f.setArguments(b);
 //                f.show(getActivity().getSupportFragmentManager(), "unsignpwdialog");
-                dismiss();
                 if(tag != null){
                     if(tag.equals(TAG_BOARD_WRITE)) {
                         ((BoardWriteActivity) (getActivity())).nextProcess();
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_STATUS_BLOCK)) {
+                        BlockFragment.removeStatus();
+                        dismiss();
+//                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Removed", mItem);
+                    }
+                    if(tag.equals(TAG_TAB_ONE)) {
+//                        BlockFragment.removeStatus();
+                        //updateStatus 성공하면 리스트에서 삭제하고 blockCount++; 해줌.
+                        Toast.makeText(getActivity(), tag, Toast.LENGTH_SHORT).show();
+                        FriendsSectionFragment.updateStatus(3);
+                        dismiss();
                     }
                 }
             }//onClick

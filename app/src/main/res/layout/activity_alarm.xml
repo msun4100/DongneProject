@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/lightGray"
+    android:background="@color/my_page_gray_color"
     android:fitsSystemWindows="true"
     tools:context="kr.me.ansr.tab.mypage.AlarmActivity">
 
@@ -14,12 +14,10 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <include
+            layout="@layout/common_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="@dimen/common_toolbar_size"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -37,19 +35,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#595656"
+            android:textSize="17sp"
             android:text="전체 알림"/>
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:visibility="invisible"/>
-        <Switch
+        <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOn="ON"
-            android:thumb="@drawable/z_sw_custom_selector"
-            android:track="@drawable/z_sw_custom_track"
-            android:textOff="OFF"
             android:id="@+id/sw_my_all" />
     </LinearLayout>
 
@@ -67,6 +63,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#595656"
+            android:textSize="17sp"
             android:text="일촌 요청 알림"
             />
         <EditText
@@ -77,7 +75,6 @@
         <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:thumb="@drawable/z_sw_custom_selector"
             android:id="@+id/sw_my_friends_req" />
     </LinearLayout>
 
@@ -94,7 +91,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance=
+                "?android:attr/textAppearanceSmall"
+            android:textColor="#595656"
+            android:textSize="17sp"
             android:text="전체 채팅 알림"
             />
         <EditText
@@ -122,6 +122,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#595656"
+            android:textSize="17sp"
             android:text="댓글 알림"
             />
         <EditText
@@ -149,6 +151,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#595656"
+            android:textSize="17sp"
             android:text="알림음"
             />
         <EditText

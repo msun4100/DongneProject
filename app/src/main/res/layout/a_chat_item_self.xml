@@ -4,30 +4,38 @@
     android:layout_height="wrap_content"
     android:gravity="right"
     android:orientation="horizontal"
-    android:paddingBottom="5dp"
+    android:layout_marginTop="17dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
+
+
 
     <TextView
         android:id="@+id/message"
         android:layout_width="wrap_content"
+        android:maxWidth="256dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="7dp"
         android:textIsSelectable="true"
         android:background="@drawable/bg_bubble_gray"
-        android:textSize="14dp"
-        android:hint="self message here"/>
+        android:textSize="14sp"
+        android:textColor="#ffffff"
+        android:hint="msg"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@id/message"
-        android:layout_below="@id/message"
-        android:layout_marginBottom="25dp"
-        android:padding="10dp"
-        android:textSize="10dp"
-        android:hint="replace Text with TimeStamp"/>
+        android:paddingRight="4dp"
+        android:textSize="11sp"
+        android:textColor="#6d6f71"
+        android:hint="오후 2:10"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="0dp"
+        android:layout_toLeftOf="@+id/message"
+        android:layout_toStartOf="@+id/message" />
 
 </RelativeLayout>

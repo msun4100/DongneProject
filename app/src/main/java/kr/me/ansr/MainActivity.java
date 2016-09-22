@@ -126,13 +126,14 @@ public class MainActivity extends AppCompatActivity {
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation()
-					+"\nlatitude: "+PropertyManager.getInstance().getLatitude()
-					+"\nlongitude"+PropertyManager.getInstance().getLongitude()
-					+"\nemail"+PropertyManager.getInstance().getEmail()
-					+"\nuserId"+PropertyManager.getInstance().getUserId()
-					+"\nusername:"+PropertyManager.getInstance().getUserName()
-					+"\nunivId"+PropertyManager.getInstance().getUnivId()
-					+"\nprofile"+PropertyManager.getInstance().getProfile()
+					+"\nlatitude "+PropertyManager.getInstance().getLatitude()
+					+"\nlongitude "+PropertyManager.getInstance().getLongitude()
+					+"\nemail "+PropertyManager.getInstance().getEmail()
+					+"\nuserId "+PropertyManager.getInstance().getUserId()
+					+"\nusername "+PropertyManager.getInstance().getUserName()
+					+"\nunivId "+PropertyManager.getInstance().getUnivId()
+					+"\nunivName "+PropertyManager.getInstance().getUnivName()
+					+"\nprofile "+PropertyManager.getInstance().getProfile()
 					, Toast.LENGTH_LONG).show();
 			return true;
 		}
@@ -149,8 +150,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	public void setMenuVisibility() {
-		Animation anim = AnimationUtils.loadAnimation(MainActivity.this,
-				R.anim.show_anim);
+		Animation anim = AnimationUtils.loadAnimation(MainActivity.this, R.anim.show_anim);
 		if (tabs.getVisibility() == View.GONE) {
 			tabs.setVisibility(View.VISIBLE);
 			tabs.startAnimation(anim);

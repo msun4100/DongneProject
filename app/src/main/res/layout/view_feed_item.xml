@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="#ffffff"
+    android:id="@+id/linear_feed_layout"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/image_feed_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/e__who_icon"
+        android:background="@drawable/z_rectangle"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical">
+        <ImageView
+            android:id="@+id/image_feed_add"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            android:src="@drawable/b_list_plusicon" />
+        <TextView
+            android:layout_marginLeft="4dp"
+            android:id="@+id/text_feed_name"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="#403f41"
+            android:text="유저명"
+            android:visibility="visible"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:id="@+id/text_feed_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="님이 회원님의 게시글을 좋아합니다."
+            android:textColor="@color/list_job_color"
+            android:textSize="13sp" />
+        <TextView
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="4dp"
+            android:layout_gravity="bottom|end"
+            android:id="@+id/text_feed_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="09.21 오후05:47"
+            android:textColor="#8198a6"
+            android:textSize="11sp" />
+    </FrameLayout>
+
+
+
+</LinearLayout>

@@ -79,7 +79,7 @@
             android:layout_width="232dp"
             android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/a_join_login_icon"
+            android:background="@drawable/a_join_login_btn_selector"
             android:text="" />
         <Button
             android:id="@+id/btn_scroll"
@@ -87,7 +87,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="right"
-            android:background="@drawable/a_join_login_icon"
+            android:background="@drawable/a_join_login_btn_selector"
             android:text="scroll" />
     </FrameLayout>
 
@@ -99,7 +99,7 @@
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/image_login_idfind"
-            android:src="@drawable/a_search_idfind"
+            android:src="@drawable/a_search_idfind_selector"
             android:layout_width="76dp"
             android:layout_height="14dp" />
         <LinearLayout
@@ -113,9 +113,10 @@
         </LinearLayout>
         <ImageView
             android:id="@+id/image_login_pwfind"
-            android:src="@drawable/a_search_pwfind"
-            android:layout_width="76dp"
-            android:layout_height="14dp" />
+            android:src="@drawable/a_search_pwfind_selector"
+            android:layout_width="78dp"
+            android:layout_height="16dp"
+            android:paddingBottom="2dp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_marginTop="112dp"
@@ -138,6 +139,7 @@
             android:layout_marginLeft="8dp"
             android:textColor="#77A7BB"
             android:textSize="13sp"
+            android:background="@drawable/z_btn_white_selector"
             android:text="회원가입"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>

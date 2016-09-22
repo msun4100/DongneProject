@@ -16,9 +16,10 @@ import kr.me.ansr.R;
  */
 public class TermsActivity extends AppCompatActivity {
 
-    CheckBox checkBox1, checkBox2;
+    CheckBox checkBox1, checkBox2, checkBox3;
     boolean isTermBoxChecked = false;
     boolean isPrivacyBoxChecked = false;
+    boolean isLocationBoxChecked = false;
 
     Button btn1, btn2;
     @Override
@@ -27,7 +28,7 @@ public class TermsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terms);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.common_back);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
         toolbar.setBackgroundResource(R.drawable.a_join_agree_titlebar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -44,7 +45,7 @@ public class TermsActivity extends AppCompatActivity {
                     btn1.setBackgroundResource(R.drawable.a_join_agree_icon_1);
                     btn2.setBackgroundResource(R.drawable.a_join_confirm_icon_1);
                 }
-                if(isTermBoxChecked && isPrivacyBoxChecked){
+                if(isTermBoxChecked && isPrivacyBoxChecked && isLocationBoxChecked){
                     btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
                     btn2.setBackgroundResource(R.drawable.a_join_confirm_btn_selector);
                 }
@@ -61,7 +62,24 @@ public class TermsActivity extends AppCompatActivity {
                     btn1.setBackgroundResource(R.drawable.a_join_agree_icon_1);
                     btn2.setBackgroundResource(R.drawable.a_join_confirm_icon_1);
                 }
-                if(isTermBoxChecked && isPrivacyBoxChecked){
+                if(isTermBoxChecked && isPrivacyBoxChecked && isLocationBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_btn_selector);
+                }
+            }
+        });
+        checkBox3 = (CheckBox)findViewById(R.id.check_term3);
+        checkBox3.setChecked(false);
+        isLocationBoxChecked=checkBox3.isChecked();
+        checkBox3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isLocationBoxChecked=checkBox3.isChecked();
+                if(!isLocationBoxChecked){
+                    btn1.setBackgroundResource(R.drawable.a_join_agree_icon_1);
+                    btn2.setBackgroundResource(R.drawable.a_join_confirm_icon_1);
+                }
+                if(isTermBoxChecked && isPrivacyBoxChecked && isLocationBoxChecked){
                     btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
                     btn2.setBackgroundResource(R.drawable.a_join_confirm_btn_selector);
                 }
@@ -74,6 +92,7 @@ public class TermsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 checkBox1.setChecked(true);
                 checkBox2.setChecked(true);
+                checkBox3.setChecked(true);
                 btn1.setBackgroundResource(R.drawable.a_join_agree_icon_2);
             }
         });
@@ -81,7 +100,7 @@ public class TermsActivity extends AppCompatActivity {
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isTermBoxChecked == true && isPrivacyBoxChecked == true){
+                if(isTermBoxChecked == true && isPrivacyBoxChecked == true && isLocationBoxChecked == true){
                     Intent intent = new Intent(TermsActivity.this, SignUpAccountActivity.class);
                     startActivity(intent);
                 } else {

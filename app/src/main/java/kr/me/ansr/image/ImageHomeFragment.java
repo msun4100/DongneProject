@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,9 +43,12 @@ import java.io.IOException;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.common.PhotoChangeFragment;
 import kr.me.ansr.image.upload.AndroidMultiPartEntity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.login.LoginActivity;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-18.
@@ -52,19 +57,37 @@ public class ImageHomeFragment extends Fragment {
     private String TAG = ImageHomeFragment.class.getSimpleName();
     AppCompatActivity activity;
     private ImageView profileView;
+    TextView changeIcon;
     private TextView textView1, textView3;
-    private Button btn;
 
     private ProgressBar progressBar;
     private String filePath = null;
     private TextView txtPercentage;
     long totalSize = 0;
 
+    //copied from ProfileSettingActivity
+    ImageView iconPhoto;
+    FriendsResult mItem;
+    CustomEditText inputUniv, inputComp, inputJob;
+    CustomEditText inputEmail, inputFb;
+    SwitchCompat sw;
+
     public static ImageHomeFragment newInstance() {
         ImageHomeFragment f = new ImageHomeFragment();
         return f;
     }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        Bundle b = getArguments();
+        if(b != null){
+//            tag = b.getString("tag", "0");
+//            title = b.getString("title","default title");
+            mItem = (FriendsResult)b.getSerializable("mItem");
+        }
 
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,31 +97,53 @@ public class ImageHomeFragment extends Fragment {
         activity.getSupportActionBar().setHomeButtonEnabled(true);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         activity.getSupportActionBar().setTitle("ImageHomeFragment");
+        //copied from ProfileSettingActivity
         textView1 = (TextView) v.findViewById(R.id.textView);
         textView3 = (TextView) v.findViewById(R.id.textView3);
         txtPercentage = (TextView) v.findViewById(R.id.txtPercentage);
         progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         profileView = (ImageView) v.findViewById(R.id.image_image_home_profile);
-        profileView.setOnClickListener(new View.OnClickListener(){
+        changeIcon = (TextView) v.findViewById(R.id.text_prof_set_change);
+        changeIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "imageview clicked", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "imageview clicked", Toast.LENGTH_SHORT).show();
                 ((MediaStoreActivity)getActivity()).startAlbum();
             }
         });
-
-        btn = (Button) v.findViewById(R.id.btn_image_home_confirm);
-        btn.setOnClickListener(new View.OnClickListener(){
+        sw = (SwitchCompat) v.findViewById(R.id.sw_prof_set_location);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "filePath is: "+ filePath, Toast.LENGTH_SHORT).show();
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                Toast.makeText(getActivity(), "isChecked:"+ isChecked, Toast.LENGTH_SHORT).show();
+                if(isChecked){
+                    PropertyManager.getInstance().setUsingLocation(1);
+                } else {
+                    PropertyManager.getInstance().setUsingLocation(0);
+                }
             }
         });
 
+        inputUniv = (CustomEditText) v.findViewById(R.id.image_home_input1);
+        inputComp = (CustomEditText) v.findViewById(R.id.image_home_input2);
+        inputJob = (CustomEditText) v.findViewById(R.id.image_home_input3);
+        inputEmail = (CustomEditText) v.findViewById(R.id.image_home_input4);
+        inputFb = (CustomEditText) v.findViewById(R.id.image_home_input5);
+
+        initUserInfo();
         //file upload view settings
         filePath = getArguments().getString("filePath","");
         if(filePath == null || filePath ==""){
-            profileView.setImageResource(R.drawable.ic_launcher);
+            if(mItem != null){
+                String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
+                Glide.with(getActivity()).load(url)
+                        .placeholder(R.drawable.e__who_icon)
+                        .centerCrop()
+                        .signature(new StringSignature(mItem.getUpdatedAt()))
+                        .into(profileView);
+            } else {
+                profileView.setImageResource(R.drawable.e__who_icon);
+            }
         } else {
             new UploadFileToServer().execute();
         }
@@ -106,13 +151,20 @@ public class ImageHomeFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-//        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    private void initUserInfo(){
+        if (PropertyManager.getInstance().getUsingLocation() == 1){
+            sw.setChecked(true);
+        } else {sw.setChecked(false);}
+        if(mItem != null){
+            inputUniv.setText(PropertyManager.getInstance().getUnivName());
+            inputComp.setText(mItem.getJob().getName());
+            inputJob.setText(mItem.getJob().getTeam());
+            inputEmail.setText(mItem.getEmail());
+            inputFb.setText(mItem.getSns().get(0).url);
+        }
     }
-//    @Override
+
+    @Override
     public void onResume() {
         super.onResume();
         // destroy all menu and re-call onCreateOptionsMenu
@@ -125,10 +177,10 @@ public class ImageHomeFragment extends Fragment {
         int id = item.getItemId();
 
         if(id == android.R.id.home){
-            Toast.makeText(getActivity(), "ImageHomeFragment home selected", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            Toast.makeText(getActivity(), "filePath is: "+ filePath, Toast.LENGTH_SHORT).show();
+//            Intent intent = new Intent(getActivity(), LoginActivity.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
             getActivity().finish();
             return true;
         }
@@ -232,7 +284,6 @@ public class ImageHomeFragment extends Fragment {
                 showAlert(result);
                 textView3.setVisibility(View.VISIBLE);
                 textView3.setText("프로필 사진 등록 완료");
-                btn.setText("완료");
 //                Glide.with(getActivity()).load(filePath).into(profileView);
                 String userId = PropertyManager.getInstance().getUserId();
                 final String url = Config.FILE_GET_URL.replace(":userId", ""+1).replace(":size", "small");
@@ -241,7 +292,7 @@ public class ImageHomeFragment extends Fragment {
                     @Override
                     public void run() {
                         Glide.with(getActivity()).load(url)
-                                .placeholder(R.drawable.ic_stub)
+                                .placeholder(R.drawable.e__who_icon)
                                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
                                 .into(profileView);
                     }
@@ -252,8 +303,7 @@ public class ImageHomeFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 textView3.setVisibility(View.VISIBLE);
                 textView3.setText("프로필 사진을 다시 등록해주세요.");
-                btn.setText("확인");
-                profileView.setImageResource(R.mipmap.ic_launcher);
+                profileView.setImageResource(R.drawable.e__who_icon);
             }
             super.onPostExecute(result);
         }

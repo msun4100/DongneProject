@@ -9,14 +9,22 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
-    <dimen name="scrollview_size">132dp</dimen>
+    <dimen name="scrollview_size">90dp</dimen>
     <dimen name="activity_padding_zero">0dp</dimen>
-    <dimen name="board_padding_size">4dp</dimen>
+    <dimen name="board_padding_size">10dp</dimen>
     <dimen name="board_write_layout_margin">10dp</dimen>
 
-    <dimen name="mypage_padding_size">4dp</dimen>
+    <dimen name="mypage_padding_size">1dp</dimen>
     <dimen name="sw_thumb_size">32dp</dimen>
     <dimen name="common_toolbar_size">40dp</dimen>
 
     <dimen name="sign_up_account_text_size">14sp</dimen>
+    <dimen name="search_text_size">12sp</dimen>
+    <!--ImageHomeFragment item height-->
+    <dimen name="image_home_menu_height_white">36sp</dimen>
+    <dimen name="image_home_menu_height_gray">32sp</dimen>
+
+    <!--empty message's style-->
+    <dimen name="empty_msg_size">23sp</dimen>
+
 </resources>

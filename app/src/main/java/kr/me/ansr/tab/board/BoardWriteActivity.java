@@ -3,16 +3,19 @@ package kr.me.ansr.tab.board;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import kr.me.ansr.MyApplication;
@@ -28,6 +31,8 @@ public class BoardWriteActivity extends AppCompatActivity {
     public static final String TYPE_ANONYMOUS = ""+0;
     public static final String TYPE_PUBLIC = ""+1;
     public String currentTab = null;
+    TextView toolbarTitle;
+
 
     EditText inputBody;
     LinearLayout addImageView;
@@ -38,13 +43,17 @@ public class BoardWriteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_write);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.e__cancle_2);
+        toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title); toolbarTitle.setText("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.e__titlebar_3));
 
         Intent intent = getIntent();
         if (intent != null) {
-            currentTab = intent.getStringExtra("putkey");
-            getSupportActionBar().setTitle(currentTab);
+            currentTab = intent.getStringExtra("currentTab");
+//            getSupportActionBar().setTitle(currentTab);
         }
         checkBox = (CheckBox)findViewById(R.id.check_write_anonymous1);
         inputBody = (EditText)findViewById(R.id.edit_write_input);
@@ -80,6 +89,7 @@ public class BoardWriteActivity extends AppCompatActivity {
             return;
         }
         String type = getBoardType();
+        Log.e("postWriteType:", type);
         //임시 pageId == univId
         int pageId = Integer.valueOf(PropertyManager.getInstance().getUserId());
         String title = "Title";
@@ -107,11 +117,13 @@ public class BoardWriteActivity extends AppCompatActivity {
     ProgressDialog dialog = null;
 
     private String getBoardType(){
+        String type = currentTab;
         if(checkBox.isChecked()){
-            return TYPE_ANONYMOUS; //체크했으면 비공개 type == "0"
+            type += TYPE_ANONYMOUS; //체크했으면 비공개 type == "0"
         } else {
-            return TYPE_PUBLIC;
+            type += TYPE_PUBLIC;
         }
+        return type;
     }
     private void requestFocus(View view) {
         if (view.requestFocus()) {
@@ -136,7 +148,8 @@ public class BoardWriteActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if(id == android.R.id.home){
-            CustomDialogFragment mDialogFragment = new CustomDialogFragment();
+//            CustomDialogFragment mDialogFragment = new CustomDialogFragment();
+            CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
             Bundle b = new Bundle();
             b.putString("tag", CustomDialogFragment.TAG_BOARD_WRITE);
             b.putString("title","게시물 작성을 취소 하시겠습니까?");

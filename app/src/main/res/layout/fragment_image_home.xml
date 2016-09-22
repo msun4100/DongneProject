@@ -1,75 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="?attr/actionBarSize"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="#ffffff"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="kr.me.ansr.image.MediaStoreActivity">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_marginTop="12dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="투명한 동문 교류가 되기 위해 가급적 본인 사진을 등록해주세요"
+            android:textColor="@color/signupFontColor"
+            android:textSize="13sp"
+            android:id="@+id/textView" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_marginTop="36dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@drawable/e__who_icon"
+                android:background="@drawable/z_rectangle"
+                android:id="@+id/image_image_home_profile" />
 
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="투명한 동문 교류가 되기 위해\n가급적 본인 사진을 등록해주세요"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+            <TextView
+                android:background="@drawable/z_btn_white_selector"
+                android:id="@+id/text_prof_set_change"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="22dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/image_home_change_thumb"
+                android:textSize="13sp"
+                android:textColor="@color/valid_input" />
 
-
-
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/image_image_home_profile"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:src="@mipmap/ic_launcher"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="클릭 시 프로필 사진 등록 화면으로 이동합니다.\n사진을 등록하지 않으면 기본 설정으로 가입 됩니다."
-        android:id="@+id/textView3"
-        android:layout_below="@+id/image_image_home_profile"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" />
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="확인"
-        android:id="@+id/btn_image_home_confirm"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginTop="166dp"
+            android:text="   클릭 시 프로필 사진 등록 화면으로 이동합니다.\n사진을 등록하지 않으면 기본 설정으로 가입 됩니다."
+            android:id="@+id/textView3"
+            android:textColor="@color/signupFontColor"
+            android:textSize="13sp" />
+    </FrameLayout>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="150dp"
-        android:layout_centerHorizontal="true">
+        android:layout_gravity="center_horizontal">
         <TextView
             android:id="@+id/txtPercentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="0%"
-            android:textSize="30dp"
-            android:visibility="gone"
-            />
-
+            android:textSize="16dp"
+            android:visibility="visible" />
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="250dp"
             android:layout_height="20dp"
+            android:visibility="visible"/>
+    </LinearLayout>
 
-            android:visibility="gone"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="내 위치 공유"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="invisible"/>
+        <android.support.v7.widget.SwitchCompat
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sw_prof_set_location" />
+    </LinearLayout>
+    <TextView
+        android:layout_marginTop="6dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/signupFontColor"
+        android:textSize="13sp"
+        android:text="* 내 위치를 공개하면 타인의 위치를 볼 수 있습니다."/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_gray"
+        android:background="#ecedec"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="기본 항목"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/image_home_input1"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="대학교명"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
 
     </LinearLayout>
-</RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/image_home_input2"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="회사명을 입력하시면 동문들의 회사를 볼 수 있습니다."
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/image_home_input3"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="직무를 입력하시면 동문들의 회사를 볼 수 있습니다."
+            android:background="@null"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_gray"
+        android:background="#ecedec"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="연락처"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/image_home_input4"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="연락처1"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_home_menu_height_white"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/image_home_input5"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="연락처2"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+
+</LinearLayout>

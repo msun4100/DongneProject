@@ -10,8 +10,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 
 /**
@@ -31,7 +34,7 @@ public class DetailReplyItemView extends FrameLayout{
     TextView usernameView;
     TextView bodyView;
 
-    ImageView iconReply;
+    ImageView iconReply, iconThumb;
     TextView replyCountView;
     ImageView iconLike;
     TextView likeCountView;
@@ -73,6 +76,8 @@ public class DetailReplyItemView extends FrameLayout{
 
     private void init() {
         LayoutInflater.from(getContext()).inflate( R.layout.view_board_detail_reply_layout, this);
+        iconThumb = (ImageView)findViewById(R.id.image_board_reply_thumb) ;
+
         usernameView = (TextView)findViewById(R.id.text_board_reply_reply_name);
         bodyView = (TextView)findViewById(R.id.text_board_reply_reply_content);
         usernameView.setOnClickListener(viewListener);
@@ -91,12 +96,23 @@ public class DetailReplyItemView extends FrameLayout{
     public void setItemData(ReplyResult item) {
         mItem = item;
 //        termText.setText(Html.fromHtml("<u>" + str + "</u>"));
-        usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+        switch (item.type){
+            case "10":
+            case "00":
+                usernameView.setText(Html.fromHtml("<B>"+getResources().getString(R.string.board_anonymous_name)+"</B>"));
+                iconThumb.setImageResource(R.drawable.e__who_icon);
+                break;
+            default:
+                usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+                String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+                Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
+                break;
+        }
         bodyView.setText(item.body);
 
         if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
-            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
-        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
+            iconLike.setImageResource(R.drawable.e__like_2);
+        } else {iconLike.setImageResource(R.drawable.e__like);}
         likeCountView.setText(""+item.likes.size());
         replyCountView.setText("0");
         if(item.replies != null) {

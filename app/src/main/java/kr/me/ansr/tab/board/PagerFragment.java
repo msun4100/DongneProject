@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
+import kr.me.ansr.common.event.EventBus;
+
 public class PagerFragment extends Fragment {
 	public void onPageCurrent() { }
 	/*

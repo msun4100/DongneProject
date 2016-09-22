@@ -3,8 +3,7 @@ package kr.me.ansr.tab.board.detail;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +40,9 @@ import okhttp3.Request;
 public class BoardDetailActivity extends AppCompatActivity
 {
     private static final String TAG = BoardDetailActivity.class.getSimpleName();
+    TextView toolbarTitle;
+    ImageView toolbarMenu;
+
     ProgressDialog dialog = null;
     public BoardResult mItem = null;
     private CommentThread ct;
@@ -61,21 +64,30 @@ public class BoardDetailActivity extends AppCompatActivity
     LinearLayout likeLayout;
     //reply input Views
     EditText inputReply;
+    CheckBox checkBox;
+    String currentTab = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.b_main_view_contents_icon_05_off);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_activity_board_detail);
-
+        getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.e__titlebar_2));
+        getSupportActionBar().setElevation(0);	//6.0이상 음영효과 제거
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText("");
+        toolbarMenu = (ImageView)toolbar.findViewById(R.id.toolbar_menu1);
+        toolbarMenu.setImageResource(R.drawable.e__more_2_modify);
         Intent intent = getIntent();
         if (intent != null) {
 //            mItem = (BoardResult)intent.getSerializableExtra(BoardInfo.BOARD_DETAIL_OBJECT);
             reqBoardId = intent.getIntExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, -1);
             mPosition = intent.getIntExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+            currentTab = intent.getStringExtra("currentTab");
             if(reqBoardId == -1 || mPosition == -1) forcedFinish();
         } else {
             forcedFinish();
@@ -114,6 +126,8 @@ public class BoardDetailActivity extends AppCompatActivity
 
         //implements reply
         inputReply = (EditText)findViewById(R.id.edit_detail_input);
+        checkBox = (CheckBox)findViewById(R.id.check_detail_anonymous);
+        checkBox.setChecked(false);
         Button btn = (Button)findViewById(R.id.btn_detail_send);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -126,22 +140,32 @@ public class BoardDetailActivity extends AppCompatActivity
     }
     private void sendReply(){
         final String content = inputReply.getText().toString();
-        NetworkManager.getInstance().postDongneCommentAdd(this, reqBoardId, mItem.commentId, content, new NetworkManager.OnResultListener<CommentInfo>() {
+        if(content.equals("") || content == null){
+            return;
+        }
+        final String type = getBoardType();
+        String to = ""+mItem.writer;
+        NetworkManager.getInstance().postDongneCommentAdd(this, reqBoardId, mItem.commentId, content, type, to, new NetworkManager.OnResultListener<CommentInfo>() {
             @Override
             public void onSuccess(Request request, CommentInfo result) {
                 if(result.error.equals(false)){
-//                    mAdapter.clear();
-//                    mAdapter.addAll(result.comment.get(0).replies);
                     inputReply.setText("");
-                    int userId = Integer.valueOf(PropertyManager.getInstance().getUserId());
-                    String username = PropertyManager.getInstance().getUserName();
+//                    int userId = Integer.valueOf(PropertyManager.getInstance().getUserId());
+//                    String username = PropertyManager.getInstance().getUserName();
+//                    ReplyResult rr = new ReplyResult("", content, userId, username, type, new ArrayList<Integer>(), 0, new ArrayList<ReplyResult>(), MyApplication.getInstance().getCurrentTimeStampString());
+                    if(result.result != null) {
+                        if(mAdapter.getCount() == 0){
+                            listView.setVisibility(View.VISIBLE);
+                        }
+                        mAdapter.add(result.result);
+                        mItem.repCount = mAdapter.getCount();   //디테일 빠져나갔을 때 갱신위해
+                        int cnt = Integer.valueOf(replyCountView.getText().toString());
+                        replyCountView.setText(""+(cnt+1));
 
-                    ReplyResult rr = new ReplyResult("", content, userId, username, new ArrayList<Integer>(), 0, new ArrayList<ReplyResult>(), null);
-                    mAdapter.add(rr);
-                    mItem.repCount = mAdapter.getCount();
-                    Log.e("mAdapter.getCount():", ""+mAdapter.getCount());
-                    int cnt = Integer.valueOf(replyCountView.getText().toString());
-                    replyCountView.setText(""+(cnt+1));
+                        if (mAdapter.getCount() > 1) {
+                            listView.smoothScrollToPosition(mAdapter.getCount() - 1);
+                        }
+                    }
                 } else {
                     inputReply.setText("");
                     Toast.makeText(BoardDetailActivity.this, "error: true" +  result.message, Toast.LENGTH_SHORT).show();
@@ -174,6 +198,10 @@ public class BoardDetailActivity extends AppCompatActivity
                             listView.setVisibility(View.GONE);
                             mAdapter.clear();
                         }
+
+                        if (mAdapter.getCount() > 1) {
+                            listView.setSelection(mAdapter.getCount() - 1);
+                        }
                         mItem = result.result.get(0);
                         mItem.repCount = mAdapter.getCount();   //client용 repCount 초기화
                         setBoardItem(mItem);
@@ -197,13 +225,14 @@ public class BoardDetailActivity extends AppCompatActivity
     public void setBoardItem(BoardResult item) {
 //        titleView.setTextSize(item.fontSize);
         this.mItem = item;
-        String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-        Glide.with(this).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
-
         if(item.type.equals("00") || item.type.equals("10")){
-            nameView.setText(R.string.board_anonymous_name);
+
+            nameView.setText(getResources().getString(R.string.board_anonymous_name));
+            iconThumb.setImageResource(R.drawable.e__who_icon);
         } else {
             nameView.setText(item.user.username);
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
+            Glide.with(this).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
         }
 
         bodyView.setText(item.body);
@@ -217,9 +246,9 @@ public class BoardDetailActivity extends AppCompatActivity
         }
 
         timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
-        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
-            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
-        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
+//        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
+//            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
+//        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
 
         likeCountView.setText(""+item.likeCount);
     }
@@ -233,7 +262,8 @@ public class BoardDetailActivity extends AppCompatActivity
                     int likeMode =2;    //likeMode가 2면 요청 안하고 리턴
                     int mUserId = Integer.valueOf(PropertyManager.getInstance().getUserId());
                     if(mItem.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
-                    postLike(likeMode, String.valueOf(mItem.boardId), PropertyManager.getInstance().getUserId(), Integer.MAX_VALUE);
+                    String to = ""+mItem.writer;
+                    postLike(likeMode, String.valueOf(mItem.boardId), PropertyManager.getInstance().getUserId(), to, Integer.MAX_VALUE);
                     break;
                 case R.id.text_board_body:
                     Toast.makeText(BoardDetailActivity.this,"detail body click", Toast.LENGTH_SHORT).show();
@@ -244,15 +274,15 @@ public class BoardDetailActivity extends AppCompatActivity
         }
     };
 
-    private void postLike(int like, String boardId, final String userId, final int position){
+    private void postLike(int like, String boardId, final String userId, String to, final int position){
         if(like>1){Toast.makeText(BoardDetailActivity.this,"invalid like type",Toast.LENGTH_SHORT).show(); return;}
         if(boardId == null || userId == null) { Toast.makeText(BoardDetailActivity.this,"arg is null",Toast.LENGTH_SHORT).show(); return; }
-        NetworkManager.getInstance().postDongneBoardLike(BoardDetailActivity.this, like, boardId, userId, new NetworkManager.OnResultListener<LikeInfo>() {
+        NetworkManager.getInstance().postDongneBoardLike(BoardDetailActivity.this, like, boardId, userId, to, new NetworkManager.OnResultListener<LikeInfo>() {
             @Override
             public void onSuccess(Request request, LikeInfo result) {
                 if(result.error.equals(false)){
 //                    Toast.makeText(BoardDetailActivity.this,""+result.message, Toast.LENGTH_SHORT).show();
-                    setLike(Integer.MAX_VALUE, Integer.valueOf(userId));    //MAX_VALUE MEANS that 'position is never used'
+                    setLike(Integer.MAX_VALUE, Integer.valueOf(userId));    //MAX_VALUE == 'position is never used'
                 } else {
                     //error: true
                     Toast.makeText(BoardDetailActivity.this,"error: true\n"+result.message, Toast.LENGTH_SHORT).show();
@@ -274,14 +304,14 @@ public class BoardDetailActivity extends AppCompatActivity
                 mItem.likes.remove(idx);
 
                 likeCountView.setText(""+mItem.likes.size());
-                iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);
+//                iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);
             }
         } else {
             mItem.likeCount++;
             mItem.likes.add(userId);    //add는 indexOf 하면 현재 배열에 없으니까 -1 리턴 됨.
 
             likeCountView.setText(""+mItem.likes.size());
-            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
+//            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
         }
 //        notifyDataSetChanged();
     }
@@ -316,9 +346,9 @@ public class BoardDetailActivity extends AppCompatActivity
         deptView = (TextView)findViewById(R.id.text_board_dept);
         timeStampView = (TextView)findViewById(R.id.text_board_timestamp);
         bodyView = (TextView)findViewById(R.id.text_board_body);
-        iconReply = (ImageView)findViewById(R.id.image_board_reply);
+//        iconReply = (ImageView)findViewById(R.id.image_board_reply);
         replyCountView = (TextView)findViewById(R.id.text_board_reply_count);
-        iconLike = (ImageView)findViewById(R.id.image_board_like);
+//        iconLike = (ImageView)findViewById(R.id.image_board_like);
         likeCountView = (TextView)findViewById(R.id.text_board_like_count);
 
         likeLayout = (LinearLayout)findViewById(R.id.linear_like_layout);
@@ -337,5 +367,17 @@ public class BoardDetailActivity extends AppCompatActivity
     private void forcedFinish(){
         Toast.makeText(getApplicationContext(), "다시 요청해주세요.",Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    public static final String TYPE_ANONYMOUS = ""+0;
+    public static final String TYPE_PUBLIC = ""+1;
+    private String getBoardType(){
+        String type = currentTab;
+        if(checkBox.isChecked()){
+            type += TYPE_ANONYMOUS; //체크했으면 비공개 type == "0"
+        } else {
+            type += TYPE_PUBLIC;
+        }
+        return type;
     }
 }

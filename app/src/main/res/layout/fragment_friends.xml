@@ -6,10 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="kr.me.ansr.tab.friends.FriendsFragment" >
-    <include
-        layout="@layout/common_searchbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 
     <android.support.v4.app.FragmentTabHost
         android:id="@+id/tabhost"
@@ -21,8 +17,9 @@
             android:orientation="vertical">
             <TabWidget
                 android:id="@android:id/tabs"
+                android:divider="@null"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content">
             </TabWidget>
             <FrameLayout
                 android:id="@android:id/tabcontent"

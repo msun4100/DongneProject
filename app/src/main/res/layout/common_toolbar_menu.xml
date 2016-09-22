@@ -1,0 +1,29 @@
+<android.support.v7.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="#ffffff"
+    android:minHeight="@dimen/common_toolbar_size"
+    app:popupTheme="@style/AppTheme.PopupOverlay"
+    app:titleTextColor="#1b3043">
+    <TextView
+        android:id="@+id/toolbar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="학교 사람들"
+        android:textColor="#1b3043"
+        android:singleLine="true"
+        android:ellipsize="end"
+        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:layout_gravity="center"
+        />
+    <ImageView
+        android:id="@+id/toolbar_menu1"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
+        android:layout_marginRight="10dp"
+        android:src="@mipmap/ic_launcher"
+        android:layout_gravity="end|center_vertical"/>
+</android.support.v7.widget.Toolbar>

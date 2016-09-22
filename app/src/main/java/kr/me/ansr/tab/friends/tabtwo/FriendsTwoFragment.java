@@ -1,6 +1,5 @@
 package kr.me.ansr.tab.friends.tabtwo;
 
-import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,8 +28,10 @@ import java.util.Date;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.tab.friends.MySpinnerAdapter;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
 import kr.me.ansr.tab.friends.recycler.MyDecoration;
 import okhttp3.Request;
 
@@ -45,6 +51,13 @@ public class FriendsTwoFragment extends Fragment {
     boolean isLast = false;
     Handler mHandler = new Handler(Looper.getMainLooper());
 
+
+    Spinner spinner;
+    MySpinnerAdapter mySpinnerAdapter;
+    String mSpinnerItem;
+    public int mSearchOption = 0;
+    ImageView searchIcon;
+    FrameLayout frameSearch;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -145,11 +158,95 @@ public class FriendsTwoFragment extends Fragment {
 
         start = 0;
         reqDate = getCurrentTimeStamp();
-        initUnivUsers();
+//        initUnivUsers();
+
+        //        implements common_search_bar_spinner======================================
+        frameSearch = (FrameLayout)view.findViewById(R.id.containerforsearch);
+        frameSearch.setVisibility(View.GONE);
+        spinner = (Spinner) view.findViewById(R.id.spinner);
+        mySpinnerAdapter = new MySpinnerAdapter();
+        spinner.setAdapter(mySpinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//				String str = (String)mySpinnerAdapter.getItem(position);
+                Log.e("clicked position: ", ""+position);
+                /*
+                onCreateView에서 초기화할때 최초 호출하는 initUnivUsers()도 여기서 처리
+                onItemSelected == 0 으로 세팅 되기 때문에
+                */
+                mSearchOption = position;
+                start = 0;
+//                if(mSearchOption != 0){
+                if(true){
+                    //핸들러로 몇초 있다가 요청
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            initUnivUsers();
+                        }
+                    }, 500);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                spinner.setSelection(0);
+            }
+        });
+        initData(); //spinnerItem init
+        searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
+        searchIcon.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                setContainerVisibility();
+            }
+        });
+
+        inputName = (EditText)view.findViewById(R.id.edit_search_name);
+        inputYear = (EditText)view.findViewById(R.id.edit_search_enteryear);
+        inputDept = (EditText)view.findViewById(R.id.edit_search_dept);
+        inputJob = (EditText)view.findViewById(R.id.edit_search_job);
+        confirmView = (TextView)view.findViewById(R.id.text_search_confirm);
+        confirmView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.e("confirm","clicked");
+            }
+        });
+        cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
+        cancelView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                clearSearchInput();
+                setContainerVisibility();
+            }
+        });
 
         return view;
     }
 
+    EditText inputName, inputYear, inputDept, inputJob;
+    TextView confirmView, cancelView;
+    public void clearSearchInput(){
+        inputName.setText(""); inputYear.setText(""); inputDept.setText(""); inputJob.setText("");
+    }
+    public void setContainerVisibility(){
+        if(frameSearch == null){
+            return;
+        }
+        if(frameSearch.getVisibility() == View.VISIBLE){
+            frameSearch.setVisibility(View.GONE);
+        } else {
+            frameSearch.setVisibility(View.VISIBLE);
+        }
+    }
+    private void initData() {
+        String[] searchArray = getResources().getStringArray(R.array.search_items);
+        for (int i = 0; i < searchArray.length; i++) {
+            mySpinnerAdapter.add(searchArray[i]);
+        }
+        spinner.setSelection(0);
+    }
     private void initUnivUsers(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
         if(mUnivId == ""){
@@ -160,6 +257,7 @@ public class FriendsTwoFragment extends Fragment {
         reqDate = getCurrentTimeStamp();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                 1, //mode
+                mSearchOption,
                 mUnivId,
                 ""+start,
                 ""+DISPLAY_NUM,
@@ -174,6 +272,9 @@ public class FriendsTwoFragment extends Fragment {
                                 Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
+                                FriendsDataManager.getInstance().clearFriends();
+                                FriendsDataManager.getInstance().getList().addAll(items);
+
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
                                     Log.e(TAG, ""+child);
@@ -187,6 +288,7 @@ public class FriendsTwoFragment extends Fragment {
                         } else {
 //                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             mAdapter.items.clear();
+                            FriendsDataManager.getInstance().clearFriends();
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
@@ -220,6 +322,7 @@ public class FriendsTwoFragment extends Fragment {
 //            int display = 50;
             NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                     1, //mode
+                    mSearchOption,
                     PropertyManager.getInstance().getUnivId(),
                     ""+start,
                     ""+DISPLAY_NUM,
@@ -231,6 +334,7 @@ public class FriendsTwoFragment extends Fragment {
                             if(!result.message.equals("has no more accepted friends")){
                                 Log.e(TAG+"getMore:", result.result.toString());
                                 mAdapter.addAllFriends(result.result);
+                                FriendsDataManager.getInstance().getList().addAll(result.result);
                             } else {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }

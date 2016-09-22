@@ -7,11 +7,17 @@ import java.util.ArrayList;
  */
 public class FriendsInfo {
     public static final int FRIEND_DISPLAY_NUM = 5;
-    public static final int FRIENDS_RC_NUM = 222;
+    public static final int FRIENDS_RC_NUM = 223;
     public static final String FRIENDS_DETAIL_USER_ID = "detailFriendsId";
 //    public static final String FRIENDS_DETAIL_OBJECT = "detailObject";
     public static final String FRIENDS_DETAIL_MODIFIED_ITEM = "detailModifiedItem";
     public static final String FRIENDS_DETAIL_MODIFIED_POSITION = "detailModifiedPosition";
+
+    public static final String STATUS_SEND = "0";
+    public static final String STATUS_RECEIVE = "00";
+    public static final String STATUS_ACCEPT = "1";
+    public static final String STATUS_DECLINE = "2";
+    public static final String STATUS_BLOCK = "3";
 
 
     public Boolean error;

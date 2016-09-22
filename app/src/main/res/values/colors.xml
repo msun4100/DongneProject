@@ -6,15 +6,19 @@
     <color name="colorAccent">#122545</color>
 
     <color name="list_divider">#dedede</color>
-    <color name="bg_bubble_self">#E1E1E1</color>
+    <color name="bg_bubble_self">#1b3043</color>
 
-    <color name="invalid_input">#fff14249</color>
+    <color name="invalid_input">#e54863</color>
     <color name="valid_input">#4980C2</color>
     <color name="lightGray">#e0e0e0</color>
     <color name="hintColor">#bcbbbd</color>
 
     <color name="dialogHintColor">#a6a8ab</color>
     <color name="dialogFontColor">#0a1824</color>
+
+    <color name="signupHintColor">#ff9c9c9d</color>
+    <color name="signupFontColor">#ff252525</color>
+
 
     <!--friends list colors-->
     <color name="list_header_color">#374d60</color>
@@ -24,8 +28,28 @@
     <color name="list_name_color">#0b161e</color>
     <color name="list_search_color">#6d6c6f</color>
     <color name="list_search_colorHint">#484544</color>
+    <color name="list_search_background">#ecedec</color>
+    <color name="write_bg">#dbdcdc</color>
+    <color name="profile_stroke1">#ecedec</color>
+    <color name="profile_stroke2">#6a6b6c</color>
+
+    <color name="tab4_gray_color">#a5a6a9</color>
+    <color name="my_page_gray_color">#f1f2f2</color>
+    <color name="chat_room_back_ground">#f4f4f4</color>
+    <color name="gray_background">#ecedec</color>
+
+    <!--for btn selector-->
+    <color name="pressed">#ecedec</color>
+    <color name="nonpressed1">#122545</color>
+    <color name="nonpressed1_1">#12254a</color><!--stroke color-->
+    <color name="nonpressed2">#ffffff</color>
+    <color name="nonpressed2_1">#ffffff</color>
     <!--for custom dialog-->
     <drawable name="dialog_background">#00000000</drawable>
+
+    <!--empty_msg_color-->
+    <color name="feed_pressed">#f1f2f2</color>
+    <color name="empty_msg_color">#403f41</color>
 
 
 </resources>

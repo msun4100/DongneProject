@@ -3,13 +3,17 @@ package kr.me.ansr.tab.friends;
 
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.PagerFragment;
-import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.FriendsFragmentResultEvent;
+import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,25 +21,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TabHost;
+import android.widget.Toast;
 
 public class FriendsFragment extends PagerFragment {
 
 
 	AppCompatActivity activity;
 	FragmentTabHost tabHost;
-	Spinner spinner;
-	MySpinnerAdapter mySpinnerAdapter;
-	String mSpinnerItem;
-	public int mSearchOption = -1;
+
 	InputMethodManager imm;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_friends, container, false);
 		activity = (AppCompatActivity) getActivity();
+		((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
 //		imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 //		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -63,33 +64,10 @@ public class FriendsFragment extends PagerFragment {
 			}
 		});
 
-//		======================================
-		spinner = (Spinner) view.findViewById(R.id.spinner);
-		mySpinnerAdapter = new MySpinnerAdapter();
-		spinner.setAdapter(mySpinnerAdapter);
-		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//				String str = (String)mySpinnerAdapter.getItem(position);
-				mSearchOption = position;
-				Log.e("clicked position: ", ""+position);
-			}
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				spinner.setSelection(0);
-			}
-		});
-		initData();
+
 		return view;
 	}
 
-	private void initData(){
-		String[] searchArray = getResources().getStringArray(R.array.search_items);
-		for (int i = 0; i < searchArray.length; i++) {
-			mySpinnerAdapter.add(searchArray[i]);
-		}
-		spinner.setSelection(0);
-	}
 
 	@Override
 	public void onPageCurrent() {
@@ -101,17 +79,60 @@ public class FriendsFragment extends PagerFragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			if(activity != null){
-//				activity.getSupportActionBar().setTitle("       Friends Fragment");
-//				activity.getSupportActionBar().setBackgroundDrawable(R.drawable.d_write_bg);
 				activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-				String str = PropertyManager.getInstance().getDeptName();
-				if(str != null && !str.equals("")){
-					((MainActivity)getActivity()).getToolbarTitle().setText(str);
-				} else {
-					((MainActivity)getActivity()).getToolbarTitle().setText("학교 사람들");
-				}
+				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.b_list_titlebar));
+				activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false); //챗프래그먼트에서 백버튼 자리 메뉴를 사용하기 때문에
 
+				String str = "인하대학교";
+				String m = "";
+				for(int i=0; i<str.length(); i++){
+					m += str.substring(i, i+1) + " ";
+				}
+				m = m.substring(0, m.length()-1);
+				((MainActivity)getActivity()).getToolbarTitle().setText(m);
+
+//				String str = PropertyManager.getInstance().getUnivName();
+//				if(str != null && !str.equals("")){
+//					String m = "";
+//					for(int i=0; i<str.length(); i++){
+//						m += str.substring(i, i+1) + " ";
+//					}
+//					m = m.substring(0, m.length()-1);
+//					((MainActivity)getActivity()).getToolbarTitle().setText(m);
+//				} else {
+//					((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
+//				}
 			}
 		}
 	}
+
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+			case FriendsInfo.FRIENDS_RC_NUM:
+				if (resultCode == getActivity().RESULT_OK) {
+					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+				}
+				break;
+//			case 100:
+//				//서버 요청 성공하면 새로 고치는 코드
+//				if (resultCode == getActivity().RESULT_OK) {
+//					Bundle extraBundle = data.getExtras();
+//					String returnString = extraBundle.getString("return");
+//					if(returnString.equals("success")){
+//						Log.e("afterWrite", "success");
+//						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_LONG).show();
+//						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+//					} else {
+//						Log.e("afterWrite", "failure");
+//						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
+//					}
+//				}
+//				break;
+		}
+
+	}
+
 }

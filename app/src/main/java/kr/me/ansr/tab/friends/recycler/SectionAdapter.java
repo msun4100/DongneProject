@@ -18,6 +18,7 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
 public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements OnItemClickListener, OnItemLongClickListener, ItemViewHolder.OnLikeClickListener{
     public List<GroupItem> items = new ArrayList<GroupItem>();
+    public int blockCount = 0;
 
     public interface OnAdapterItemClickListener {
         public void onAdapterItemClick(SectionAdapter adapter, View view, FriendsResult item, int type);
@@ -79,12 +80,21 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
+    public void removeItem(FriendsResult child){
+//        items.remove(child);
+        this.items.get(GROUP_FRIENDS).children.remove(child);
+        notifyDataSetChanged();
+    }
+
     public void clearAllFriends() {
 //        items.clear();
-        if(items.size() < 2){
-            return;
+//        if(items.size() < 2){
+//            return;
+//        }
+//        items.get(GROUP_FRIENDS).children.clear();
+        for(int i=0; i<items.size(); i++){
+            items.get(i).children.clear();
         }
-        items.get(GROUP_FRIENDS).children.clear();
         notifyDataSetChanged();
     }
 
@@ -93,8 +103,8 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
-    public static final int VIEW_TYPE_SECTION_HEADER = 0;
-    public static final int VIEW_TYPE_ITEM = 1;
+    public static final int VIEW_TYPE_SECTION_HEADER = 1000;
+    public static final int VIEW_TYPE_ITEM = 1001;
 
     @Override
     public int getItemViewType(int position) {
@@ -160,7 +170,11 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         for (GroupItem g : items) {
             totalCount += (1 + g.children.size());
         }
-        return totalCount;
+        //block된 유저는 아답터에 add하지 않았으므로 pass할때마다(for loop에서 continue 할때마다)
+        //block 카운트를 증가시킴. 그리고 getItemCount()를 리턴할때 blockCount를 더해서 리턴
+        //그래야 학교사람들 전체 토탈이랑 맞출 수 있음.
+//        return totalCount + blockCount;
+        return  totalCount;
     }
 
     private int totalCount; //학교사람들 전체 토탈

@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                         // user successfully logged in
 
                         JSONObject userObj = obj.getJSONObject("user");
-                        User user = new User(userObj.getString("user_id"),
+                        User user = new User(userObj.getInt("user_id"),
                                 userObj.getString("name"),
                                 userObj.getString("email"));
 

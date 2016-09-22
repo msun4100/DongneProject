@@ -186,6 +186,7 @@ public void clearProperties() {
 	}
 	// for Location info
 
+	//프로필 이미지
 	private static final String FIELD_PROFILE = "profile";
 	private String mProfile;
 
@@ -295,7 +296,21 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 
+	private static final String FIELD_ALARM_ALL = "alarmall";
+	private int alarmAll = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
 
+	public int getAlarmAll() {
+		if (alarmAll == 0) {
+			alarmAll = mPrefs.getInt(FIELD_ALARM_ALL, 0);
+		}
+		return alarmAll;
+	}
+
+	public void setAlarmAll(int alarm) {
+		alarmAll = alarm;
+		mEditor.putInt(FIELD_ALARM_ALL, alarmAll);
+		mEditor.commit();
+	}
 
 
 

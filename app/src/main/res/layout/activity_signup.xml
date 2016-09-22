@@ -26,7 +26,7 @@
             <TextView
                 android:layout_marginLeft="24dp"
                 android:layout_gravity="center_vertical"
-                android:textColor="@color/dialogFontColor"
+                android:textColor="@color/signupFontColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*" />
@@ -38,8 +38,8 @@
                 android:layout_height="36dp"
                 android:background="@drawable/a_join_input_1"
                 android:hint="이름"
-                android:textColorHint="@color/dialogHintColor"
-                android:textColor="@color/dialogFontColor"
+                android:textColorHint="@color/signupHintColor"
+                android:textColor="@color/signupFontColor"
                 android:lines="1"
                 android:textSize="16sp" />
         </FrameLayout>
@@ -52,7 +52,7 @@
             <TextView
                 android:layout_marginLeft="24dp"
                 android:layout_gravity="center_vertical"
-                android:textColor="@color/dialogFontColor"
+                android:textColor="@color/signupFontColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*" />
@@ -61,8 +61,8 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="12dp"
                 android:background="@drawable/a_join_input_1"
-                android:textColorHint="@color/dialogHintColor"
-                android:textColor="@color/dialogFontColor"
+                android:textColorHint="@color/signupHintColor"
+                android:textColor="@color/signupFontColor"
                 android:textSize="16sp"
                 android:layout_width="312dp"
                 android:layout_height="36dp"
@@ -78,7 +78,7 @@
             <TextView
                 android:layout_marginLeft="24dp"
                 android:layout_gravity="center_vertical"
-                android:textColor="@color/dialogFontColor"
+                android:textColor="@color/signupFontColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*" />
@@ -87,8 +87,8 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="12dp"
                 android:background="@drawable/a_join_input_1"
-                android:textColorHint="@color/dialogHintColor"
-                android:textColor="@color/dialogFontColor"
+                android:textColorHint="@color/signupHintColor"
+                android:textColor="@color/signupFontColor"
                 android:textSize="16sp"
                 android:layout_width="312dp"
                 android:layout_height="36dp"
@@ -111,7 +111,7 @@
             <TextView
                 android:layout_marginLeft="24dp"
                 android:layout_gravity="center_vertical"
-                android:textColor="@color/dialogFontColor"
+                android:textColor="@color/signupFontColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*" />
@@ -122,8 +122,8 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="12dp"
                 android:background="@drawable/a_join_input_1"
-                android:textColorHint="@color/dialogHintColor"
-                android:textColor="@color/dialogHintColor"
+                android:textColorHint="@color/signupHintColor"
+                android:textColor="@color/signupFontColor"
                 android:textSize="16sp"
                 android:layout_width="312dp"
                 android:layout_height="36dp"
@@ -143,8 +143,8 @@
             android:layout_marginTop="14dp"
             android:paddingLeft="12dp"
             android:id="@+id/edit_signup_company"
-            android:textColorHint="@color/dialogHintColor"
-            android:textColor="@color/dialogFontColor"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
             android:textSize="16sp"
             android:layout_width="312dp"
             android:layout_height="36dp"
@@ -155,11 +155,17 @@
             android:background="@drawable/a_join_input_1"
             android:lines="1"
             android:nextFocusDown="@+id/edit_signup_job"
-            android:singleLine="true"
-             />
-
-        <EditText
+            android:singleLine="true" />
+        <TextView
             android:layout_marginTop="14dp"
+            android:layout_marginLeft="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/signupFontColor"
+            android:textSize="13sp"
+            android:text="* 재학생일 경우 직무를 학생으로 입력해주세요."/>
+        <EditText
+            android:layout_marginTop="6dp"
             android:paddingLeft="12dp"
             android:background="@drawable/a_join_input_1"
             android:id="@+id/edit_signup_job"
@@ -168,19 +174,12 @@
             android:inputType="textPersonName"
             android:lines="1"
             android:singleLine="true"
-            android:textColorHint="@color/dialogHintColor"
-            android:textColor="@color/dialogFontColor"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
             android:layout_width="312dp"
             android:layout_height="36dp"
             android:textSize="16sp" />
-        <TextView
-            android:layout_marginTop="9dp"
-            android:layout_marginLeft="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/dialogFontColor"
-            android:textSize="13sp"
-            android:text="* 재학생일 경우 학생으로 입력해주세요."/>
+
     </LinearLayout>
 
     <RelativeLayout

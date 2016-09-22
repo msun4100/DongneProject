@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="kr.me.ansr.tab.friends.set.ProfileSettingActivity"
+    tools:showIn="@layout/activity_profile_setting">
+
+    <ImageView
+        android:layout_marginTop="36dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:src="@drawable/e__who_icon"
+        android:id="@+id/image_prof_set_profile" />
+    <ImageView
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="22dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/c_artboard_final_setting_changephoto"
+        android:id="@+id/image_prof_set_change" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@drawable/z_prof_menu_background"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="내 위치 공유"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="invisible"/>
+        <android.support.v7.widget.SwitchCompat
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sw_prof_set_location" />
+    </LinearLayout>
+    <TextView
+        android:layout_marginTop="6dp"
+        android:layout_marginLeft="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/signupFontColor"
+        android:textSize="13sp"
+        android:text="* 내 위치를 공개하면 타인의 위치를 볼 수 있습니다."/>
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="#ecedec"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="기본 항목"
+            android:textSize="15sp"
+            android:textColor="#595757"/>
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -34,6 +33,7 @@ import kr.me.ansr.login.autocomplete.dept.MyDeptAdapter;
 import kr.me.ansr.login.autocomplete.univ.MyUnivAdapter;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivResult;
+import kr.me.ansr.login.spinner.MySpinnerAdapter;
 import okhttp3.Request;
 
 /**
@@ -63,7 +63,7 @@ public class SignupActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_signup);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		toolbar.setNavigationIcon(R.drawable.z_icon_back);
+		toolbar.setNavigationIcon(R.drawable.common_back_selector);
 		toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -132,7 +132,8 @@ public class SignupActivity extends AppCompatActivity {
 					mSpinnerItem = str;
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
-					spinner.setSelection(60);
+					mSpinnerItem = "";
+					spinner.setSelection(0);
 				}
 			}
 			@Override
@@ -260,10 +261,10 @@ public class SignupActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
 					PropertyManager.getInstance().setUserName(username);
-
+					PropertyManager.getInstance().setUnivName(mUnivname);
+					PropertyManager.getInstance().setDeptName(mDeptname);
 					doLogin();
 //					PropertyManager.getInstance().setProfile("");
-//					PropertyManager.getInstance().setUnivName(mUnivname);
 //					PropertyManager.getInstance().setDeptName(mDeptname);
 //					PropertyManager.getInstance().setDeptId(String.valueOf(mDeptId));
 //					PropertyManager.getInstance().setEnterYear(mSpinnerItem);
@@ -277,6 +278,8 @@ public class SignupActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setEmail("");
 					PropertyManager.getInstance().setPassword("");
 					PropertyManager.getInstance().setUserName("");
+					PropertyManager.getInstance().setUnivName("");
+					PropertyManager.getInstance().setDeptName("");
 				}
 			}
 
@@ -298,7 +301,7 @@ public class SignupActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setUserId(result.user.user_id);
 					PropertyManager.getInstance().setUnivId(result.user.univId);
 					//for chatting PropertyManager
-					User user = new User("" + result.user.user_id, result.user.name, result.user.email);
+					User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
 					MyApplication.getInstance().getPrefManager().storeUser(user);
 					Intent intent = new Intent(SignupActivity.this, MainActivity.class);
 					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -321,10 +324,13 @@ public class SignupActivity extends AppCompatActivity {
 //			mUnivAdapter.add(univArray[i]);
 //		}
 		String[] yearArray = getResources().getStringArray(R.array.spinner_year_item);
-		for (int i = 0; i < yearArray.length; i++) {
+		for (int i = yearArray.length-1; i >= 0; i--) {
 			mySpinnerAdapter.add(yearArray[i]);
 		}
-		spinner.setSelection(60);
+//		for (int i = 0; i < yearArray.length; i++) {
+//			mySpinnerAdapter.add(yearArray[i]);
+//		}
+		spinner.setSelection(0);
 //		spinner.setDropDownVerticalOffset(100);
 
 		getUniv();
@@ -369,6 +375,8 @@ public class SignupActivity extends AppCompatActivity {
 //			requestFocus(mSpinnerItem);
 			return false;
 		}
+
+
 		return true;
 	}
 	private boolean validateCompany() {

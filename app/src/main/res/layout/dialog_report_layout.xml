@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="284dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/z_btn_layout_rectangle"
+    android:orientation="vertical" >
+
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_cut_off"
+        android:background="@drawable/e_popup_top_selector"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="일 촌 끊 기"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_block"
+        android:background="@drawable/e_popup_mid_selector"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="차 단 하 기"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_report"
+        android:background="@drawable/e_popup_mid_selector"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="신 고 하 기"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_cancel"
+        android:background="@drawable/e_popup_bottom_selector"
+        android:textColor="#ffffff"
+        android:textSize="19sp"
+        android:text="취 소"/>
+</LinearLayout>

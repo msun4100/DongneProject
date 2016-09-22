@@ -1,7 +1,6 @@
 package kr.me.ansr.login;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
@@ -10,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,23 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import kr.me.ansr.MainActivity;
-import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
-import kr.me.ansr.gcmchat.app.EndPoints;
-import kr.me.ansr.gcmchat.model.User;
 
 /**
  * Created by KMS on 2016-07-11.
@@ -55,7 +37,7 @@ public class SignUpAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up_account);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.common_back);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
         toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

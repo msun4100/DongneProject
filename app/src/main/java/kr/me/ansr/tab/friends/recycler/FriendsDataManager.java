@@ -20,8 +20,12 @@ public class FriendsDataManager {
     public List<FriendsResult> items = new ArrayList<FriendsResult>();
     private FriendsDataManager() { }
 
-    public List<FriendsResult> getFriendsDataList(){
+    public List<FriendsResult> getList(){
         return items;
+    }
+
+    public void clearFriends(){
+        this.items.clear();
     }
     public void addAllFriends(List<FriendsResult> items) {
         this.items.addAll(items);

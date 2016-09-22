@@ -163,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateRow(String chatRoomId, Message message) {
         for (ChatRoom cr : chatRoomArrayList) {
-            if (cr.getId().equals(chatRoomId)) {
+            String crGetId = ""+cr.getId();
+            if (crGetId.equals(chatRoomId)) {
                 int index = chatRoomArrayList.indexOf(cr);
                 cr.setLastMessage(message.getMessage());
                 cr.setUnreadCount(cr.getUnreadCount() + 1);
@@ -196,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < chatRoomsArray.length(); i++) {
                             JSONObject chatRoomsObj = (JSONObject) chatRoomsArray.get(i);
                             ChatRoom cr = new ChatRoom();
-                            cr.setId(chatRoomsObj.getString("chat_room_id"));
+                            cr.setId(chatRoomsObj.getInt("chat_room_id"));
                             cr.setName(chatRoomsObj.getString("name"));
                             cr.setLastMessage("");
                             cr.setUnreadCount(0);

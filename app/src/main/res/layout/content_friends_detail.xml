@@ -9,6 +9,7 @@
     android:paddingRight="@dimen/activity_padding_zero"
     android:paddingTop="@dimen/activity_padding_zero"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:background="#ffffff"
     tools:context="kr.me.ansr.tab.friends.detail.FriendsDetailActivity"
     tools:showIn="@layout/activity_friends_detail">
 
@@ -20,20 +21,46 @@
         <ImageView
             android:id="@+id/image_friends_detail_main"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="50dp"
-            android:background="@drawable/d_write_bg" />
-
+            android:layout_height="244dp"
+            android:layout_marginBottom="58dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/z_profile_bg_2" />
         <ImageView
-            android:id="@+id/image_friends_detail_profile"
-            android:layout_width="108dp"
-            android:layout_height="108dp"
+            android:id="@+id/image_friends_detail_content_bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="58dp"
+            android:background="@drawable/b_main_view_contents_bg" />
+        <ImageView
+            android:id="@+id/image_friends_detail_back_icon"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/abc_ic_clear_mtrl_alpha" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_gravity="bottom|left"
-            android:src="@mipmap/ic_launcher" />
-
+            android:layout_gravity="bottom|left">
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:background="#ffffff"/>
+            <ImageView
+                android:layout_gravity="center"
+                android:id="@+id/image_friends_detail_profile"
+                android:layout_width="118dp"
+                android:layout_height="118dp"
+                android:minHeight="118dp"
+                android:minWidth="118dp"
+                android:src="@drawable/e__who_icon" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_marginRight="8dp"
@@ -47,8 +74,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="username"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:layout_marginRight="8dp"
+                android:textColor="#ecedec"
+                android:textSize="20sp"
+                android:layout_gravity="bottom|right"
+                android:text="username" />
 
             <FrameLayout
                 android:layout_marginRight="8dp"
@@ -64,6 +94,8 @@
                     android:id="@+id/text_friends_detail_stuid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="#3d3939"
+                    android:textSize="14sp"
                     android:text="17"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -72,6 +104,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
+                    android:textColor="#3d3939"
+                    android:textSize="14sp"
                     android:text="산업디자인과"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
@@ -89,6 +123,8 @@
                     android:id="@+id/text_friends_detail_jobname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#868585"
                     android:text="회사명"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -97,6 +133,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
+                    android:textSize="13sp"
+                    android:textColor="#868585"
                     android:text="직무명"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
@@ -111,19 +149,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <ImageView
+                    android:layout_gravity="center_vertical"
                     android:id="@+id/image_friends_detail_distance"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:background="@mipmap/ic_launcher"
-                    android:text="17" />
-
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/c_artboard_final_view_location" />
                 <TextView
                     android:id="@+id/text_friends_detail_distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginLeft="1dp"
+                    android:textColor="#9c9c9d"
+                    android:textSize="12sp"
                     android:text="0.00km"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:layout_gravity="center_vertical"/>
             </LinearLayout>
             </FrameLayout>
         </LinearLayout>
@@ -137,49 +176,61 @@
         android:weightSum="3"
         android:layout_below="@+id/FrameLayout1"
         android:layout_centerHorizontal="true">
-        <ImageView
-            android:id="@+id/image_friends_detail_menu_list"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+        <ImageButton
+            android:id="@+id/image_friends_detail_menu_1"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:background="@mipmap/ic_launcher" />
-        <ImageView
-            android:id="@+id/image_friends_detail_menu_add"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_marginRight="36dp"
-            android:layout_marginLeft="36dp"
+            android:background="@drawable/z_btn_white_selector"
+            android:src="@drawable/c__icon_1" />
+        <ImageButton
+            android:id="@+id/image_friends_detail_menu_2"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
             android:layout_weight="1"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:background="@mipmap/ic_launcher" />
-        <ImageView
-            android:id="@+id/image_friends_detail_menu_edit"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:minWidth="72dp"
+            android:background="@drawable/z_btn_white_selector"
+            android:src="@drawable/c__icon_2" />
+        <ImageButton
+            android:id="@+id/image_friends_detail_menu_3"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:background="@mipmap/ic_launcher" />
+            android:background="@drawable/z_btn_white_selector"
+            android:src="@drawable/c__icon_3" />
     </LinearLayout>
     <LinearLayout
         android:layout_below="@+id/LinearLayout1"
         android:id="@+id/LinearLayout2"
         android:layout_width="match_parent"
-        android:background="@color/lightGray"
-        android:layout_height="4dp"
+        android:background="@color/profile_stroke1"
+        android:layout_height="0.8dp"
         android:orientation="horizontal">
     </LinearLayout>
 
-
-
-    <ListView
+    <FrameLayout
         android:layout_below="@+id/LinearLayout2"
-        android:id="@+id/listView_profile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginLeft="65dp"
+            android:background="@color/profile_stroke1"
+            android:layout_width="0.75dp"
+            android:layout_height="match_parent">
+        </LinearLayout>
+        <ListView
+            android:id="@+id/listView_profile"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
+    </FrameLayout>
+
 
 </RelativeLayout>

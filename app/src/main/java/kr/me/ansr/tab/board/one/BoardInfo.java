@@ -10,7 +10,7 @@ import kr.me.ansr.tab.board.reply.ReplyResult;
  */
 public class BoardInfo {
     public static final int BOARD_RC_NUM = 222;
-    public static final int BOARD_DISPLAY_NUM = 3;
+    public static final int BOARD_DISPLAY_NUM = 20;
     public static final String BOARD_DETAIL_BOARD_ID = "detailBoardId";
     public static final String BOARD_DETAIL_OBJECT = "detailObject";
     public static final String BOARD_DETAIL_MODIFIED_ITEM = "detailModifiedItem";

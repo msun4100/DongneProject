@@ -1,27 +1,33 @@
 package kr.me.ansr.gcmchat.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
  * Created by KMS on 2016-07-01.
  */
 public class User implements Serializable {
-    String id, name, email;
+    @SerializedName("user_id")
+    int id;
+    @SerializedName("username")
+    String name;
+    String email;
 
     public User() {
     }
 
-    public User(String id, String name, String email) {
+    public User(int id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -39,5 +45,14 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

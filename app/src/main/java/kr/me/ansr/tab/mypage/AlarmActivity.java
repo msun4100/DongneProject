@@ -1,6 +1,5 @@
 package kr.me.ansr.tab.mypage;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
@@ -8,21 +7,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 
 public class AlarmActivity extends AppCompatActivity {
 
-    @Bind(R.id.sw_my_all)
-    Switch swAll;
+    @Bind(R.id.sw_my_all) SwitchCompat swAll;
     @Bind(R.id.sw_my_friends_req) SwitchCompat swFriendsReq;
     @Bind(R.id.sw_my_chat) SwitchCompat swChat;
     @Bind(R.id.sw_my_reply) SwitchCompat swReply;
     @Bind(R.id.sw_my_ringtone) SwitchCompat swRingtone;
+
+    public TextView toolbarTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,12 +32,20 @@ public class AlarmActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        toolbar.setNavigationIcon(R.drawable.b_main_view_contents_icon_05_off);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
+        toolbar.setBackgroundResource(R.drawable.z_titlebar_alarm);
+        toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText("");
         setSupportActionBar(toolbar);
+        getSupportActionBar().setElevation(0);	//6.0이상 음영효과 제거
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_activity_Alarm);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setTitle("");
 
-        swAll.setChecked(true);
+        //init method 만들어
+        int alarmAll = PropertyManager.getInstance().getAlarmAll();
+        if(alarmAll > 0) swAll.setChecked(true); else swAll.setChecked(false);
+
 //        swAll.setThumbResource(R.drawable.z_sw_custom_selector);
 //        swAll.setTrackResource(R.drawable.z_sw_custom_selector);
 //        switchView.setTextOn(context.getString(R.string.common_yes));
@@ -48,12 +57,13 @@ public class AlarmActivity extends AppCompatActivity {
         swAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Toast.makeText(AlarmActivity.this, "isChecked:"+ isChecked, Toast.LENGTH_SHORT).show();
                 if(isChecked){
                     //propertymanager에 저장.
+                    PropertyManager.getInstance().setAlarmAll(1);
                 } else {
-
+                    PropertyManager.getInstance().setAlarmAll(0);
                 }
+                Toast.makeText(AlarmActivity.this, "alarmAll property:"+ PropertyManager.getInstance().getAlarmAll(), Toast.LENGTH_SHORT).show();
             }
         });
 

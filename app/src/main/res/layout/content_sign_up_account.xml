@@ -80,7 +80,7 @@
         android:layout_marginBottom="10dp"
         android:layout_width="292dp"
         android:layout_height="36dp"
-        android:background="@drawable/a_join_confirm_btn_selector"
+        android:background="@drawable/a_join_next_btn_selector"
         android:text="" />
 
 

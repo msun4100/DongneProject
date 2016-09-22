@@ -5,19 +5,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,11 +40,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.activity.LoginActivity;
 import kr.me.ansr.gcmchat.adapter.ChatRoomsAdapter;
@@ -47,8 +57,11 @@ import kr.me.ansr.gcmchat.app.EndPoints;
 import kr.me.ansr.gcmchat.gcm.GcmIntentService;
 import kr.me.ansr.gcmchat.gcm.NotificationUtils;
 import kr.me.ansr.gcmchat.helper.SimpleDividerItemDecoration;
+import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
+import kr.me.ansr.tab.chat.plus.ChatPlusActivity;
+import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
 
 /**
  * Created by KMS on 2016-07-06.
@@ -64,19 +77,24 @@ public class GcmChatFragment extends PagerFragment {
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
     AppCompatActivity activity;
+    TextView emptyMsg;
+    ImageView searchIcon;
+    CustomEditText searchInput;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 //        TextView tv = new TextView(getActivity());
 //        tv.setText("Fragment gcm chat");
 //        return tv;
         View view = inflater.inflate(R.layout.fragment_gcmchat, container, false);
-
+        setHasOptionsMenu(true);
         if (MyApplication.getInstance().getPrefManager().getUser() == null) {
 //            launchLoginActivity();
             Toast.makeText(getActivity(), "getUser() == null ", Toast.LENGTH_LONG).show();
         }
         activity = (AppCompatActivity) getActivity();
-
+        emptyMsg = (TextView)view.findViewById(R.id.text_empty_msg);
+        emptyMsg.setText(getResources().getString(R.string.empty_chat_msg));
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,11 +147,12 @@ public class GcmChatFragment extends PagerFragment {
             public void onClick(View view, int position) {
                 // when chat is clicked, launch full chat thread activity
                 ChatRoom chatRoom = chatRoomArrayList.get(position);
-                removeUnreadCount(chatRoom.getId());
+                removeUnreadCount(""+chatRoom.getId());
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
-                intent.putExtra("chat_room_id", chatRoom.getId());
+                intent.putExtra("chat_room_id", ""+chatRoom.getId());
                 intent.putExtra("name", chatRoom.getName());
-                startActivity(intent);
+                startActivityForResult(intent, ChatInfo.CHAT_RC_NUM);
+                Log.e(TAG, ""+chatRoom.getId());
             }
 
             @Override
@@ -164,12 +183,37 @@ public class GcmChatFragment extends PagerFragment {
          * */
         if (checkPlayServices()) {
             registerGCM();
-//            fetchChatRooms();
+            fetchChatRooms();
         }
 
 
+        //        search views
+        searchInput = (CustomEditText)view.findViewById(R.id.custom_editText1);
+        searchInput.setHint(getResources().getString(R.string.chat_search_hint_msg));
+        searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
+        searchIcon.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String input = searchInput.getText().toString();
+                if(!input.equals("") && input != null){
+                    Toast.makeText(getActivity(), "searchInput:"+input, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return view;
     }   //end of onCreateView
+
+    private void showLayout(){
+        if (mAdapter.getItemCount() > 0){
+            emptyMsg.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyMsg.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
+    }
+
 
     /**
      * Handles new push notification
@@ -191,9 +235,22 @@ public class GcmChatFragment extends PagerFragment {
             // just showing the message in a toast
             Message message = (Message) intent.getSerializableExtra("message");
             Toast.makeText(getActivity(), "New push: " + message.getMessage(), Toast.LENGTH_LONG).show();
+        } else if (type == Config.PUSH_TYPE_NEW_ROOM) {
+            // push from addChatRoom url
+            // just invoke refreshList() and updateRow()
+            Log.e("PUSH_TYPE_NEW_ROOM", ""+Config.PUSH_TYPE_NEW_ROOM);
+            Message message = (Message) intent.getSerializableExtra("message");
+            String chatRoomId = intent.getStringExtra("chat_room_id");
+            Log.e("message", message.toString());
+            Log.e("chatroomid", chatRoomId);
+            Toast.makeText(getActivity(), "New push: " + message.getMessage(), Toast.LENGTH_LONG).show();
+            refreshList();
+            if (message != null && chatRoomId != null) {
+                updateRow(chatRoomId, message);
+            }
+        } else if (type == Config.PUSH_TYPE_NOTIFICATION){
+
         }
-
-
     }
 
     /**
@@ -201,7 +258,8 @@ public class GcmChatFragment extends PagerFragment {
      */
     private void updateRow(String chatRoomId, Message message) {
         for (ChatRoom cr : chatRoomArrayList) {
-            if (cr.getId().equals(chatRoomId)) {
+            String crGetId = ""+cr.getId();
+            if (crGetId.equals(chatRoomId)) {
                 int index = chatRoomArrayList.indexOf(cr);
                 cr.setLastMessage(message.getMessage());
                 cr.setUnreadCount(cr.getUnreadCount() + 1);
@@ -215,7 +273,8 @@ public class GcmChatFragment extends PagerFragment {
     //채팅방 들어갈때 unReadCount 초기화
     private void removeUnreadCount(String chatRoomId) {
         for (ChatRoom cr : chatRoomArrayList) {
-            if (cr.getId().equals(chatRoomId)) {
+            String crGetId = ""+cr.getId();
+            if (crGetId.equals(chatRoomId)) {
                 int index = chatRoomArrayList.indexOf(cr);
 //                cr.setLastMessage(message.getMessage());
                 cr.setUnreadCount(0);
@@ -247,10 +306,13 @@ public class GcmChatFragment extends PagerFragment {
                         for (int i = 0; i < chatRoomsArray.length(); i++) {
                             JSONObject chatRoomsObj = (JSONObject) chatRoomsArray.get(i);
                             ChatRoom cr = new ChatRoom();
-                            cr.setId(chatRoomsObj.getString("chat_room_id"));
+                            cr.setId(chatRoomsObj.getInt("chat_room_id"));
                             cr.setName(chatRoomsObj.getString("name"));
-                            cr.setLastMessage("");
-                            cr.setUnreadCount(0);
+                            cr.setLastMessage("last msg..");
+                            Random r = new Random();
+                            cr.setUnreadCount(r.nextInt(10)+1);
+//                            cr.setLastMessage("");
+//                            cr.setUnreadCount(0);
                             cr.setTimestamp(chatRoomsObj.getString("created_at"));
 
                             chatRoomArrayList.add(cr);
@@ -304,6 +366,7 @@ public class GcmChatFragment extends PagerFragment {
             intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.getId());
             getActivity().startService(intent);
         }
+        showLayout();
     }
 
     private void launchLoginActivity() {
@@ -379,7 +442,12 @@ public class GcmChatFragment extends PagerFragment {
                 fab.show();
             }
             if( activity != null){
-                activity.getSupportActionBar().setTitle("GcmChat Fragment");
+                activity.getSupportActionBar().setTitle("");
+                activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+                activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.d_list_title1));
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.d_title_edit_selector);
+                ((MainActivity)getActivity()).getToolbarTitle().setText("");
             }
             PropertyManager.getInstance().setIsTab2Visible("visible");
         } else {
@@ -387,4 +455,110 @@ public class GcmChatFragment extends PagerFragment {
         }
     }
 
+    MenuItem menuNext;
+    ImageView imageNext;
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_f_board, menu);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        menuNext = menu.findItem(R.id.menu_board_write);
+        imageNext = new ImageView(getActivity());
+        imageNext.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        imageNext.setPadding(16, 0, 16, 0);
+        imageNext.setImageResource(R.drawable.d_title_plus_selector);
+        imageNext.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+//				((WriteActivity)getActivity()).imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                Toast.makeText(getActivity(), ""+ FriendsDataManager.getInstance().getList().size(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), ChatPlusActivity.class);
+                intent.putExtra("key", "passed key");
+                startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS); //tabHost가 있는 BoardFragment에서 리절트를 받음
+            }
+        });
+        menuNext.setActionView(imageNext);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            Toast.makeText(getActivity(), "홈클릭", Toast.LENGTH_SHORT).show();
+            refreshList();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e("GcmChat", "onActivityResult: "+ requestCode);
+        switch (requestCode) {
+            case ChatInfo.CHAT_RC_NUM:
+                //그냥 리스트 클릭해서 들어가는 경우
+                if (resultCode == getActivity().RESULT_OK) {
+                    Bundle extraBundle = data.getExtras();
+                    String returnString = extraBundle.getString("return");
+                    if(returnString.equals("success")){
+                        Log.e("afterChatRoomActivity", "success");
+                        Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
+//                        refreshList();
+//                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+                    } else {
+                        Log.e("afterChatRoomActivity", "failure");
+                        Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case ChatInfo.CHAT_RC_NUM_PLUS:
+                //플러스 아이콘 클릭해서 들어가는 경우 == 201
+                Log.e("resultCode", ""+resultCode);
+                if (resultCode == getActivity().RESULT_CANCELED) {
+                    if(data != null){
+//                        data는 null이라 아마 코드실행 안됨
+                        Bundle extraBundle = data.getExtras();
+                        String returnString = extraBundle.getString("return");
+                        Log.e("returnString", returnString);
+                    }
+                } else if(resultCode == getActivity().RESULT_OK){
+                    Bundle extraBundle = data.getExtras();
+                    String returnString = extraBundle.getString("return");
+                    if(returnString.equals("success")){
+                        Log.e("afterChatRoomActivity", "success");
+                        Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
+                        refreshList();
+                    } else {
+                        Log.e("afterChatRoomActivity", "failure");
+                        Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+        }
+
+    }
+
+
+    Handler mHandler = new Handler(Looper.getMainLooper());
+    private void refreshList(){
+        mHandler.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(), "refresh method", Toast.LENGTH_SHORT).show();
+                chatRoomArrayList.clear();
+                mAdapter.notifyDataSetChanged();
+                fetchChatRooms();
+//                mAdapter.clearAll();
+//                start = 0;
+//                reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+//                initBoard();
+            }
+        }, 1000);
+    }
 } //end of class

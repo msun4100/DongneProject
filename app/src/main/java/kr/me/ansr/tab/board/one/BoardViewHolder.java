@@ -126,14 +126,18 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         listView.setVisibility(View.GONE);
         bodyAddView.setVisibility(View.GONE);
         this.mItem = item;
-        nameView.setText(item.user.username);
+        if(item.type.equals("10") || item.type.equals("00")){
+            nameView.setText(R.string.board_anonymous_name);
+            iconThumb.setImageResource(R.drawable.e__who_icon);
+        } else {
+            nameView.setText(item.user.username);
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
+            Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
+        }
         bodyView.setText(item.body);
         if(bodyView.getText().toString().length() > 80){
             bodyAddView.setVisibility(View.VISIBLE);
         }
-        String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-        Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
-
 
 //        if (!TextUtils.isEmpty(item.user.pic)) {
 //            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
@@ -142,7 +146,6 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
 //        } else {
 //            iconThumb.setImageResource(R.mipmap.ic_launcher);
 //        }
-        nameView.setText(item.user.username);
         String stuId = String.valueOf(item.user.enterYear);
         if(stuId.length()==4){
             stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
@@ -150,8 +153,8 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         deptView.setText(item.user.deptname);
         timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
         if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
-            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
-        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
+            iconLike.setImageResource(R.drawable.e__like_2);
+        } else {iconLike.setImageResource(R.drawable.e__like);}
         likeCountView.setText(""+item.likeCount);
         if(item.repCount != 0){
             replyCountView.setText(""+item.repCount);

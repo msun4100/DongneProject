@@ -78,7 +78,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
 //        iconView.setImageResource(item.iconId);
         mItem = item;
 
-        if(item.isFriend){
+        if(item.status == 1){
             iconAddView.setVisibility(View.GONE);
             nameView.setVisibility(View.VISIBLE);
         } else {
@@ -96,7 +96,8 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         if (!TextUtils.isEmpty(item.pic.small)) {
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
             Glide.with(mContext).load(url)
-                    .placeholder(R.drawable.ic_stub)
+                    .placeholder(R.drawable.e__who_icon)
+                    .centerCrop()
                     .signature(new StringSignature(item.getUpdatedAt()))
                     .into(iconThumbView);
         } else {

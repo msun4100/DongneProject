@@ -23,6 +23,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -31,6 +32,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import kr.me.ansr.common.CommonInfo;
+import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.login.LoginInfo;
 import kr.me.ansr.login.autocomplete.dept.DeptInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
@@ -38,7 +40,9 @@ import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.WriteInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -190,6 +194,7 @@ public class NetworkManager {
     }
 
     private static final MediaType CONTENT_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+//    private static final String SERVER_URL = "http://10.0.2.2:3000";
     private static final String SERVER_URL = "http://10.0.3.2:3000";
 
     private static final String URL_LOGIN = SERVER_URL + "/account/login";
@@ -479,7 +484,7 @@ public class NetworkManager {
     }
 
 //    private static final String URL_FRIEND_UNIV_MY = SERVER_URL + "/friends/test/my";
-    public Request postDongneUnivUsers(Context context, int mode, String univId, String start, String display, String reqDate, final OnResultListener<FriendsInfo> listener) {
+    public Request postDongneUnivUsers(Context context, int mode, int sort, String univId, String start, String display, String reqDate, final OnResultListener<FriendsInfo> listener) {
         try {
             String url = URL_FRIEND_UNIV_USERS.replace(":univId", ""+univId);
             if(mode == 1){
@@ -492,6 +497,8 @@ public class NetworkManager {
             json.addProperty("start", start);
             json.addProperty("display", display);
             json.addProperty("reqDate", reqDate);
+            json.addProperty("sort", ""+sort);
+//            json.addProperty("order", ""+1);
             String jsonString = json.toString();
 
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
@@ -570,7 +577,7 @@ public class NetworkManager {
         return null;
     }
     private static final String URL_BOARD_LIKE = SERVER_URL + "/board/like";
-    public Request postDongneBoardLike(Context context, int like, String boardId, String userId, final OnResultListener<LikeInfo> listener) {
+    public Request postDongneBoardLike(Context context, int like, String boardId, String userId, String to, final OnResultListener<LikeInfo> listener) {
         try {
             String url = "";
             if(like < 2 && like == LikeInfo.DISLIKE){
@@ -580,6 +587,8 @@ public class NetworkManager {
             }
             final CallbackObject<LikeInfo> callbackObject = new CallbackObject<LikeInfo>();
             JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("to", to);
             json.addProperty("boardId", boardId);
             json.addProperty("userId", userId);
             String jsonString = json.toString();
@@ -649,7 +658,7 @@ public class NetworkManager {
     }
 
     private static final String URL_COMMENTS_ADD = SERVER_URL + "/comments/add";
-    public Request postDongneCommentAdd(Context context, int boardId, String parentCommentId, String content, final OnResultListener<CommentInfo> listener) {
+    public Request postDongneCommentAdd(Context context, int boardId, String parentCommentId, String content, String type, String to, final OnResultListener<CommentInfo> listener) {
         try {
             String url = URL_COMMENTS_ADD;
 
@@ -661,6 +670,8 @@ public class NetworkManager {
             json.addProperty("username", ""+PropertyManager.getInstance().getUserName());
             json.addProperty("parentCommentId", ""+parentCommentId);
             json.addProperty("body", ""+content);
+            json.addProperty("type", type);
+            json.addProperty("to", to);
 
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
@@ -740,5 +751,300 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_FRIENDS_UPDATE = SERVER_URL + "/friends/:status";
+    public Request postDongneFriendsUpdate(Context context, int status, int to, String msg, final OnResultListener<StatusInfo> listener) {
+        try {
+            String url = URL_FRIENDS_UPDATE.replace(":status", ""+status);
+
+            final CallbackObject<StatusInfo> callbackObject = new CallbackObject<StatusInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("to", ""+to);
+            json.addProperty("msg", ""+msg);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    StatusInfo result = gson.fromJson(response.body().charStream(), StatusInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_FRIENDS_REMOVE = SERVER_URL + "/friends/:userId";
+    public Request postDongneFriendsRemove(Context context, int userId, final OnResultListener<StatusInfo> listener) {
+        try {
+            String url = URL_FRIENDS_REMOVE.replace(":userId", ""+userId);
+
+            final CallbackObject<StatusInfo> callbackObject = new CallbackObject<StatusInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+//            json.addProperty("to", ""+to);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").delete(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    StatusInfo result = gson.fromJson(response.body().charStream(), StatusInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    private static final String URL_FRIENDS_STATUS = SERVER_URL + "/friends/:status";
+    public Request getDongneFriendsStatus(Context context, String status, final OnResultListener<FriendsInfo> listener) {
+        try {
+            String url = URL_FRIENDS_STATUS.replace(":status", ""+status);
+            final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
+
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    FriendsInfo result = gson.fromJson(response.body().charStream(), FriendsInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_FRIENDS_STATUS_USER_ID = SERVER_URL + "/friends/:status/:userId";
+    public Request getDongneFriendsStatusUserId(Context context, int status, int userId, final OnResultListener<StatusInfo> listener) {
+        try {
+            String url = URL_FRIENDS_STATUS_USER_ID.replace(":status", ""+status).replace(":userId", ""+userId);
+            final CallbackObject<StatusInfo> callbackObject = new CallbackObject<StatusInfo>();
+
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    StatusInfo result = gson.fromJson(response.body().charStream(), StatusInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_ADD_CHAT_ROOM = SERVER_URL + "/test/addChatRoom";
+    public Request postDongneAddChatRoom(Context context, String chatRoomId, String roomName, ArrayList<FriendsResult> mList, String msg, final OnResultListener<ChatInfo> listener) {
+        try {
+            String url = URL_ADD_CHAT_ROOM;
+            final CallbackObject<ChatInfo> callbackObject = new CallbackObject<ChatInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("room_name", roomName);
+            json.addProperty("user_id", ""+PropertyManager.getInstance().getUserId());
+            json.addProperty("message", msg);
+            json.addProperty("chat_room_id", chatRoomId);
+            for(int i=0; i<mList.size(); i++){
+                json.addProperty("to["+i+"]", ""+mList.get(i).userId);
+            }
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatInfo result = gson.fromJson(response.body().charStream(), ChatInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_CHAT_THREAD = SERVER_URL + "/chat_rooms/:id";
+    public Request getDongneFetchChatThread(Context context, int chatRoomId, final OnResultListener<ChatInfo> listener) {
+        try {
+            String url = URL_CHAT_THREAD.replace(":id", ""+chatRoomId);
+            final CallbackObject<ChatInfo> callbackObject = new CallbackObject<ChatInfo>();
+
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatInfo result = gson.fromJson(response.body().charStream(), ChatInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_SEND_MESSAGE = SERVER_URL + "/chat_rooms/:id/message";
+    public Request postDongneSendMessage(Context context, int chatRoomId, String userId, String msg, final OnResultListener<ChatInfo> listener) {
+        try {
+            String url = URL_SEND_MESSAGE.replace(":id", ""+chatRoomId);
+            final CallbackObject<ChatInfo> callbackObject = new CallbackObject<ChatInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("user_id", userId);
+            json.addProperty("message", msg);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatInfo result = gson.fromJson(response.body().charStream(), ChatInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 
 }

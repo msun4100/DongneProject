@@ -4,129 +4,104 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.me.ansr.tab.board.BoardWriteActivity"
     tools:showIn="@layout/activity_board_write">
 
-
     <LinearLayout
-
-        android:id="@+id/LinearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="@dimen/board_write_layout_margin"
-        android:background="@color/lightGray"
-        android:orientation="horizontal">
-
-        <CheckBox
-            android:id="@+id/check_write_anonymous1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="익명"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:visibility="invisible" />
-
+        android:background="@drawable/e__write_page"
+        android:orientation="vertical">
         <LinearLayout
-            android:id="@+id/linear_write_add_image_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@mipmap/ic_album" />
-
-            <TextView
+            android:id="@+id/LinearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+            <CheckBox
+                android:layout_marginLeft="12dp"
+                android:id="@+id/check_write_anonymous1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="사진등록"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textSize="10sp" />
+                android:scaleY="0.7"
+                android:scaleX="0.7"
+                android:layout_gravity="center_vertical" />
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="익명"
+                android:textColor="@color/list_search_colorHint"
+                android:textSize="12sp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible" />
+
+            <LinearLayout
+                android:id="@+id/linear_write_add_image_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_marginRight="12dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="27dp"
+                    android:layout_height="23dp"
+                    android:src="@drawable/e__picture" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:id="@+id/LinearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/LinearLayout1"
+            android:layout_marginBottom="@dimen/board_write_layout_margin"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/edit_write_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:textSize="14sp"
+                android:textColor="@color/list_search_colorHint"
+                android:textColorHint="#cbc8c6"
+                android:hint="내용을 입력하세요." />
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-
-        android:id="@+id/LinearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/LinearLayout1"
-        android:layout_marginBottom="@dimen/board_write_layout_margin"
-        android:layout_marginLeft="@dimen/board_write_layout_margin"
-        android:layout_marginRight="@dimen/board_write_layout_margin"
-        android:layout_weight="1"
-        android:background="@color/lightGray"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <EditText
-            android:id="@+id/edit_write_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:hint="내용을 입력하세요." />
-    </LinearLayout>
-
-    <LinearLayout
-
         android:id="@+id/LinearLayout3"
+        android:background="#ffffff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="@dimen/board_write_layout_margin"
-        android:layout_marginRight="@dimen/board_write_layout_margin"
-        android:background="@color/lightGray"
-        android:padding="5dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:weightSum="4">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="익명"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <CheckBox
-            android:id="@+id/check_write_anonymous2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
-        <EditText
-            android:id="@+id/edit_write_message_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="3"
-            android:background="@null"
-            android:hint="Enter message"
-            android:lines="1"
-            android:paddingLeft="10dp" />
-
         <Button
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="48dp"
             android:id="@+id/btn_write_send"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@null"
-            android:text="SEND"
-            android:textColor="@color/colorPrimary"
-            android:textSize="16dp" />
+            android:layout_width="316dp"
+            android:layout_height="40dp"
+            android:background="@drawable/z_btn_color_selector"
+            android:text="등 록 하 기"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+             />
 
     </LinearLayout>
 </RelativeLayout>

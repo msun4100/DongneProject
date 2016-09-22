@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="240dp"
-    android:layout_height="170dp"
-    android:background="@drawable/z_popup_bg"
+    android:layout_width="320dp"
+    android:layout_height="216dp"
+    android:background="@drawable/z_btn_layout_rectangle"
     android:orientation="vertical" >
 
     <LinearLayout
         android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/image_dialog_input_thumb"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_launcher"
+            android:src="@drawable/e__who_icon"
             />
         <LinearLayout
-
+            android:layout_marginLeft="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -31,13 +33,18 @@
                     android:id="@+id/text_dialog_input_stuid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="#000100"
+                    android:textSize="16sp"
                     android:text="09"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     />
                 <TextView
+                    android:layout_marginLeft="4dp"
                     android:id="@+id/text_dialog_input_deptname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="#000100"
+                    android:textSize="16sp"
                     android:text="산업디자인과"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
@@ -51,6 +58,8 @@
                     android:id="@+id/text_dialog_input_jobname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="#000100"
+                    android:textSize="14sp"
                     android:text="jobname"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -59,46 +68,98 @@
                     android:layout_marginLeft="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="#000100"
+                    android:textSize="14sp"
                     android:text="jobteam"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
         </LinearLayout>
-        <ImageView
-            android:id="@+id/image_dialog_input_close"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginLeft="24dp"
-            android:layout_gravity="right|top"
-            android:src="@mipmap/ic_launcher"
-            />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_marginRight="10dp"
+                android:id="@+id/image_dialog_input_close"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right|top"
+                android:src="@drawable/c_artboard_final_popup_close"
+                />
+        </FrameLayout>
+
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/edit_dialog_input_input"
-        android:background="@color/lightGray"
-        android:layout_width="170dp"
+    <TextView
+        android:id="@+id/text_dialog_input_status"
+        android:layout_gravity="end"
+        android:layout_marginRight="20dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
-        android:ems="10"
+        android:layout_marginTop="4dp"
+        android:textColor="#4980c1"
+        android:textSize="11sp"
+        android:text="일촌 신청 완료"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    <EditText
+        android:layout_marginRight="14dp"
+        android:layout_marginLeft="14dp"
+        android:id="@+id/edit_dialog_input_input"
+        android:background="#f0eff0"
+        android:layout_width="280dp"
+        android:layout_height="76dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:padding="14dp"
         android:hint="반가운 학교사람에게 전할 인사말을 입력하세요.\n(100자 이내)"
         android:inputType="textMultiLine"
         android:maxLength="110"
-        android:textSize="12sp" >
-
+        android:textSize="12sp"
+        android:textColor="#585757">
     </EditText>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <LinearLayout
+        android:id="@+id/dialog_btn_layout1"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="16dp"
         android:gravity="center_horizontal" >
         <Button
-            android:id="@+id/btn_dialog_input_ok"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/z_popup_ok_selector" />
+            android:id="@+id/btn_dialog_input_send"
+            android:background="@drawable/z_btn_color_selector"
+            android:layout_width="128dp"
+            android:layout_height="36dp"
+            android:textColor="#ffffff"
+            android:text="보내기"
+            android:textStyle="bold" />
     </LinearLayout>
-
+    <LinearLayout
+        android:id="@+id/dialog_btn_layout2"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal" >
+        <Button
+            android:id="@+id/btn_dialog_input_cancel"
+            android:background="@drawable/z_btn_color_selector"
+            android:layout_width="128dp"
+            android:layout_height="36dp"
+            android:textColor="#ffffff"
+            android:text="거 절"
+            android:textStyle="bold" />
+        <Button
+            android:layout_marginLeft="8dp"
+            android:id="@+id/btn_dialog_input_ok"
+            android:background="@drawable/z_btn_color_selector"
+            android:layout_width="128dp"
+            android:layout_height="36dp"
+            android:textColor="#ffffff"
+            android:text="수 락"
+            android:textStyle="bold" />
+    </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

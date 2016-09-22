@@ -44,7 +44,7 @@ public class MyPreferenceManager {
 
 
     public void storeUser(User user) {
-        editor.putString(KEY_USER_ID, user.getId());
+        editor.putString(KEY_USER_ID, ""+user.getId());
         editor.putString(KEY_USER_NAME, user.getName());
         editor.putString(KEY_USER_EMAIL, user.getEmail());
         editor.commit();
@@ -59,7 +59,7 @@ public class MyPreferenceManager {
             name = pref.getString(KEY_USER_NAME, null);
             email = pref.getString(KEY_USER_EMAIL, null);
 
-            User user = new User(id, name, email);
+            User user = new User(Integer.parseInt(id), name, email);
             return user;
         }
         return null;

@@ -23,6 +23,7 @@ public class FriendsResult implements Serializable{
     public Job job;
     public ArrayList<Univ> univ;
     public String updatedAt;
+    public int status;
 
     public FriendsResult(){}
 
@@ -128,6 +129,13 @@ public class FriendsResult implements Serializable{
         this.job = job;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public ArrayList<Univ> getUniv() {
         return univ;
@@ -137,7 +145,7 @@ public class FriendsResult implements Serializable{
         this.univ = univ;
     }
 
-    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ) {
+    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ, int status) {
         this.groupIndex = groupIndex;
         this.userId = userId;
         this.email = email;
@@ -151,6 +159,7 @@ public class FriendsResult implements Serializable{
         this.desc = desc;
         this.job = job;
         this.univ = univ;
+        this.status = status;
     }
 
     public String getUpdatedAt() {
@@ -161,7 +170,7 @@ public class FriendsResult implements Serializable{
         this.updatedAt = updatedAt;
     }
 
-    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ, String updatedAt) {
+    public FriendsResult(int groupIndex, int userId, String email, String username, Pic pic, String provider, boolean isFriend, String temp, Location location, ArrayList<Sns> sns, ArrayList<String> desc, Job job, ArrayList<Univ> univ, String updatedAt, int status) {
         this.groupIndex = groupIndex;
         this.userId = userId;
         this.email = email;
@@ -176,12 +185,14 @@ public class FriendsResult implements Serializable{
         this.job = job;
         this.univ = univ;
         this.updatedAt = updatedAt;
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "FriendsResult{" +
                 "userId=" + userId +
+                ", status='" + status + '\'' +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
                 ", pic=" + pic +

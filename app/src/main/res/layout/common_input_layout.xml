@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/linear_board_send_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__write_bar_gr"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:weightSum="4">
+        <LinearLayout
+            android:background="@drawable/e__write_bar_wh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <CheckBox
+                        android:id="@+id/check_detail_anonymous"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:scaleX="0.6"
+                        android:scaleY="0.6"
+                        android:layout_gravity="center_vertical|left"/>
+                    <TextView
+                        android:layout_marginLeft="26dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="익명"
+                        android:textSize="11sp"/>
+                </FrameLayout>
+            </LinearLayout>
+            <kr.me.ansr.common.CustomEditText
+                android:layout_gravity="center_vertical"
+                android:id="@+id/edit_detail_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="2dp"
+                android:background="@null"
+                android:layout_weight="3"
+                android:textColor="@color/list_search_colorHint"
+                android:textColorHint="#cbc8c6"
+                android:textSize="13sp"
+                android:hint="댓글을 입력해 주세요."
+                android:lines="1"
+                android:paddingLeft="10dp" />
+            <Button
+                android:id="@+id/btn_detail_send"
+                android:background="@drawable/e_regist_btn_selector"
+                android:layout_gravity="center_vertical"
+                android:layout_width="51dp"
+                android:layout_height="32dp"
+                android:textSize="16dp" />
+            <!--android:background="@null"-->
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

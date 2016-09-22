@@ -19,10 +19,15 @@
 
     <LinearLayout
         android:id="@+id/LinearLayout1"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="28dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </android.support.v4.widget.NestedScrollView>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/text_margin"
                 android:layout_marginRight="@dimen/text_margin"
-                android:text="@string/large_text"/>
+                android:text="@string/term_service"/>
         </ScrollView>
         <LinearLayout
             android:layout_marginTop="20dp"
@@ -70,9 +75,7 @@
             android:orientation="vertical"
             app:layout_anchor="@id/LinearLayout1">
             <!--app:layout_anchorGravity="bottom"-->
-
             <LinearLayout
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="34dp"
@@ -109,9 +112,57 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/text_margin"
                     android:layout_marginRight="@dimen/text_margin"
-                    android:text="@string/large_text"/>
+                    android:text="@string/term_private_info"/>
             </ScrollView>
         </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_anchor="@id/LinearLayout1">
+            <!--app:layout_anchorGravity="bottom"-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="34dp"
+                android:layout_marginLeft="34dp"
+                android:orientation="horizontal"
+                android:weightSum="4">
+                <TextView
+                    android:layout_marginLeft="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="위치기반서비스 이용 동의(필수)"
+                    android:textStyle="bold"
+                    android:textColor="#383535"
+                    android:layout_gravity="center_vertical"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_weight="4"/>
+                <CheckBox
+                    android:id="@+id/check_term3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1" />
+                <!--android:button="@null"android:background="@drawable/check_selector" -->
+            </LinearLayout>
+            <ScrollView
+                android:layout_marginRight="34dp"
+                android:layout_marginLeft="34dp"
+                android:background="@drawable/layout_border"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/scrollview_size">
+                <TextView
+                    android:padding="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/text_margin"
+                    android:layout_marginRight="@dimen/text_margin"
+                    android:text="@string/term_location"/>
+            </ScrollView>
+        </LinearLayout>
+
         <LinearLayout
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"

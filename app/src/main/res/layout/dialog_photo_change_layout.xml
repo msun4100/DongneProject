@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="284dp"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_photo_change_1"
+        android:background="@drawable/report_item_background"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="사진 앨범에서 선택"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_photo_change_2"
+        android:background="@drawable/report_item_background"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="기본 이미지로 변경"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_photo_change_3"
+        android:background="#192f41"
+        android:textColor="#ffffff"
+        android:textSize="19sp"
+        android:text="취 소"/>
+</LinearLayout>

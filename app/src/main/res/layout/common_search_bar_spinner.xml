@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_background">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@drawable/b_list_searchbar"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="312dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="12dp"
+                android:layout_gravity="center_vertical"
+                android:background="#ffffff"
+                android:spinnerMode="dropdown"
+                android:dropDownVerticalOffset="20dp"
+                android:textColor="@color/list_search_colorHint"
+                android:textColorHint="@color/list_search_color"
+                android:textSize="16sp" />
+            <ImageView
+                android:layout_marginRight="44dp"
+                android:id="@+id/image_spinner_arrow"
+                android:layout_gravity="end|center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/b_list_downicon"
+                />
+            <ImageView
+                android:layout_marginRight="8dp"
+                android:id="@+id/image_search_icon"
+                android:clickable="true"
+                android:layout_gravity="end|center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/b_list_search_icon_selector"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/containerforsearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:visibility="visible">
+        <LinearLayout
+            android:layout_marginBottom="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/z_test"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/text_search_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="   이  름   "
+                        android:textColor="#cbc8c6"
+                        android:textSize="@dimen/search_text_size" />
+
+                    <EditText
+                        android:id="@+id/edit_search_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:layout_weight="1"
+                        android:textColor="#cbc8c6"
+                        android:textSize="@dimen/search_text_size" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/text_search_enteryear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="   학  번   "
+                        android:textColor="#cbc8c6"
+                        android:textSize="@dimen/search_text_size" />
+
+                    <EditText
+                        android:id="@+id/edit_search_enteryear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:layout_weight="1"
+                        android:textSize="@dimen/search_text_size" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/text_search_dept"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="   학  과   "
+                        android:textColor="#cbc8c6"
+                        android:textSize="@dimen/search_text_size" />
+
+                    <EditText
+                        android:id="@+id/edit_search_dept"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:layout_weight="1"
+                        android:textSize="@dimen/search_text_size" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/text_search_job"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="회사/직무"
+                        android:textColor="#cbc8c6"
+                        android:textSize="@dimen/search_text_size" />
+
+                    <EditText
+                        android:id="@+id/edit_search_job"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:layout_weight="1"
+                        android:textSize="@dimen/search_text_size" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:background="@drawable/z_btn_white_selector"
+                        android:id="@+id/text_search_confirm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="확 인"
+                        android:textColor="#77a8bc"
+                        android:textSize="@dimen/search_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="1dp"
+                        android:layout_height="20dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:background="#77a8bc"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <TextView
+                        android:background="@drawable/z_btn_white_selector"
+                        android:id="@+id/text_search_cancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="취 소"
+                        android:textColor="#77a8bc"
+                        android:textSize="@dimen/search_text_size" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+    <!--<FrameLayout-->
+        <!--android:visibility="gone"-->
+        <!--android:id="@+id/containerforsearch"-->
+        <!--android:background="@color/list_search_background"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1">-->
+    <!--</FrameLayout>-->
+</LinearLayout>

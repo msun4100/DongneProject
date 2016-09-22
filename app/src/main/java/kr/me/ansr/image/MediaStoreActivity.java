@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sangcomz.fishbun.FishBun;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.me.ansr.R;
+import kr.me.ansr.common.PhotoChangeFragment;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class MediaStoreActivity extends AppCompatActivity{
     private static final String TAG = MediaStoreActivity.class.getSimpleName();
@@ -28,14 +32,53 @@ public class MediaStoreActivity extends AppCompatActivity{
     private final int ALBUM_PICKER_COUNT = 3;
     ArrayList<ImageItem> images;
 
+    //using for toolbar menu and background
+    TextView toolbarTitle; ImageView iconPhoto, toolbarMenu;
+    FriendsResult mItem;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_store);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.c_artboard_final_title_cancel);
+        toolbar.setBackgroundResource(R.drawable.c_artboard_final_setting_title1);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText("");
+        toolbarMenu = (ImageView)toolbar.findViewById(R.id.toolbar_menu1);
+        toolbarMenu.setImageResource(R.drawable.d_title_confirm_selector);
+        Intent intent = getIntent();
+        if (intent != null) {
+            mItem = (FriendsResult)intent.getSerializableExtra("mItem");
+            if(mItem == null) forcedFinish();
+        } else {
+            forcedFinish();
+        }
+        toolbarMenu.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MediaStoreActivity.this, "toolbar_menu", Toast.LENGTH_SHORT).show();
+            }
+        });
 
+        //아래 코드는 이미지홈프래그먼트에다가 카피
+//        iconPhoto = (ImageView)findViewById(R.id.image_prof_set_change);
+//        iconPhoto.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                PhotoChangeFragment mDialogFragment = PhotoChangeFragment.newInstance();
+//                Bundle b = new Bundle();
+//                b.putSerializable("userInfo", mItem);
+//                mDialogFragment.setArguments(b);
+//                mDialogFragment.show(getSupportFragmentManager(), "photoChangeDialog");
+//            }
+//        });
+
+
+//이하 합치기 전 코드 들
         images = new ArrayList<>();
         images.clear();
         Button btn = (Button)findViewById(R.id.btn_media_store_select);
@@ -83,7 +126,7 @@ public class MediaStoreActivity extends AppCompatActivity{
     private void init(){
         Bundle bundle = new Bundle();
         bundle.putString("filePath", "");
-//        bundle.putSerializable("images", images);
+        bundle.putSerializable("mItem", mItem);
 //        bundle.putInt("position", 0);
         callImageHomeFragment(bundle);
     }
@@ -195,4 +238,9 @@ public class MediaStoreActivity extends AppCompatActivity{
             ft.commit();
         }
     }
+
+    private void forcedFinish(){
+        finish();
+    }
+
 }

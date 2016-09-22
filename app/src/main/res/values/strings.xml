@@ -154,8 +154,45 @@
     <string name="title_activity_friends_detail">FriendsDetailActivity</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_Alarm">알 림</string>
+    <string name="title_activity_profile_setting">ProfileSettingActivity</string>
+    <string name="title_activity_friend_status">FriendStatusActivity</string>
 
     <!-- Strings related to Settings -->
+
+
+    <string name="invite_kakao"><u>카카오톡으로 초대하기</u></string>
+    <string name="invite_facebook"><u>페이스북으로 초대하기</u></string>
+    <string name="invite_sms"><u>문자 초대하기</u></string>
+    <string name="status_block_msg"><u>해제하기</u></string>
+    <string name="status_send_msg"><u>요청정보 보기</u></string>
+    <string name="status_receive_msg"><u>친구정보 보기</u></string>
+    <string name="status_default_msg"><u>친구정보 보기</u></string>
+    <string name="status_greeting_msg">반가워요~</string>
+
+    <string name="image_home_change_thumb"><u>사진 수정</u></string>
+    <string name="chat_search_hint_msg">채팅방 이름(동문 이름), 대화내용 검색</string>
+    <string name="title_activity_chat_plus">ChatPlusActivity</string>
+
+
+    <string name="push_like"> 님이 회원님의 게시글을 좋아합니다.</string>
+    <string name="push_reply"> 님이 회원님의 게시글에 댓글을 남겼습니다.</string>
+    <string name="push_confirm"> 님이 회원님의 친구 신청을 수락하였습니다.</string>
+    <string name="push_receive"> 님의 친구신청이 도착하였습니다.</string>
+    <string name="push_notice"> 공지사항이 있습니다.</string>
+
+    <string name="empty_friends_msg">친구가 없습니다. 친구를 맺어 많은 학교사람들과 소통해보세요.</string>
+    <string name="empty_chat_msg">대화중인 방이 없습니다.</string>
+    <string name="empty_board_msg">게시글이 없습니다. 게시글을 작성하여 학교사람들과 소통해보세요.</string>
+    <string name="empty_feed_msg">새소식이 없습니다.</string>
+    <string name="empty_status_receive_msg">받은 신청이 없습니다.</string>
+    <string name="empty_status_send_msg">보낸 신청이 없습니다.</string>
+    <string name="empty_status_block_msg">차단한 친구가 없습니다.</string>
+    <string name="empty_my_board_msg">내가 쓴 게시글이 없습니다. 게시글을 작성하여 동문과 소통해보세요.</string>
+    <string name="empty_my_reply_msg">내가 쓴 댓글이 없습니다.</string>
+    <string name="empty_my_board_like_msg">내가 좋아한 게시글이 없습니다. 학교사람들 게시글에 좋아요를 눌러보세요.</string>
+    <string name="empty_my_reply_like_msg">내가 좋아한 댓글이 없습니다.</string>
+
+
 
 
 </resources>

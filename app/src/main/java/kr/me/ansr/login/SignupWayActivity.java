@@ -1,20 +1,13 @@
 package kr.me.ansr.login;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import kr.me.ansr.R;
@@ -34,7 +27,7 @@ public class SignupWayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup_way);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.common_back);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
         toolbar.setBackgroundResource(R.drawable.a_join_titlebar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

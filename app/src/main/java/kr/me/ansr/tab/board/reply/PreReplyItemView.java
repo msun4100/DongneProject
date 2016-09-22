@@ -70,7 +70,15 @@ public class PreReplyItemView extends FrameLayout{
     public void setItemData(ReplyResult item) {
         mItem = item;
 //        termText.setText(Html.fromHtml("<u>" + str + "</u>"));
-        usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+        switch (item.type){
+            case "10":
+            case "00":
+                usernameView.setText(Html.fromHtml("<B>"+getResources().getString(R.string.board_anonymous_name)+"</B>"));
+                break;
+            default:
+                usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+                break;
+        }
         bodyView.setText(item.body);
     }
 

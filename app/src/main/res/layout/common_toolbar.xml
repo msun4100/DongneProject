@@ -4,7 +4,7 @@
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@drawable/b_list_titlebar"
     android:minHeight="@dimen/common_toolbar_size"
     app:popupTheme="@style/AppTheme.PopupOverlay"
     app:titleTextColor="#1b3043">
@@ -12,8 +12,11 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="학교 사람들"
+            android:layout_marginBottom="9dp"
+            android:text=""
             android:textColor="#1b3043"
+            android:textStyle="bold"
+            android:textSize="18sp"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:layout_gravity="center"
             />
