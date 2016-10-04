@@ -2,6 +2,8 @@ package kr.me.ansr;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 		getSupportActionBar().setElevation(0);	//6.0이상 음영효과 제거
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
+		toolbarTitle.setText("학 교 사 람 들");
 		tabs = (TabWidget)findViewById(android.R.id.tabs);
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
@@ -165,4 +168,31 @@ public class MainActivity extends AppCompatActivity {
 			tabs.startAnimation(anim);
 		}
 	}
+
+	//	========BackPress======
+	public static final int MESSAGE_TIME_OUT_BACK_KEY = 0;
+	public static final int TIME_BACK_KEY = 2000;
+	boolean isBackPressed = false;
+	Handler mBackHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			switch(msg.what){
+				case MESSAGE_TIME_OUT_BACK_KEY:
+					isBackPressed = false;
+					break;
+			}
+		}
+	};
+	@Override
+	public void onBackPressed() {
+		if( !isBackPressed ){
+			isBackPressed = true;
+			Toast.makeText(this, "한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+			mBackHandler.sendEmptyMessageDelayed(MESSAGE_TIME_OUT_BACK_KEY, TIME_BACK_KEY);
+		} else {
+			mBackHandler.removeMessages(MESSAGE_TIME_OUT_BACK_KEY);
+			super.onBackPressed();
+		}
+	}
+
 }

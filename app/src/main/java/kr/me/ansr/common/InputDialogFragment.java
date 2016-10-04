@@ -24,9 +24,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
 
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
+import kr.me.ansr.tab.friends.detail.StatusResult;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.mypage.status.ReceiveFragment;
@@ -54,9 +56,10 @@ public class InputDialogFragment extends DialogFragment {
     LinearLayout btnLayout1, btnLayout2;
     Button btnSend, btnCancel, btnOk;
     String tag = null;
-    String msg = "";
-    FriendsResult mItem=null;
 
+    StatusResult mStatus = null;
+    FriendsResult mItem=null;
+    int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,9 +67,10 @@ public class InputDialogFragment extends DialogFragment {
         Bundle b = getArguments();
         if(b != null){
             tag = b.getString("tag", "0");
-            msg = b.getString("msg", "");
+            mStatus = (StatusResult)b.getSerializable("mStatus");
             mItem = (FriendsResult)b.getSerializable("item");
-            Log.e("inputDialog", mItem.toString());
+            Log.e("inputDialog-mStatus", mStatus.toString());
+            Log.e("inputDialog-mItem", mItem.toString());
         }
     }
     @Override
@@ -97,13 +101,12 @@ public class InputDialogFragment extends DialogFragment {
                         if(str == null || str.equals("")){
                             str = getResources().getString(R.string.status_greeting_msg);
                         }
-                        if(mItem.status == 0){
-                            //이미 status가 0이면 요청 취소
+                        if(mStatus.status == 0 && mStatus.from == userId){
                             ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");
                         } else{
+                            //mStatus.status == -1
                             ((FriendsDetailActivity) (getActivity())).nextProcess(str); //str==msg와 함께 친구 요청함 nextProcess의 else
                         }
-
                     }
                     if(tag.equals(TAG_STATUS_SEND)) {
                         SendFragment.removeStatus(mItem.userId, mItem);
@@ -142,11 +145,8 @@ public class InputDialogFragment extends DialogFragment {
                     if(tag.equals(TAG_STATUS_RECEIVE)) {
                         ReceiveFragment.removeStatus(mItem.userId, mItem);
                         dismiss();
-//                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Removed", mItem);
                     }
-
                 }
-
             }
         });
         stuidView = (TextView)view.findViewById(R.id.text_dialog_input_stuid);
@@ -168,32 +168,39 @@ public class InputDialogFragment extends DialogFragment {
 //		getDialog().setTitle("Custom Dialog");
     }
     private void initData(){
-        if(mItem != null){
-            if(mItem.status == 0){
-                if(msg != null && !msg.equals("")){
-                    inputView.setText(msg);
-                    inputView.setFocusable(false);
-                    inputView.setFocusableInTouchMode(false);
-                }
+        if(mStatus != null){
+            String msg = mStatus.msg;
+            if(msg == null || msg.equals("")){
+                msg = getResources().getString(R.string.status_greeting_msg);
+            }
+
+            if(mStatus.status == 0 && mStatus.from == userId){
+                inputView.setFocusable(false);
+                inputView.setFocusableInTouchMode(false);
+                inputView.setText(msg);
+
                 btnLayout1.setVisibility(View.VISIBLE);
                 btnLayout2.setVisibility(View.INVISIBLE);
                 btnSend.setText("요청 취소");
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("친구 신청 완료");
-            } else if(mItem.status == -100){
-                if(msg != null && !msg.equals("")){
-                    inputView.setText(msg);
-                    inputView.setFocusable(false);
-                    inputView.setFocusableInTouchMode(false);
-                }
+            } else if(mStatus.status == 0 && mStatus.to == userId){
+                inputView.setFocusable(false);
+                inputView.setFocusableInTouchMode(false);
+                inputView.setText(msg);
+
                 btnLayout1.setVisibility(View.INVISIBLE);
                 btnLayout2.setVisibility(View.VISIBLE);
                 btnOk.setText("수 락");
                 btnCancel.setText("거 절");
-//                btnSend.setText("수락 하기");
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("받은 요청");
             } else {
+                //FriendsDetail에서 열때 status == -1 인 경우
+                inputView.setFocusable(true);
+                inputView.setFocusableInTouchMode(true);
+                inputView.setText("");
+
                 btnLayout1.setVisibility(View.VISIBLE);
                 btnLayout2.setVisibility(View.INVISIBLE);
                 btnSend.setText("보내기");

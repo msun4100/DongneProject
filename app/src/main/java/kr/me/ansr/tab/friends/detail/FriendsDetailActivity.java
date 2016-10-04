@@ -94,18 +94,25 @@ public class FriendsDetailActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.image_friends_detail_menu_1:
-//                    InputDialogFragment mDialogFragment = new InputDialogFragment();
                     switch (mItem.status){
-                        case 100:
-                            break;
-                        case -1:
-                            showDialog("");
-                            break;
+
                         case -100:
                         case 0:
-//                            Toast.makeText(FriendsDetailActivity.this, "요청보기", Toast.LENGTH_SHORT).show();
-                            getStatus(StatusInfo.STATUS_PENDING);
-//                            showDialog(msg);
+                        case 100:
+                            getStatus();
+                            break;
+                        case -1:
+                            //아무 관계도 아님
+                            int userId =Integer.parseInt(PropertyManager.getInstance().getUserId());
+                            StatusResult s = new StatusResult(
+                                    userId, //from
+                                    mItem.userId, //to
+                                    -1, //status
+                                    userId, //actionUser
+                                    "", //updatedAt
+                                    ""  //msg
+                            );
+                            showDialog(s);
                             break;
                         case 1:
                             Toast.makeText(FriendsDetailActivity.this, "1:1대화", Toast.LENGTH_SHORT).show();
@@ -153,11 +160,11 @@ public class FriendsDetailActivity extends AppCompatActivity {
         }
     };
 
-    private void showDialog(String msg){
+    private void showDialog(StatusResult sr){
         InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
         Bundle b = new Bundle();
-        b.putString("msg", msg);    //서버 요청으로 받아온 요청보기 메시지
         b.putString("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+        b.putSerializable("mStatus", sr);
         b.putSerializable("item", mItem);
         mDialogFragment.setArguments(b);
         mDialogFragment.show(getSupportFragmentManager(), "inputDialog");
@@ -243,31 +250,19 @@ public class FriendsDetailActivity extends AppCompatActivity {
         }
     }
     ProgressDialog dialog = null;
-    public String msg = "";
 
-    private void getStatus(int status){
+    private void getStatus(){
         NetworkManager.getInstance().getDongneFriendsStatusUserId(getApplicationContext(),
                 //userId와의 관계 및 msg 가져오기
-                status, //0
                 mItem.userId, //userId
                 new NetworkManager.OnResultListener<StatusInfo>() {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
-                        Log.e("getStatus:", result.message);
                         if (result.error.equals(false)) {
-                            if(mItem.status != -100){
-                                //0922: -100일때 디테일액티비티에서 요청보기 클릭시 요청취소 버튼이 뜨는 잔 버그 해결.
-                                // 그 외에는 잘 동작했으니까 -100일때만 예외 처리 해줌.
-                                mItem.status = result.result.status;
-                            }
-                            msg = result.result.msg;
-                            if(msg.equals("") || msg == null){
-                                msg = getResources().getString(R.string.status_greeting_msg);
-                            }
-                            showDialog(msg);
-//                            Toast.makeText(getApplicationContext(), "msg: "+result.result.msg, Toast.LENGTH_LONG).show();
+                            StatusResult mStatus = result.result;
+                            mItem.status = mStatus.status;
+                            showDialog(mStatus);
                         } else {
-//                            showDialog("error: true");
                             Toast.makeText(getApplicationContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();

@@ -666,5 +666,15 @@ public class ChatRoomActivity extends AppCompatActivity {
         this.setResult(RESULT_OK, intent);
         finish();
     }
+    @Override
+    public void onBackPressed() {
+        Log.e("chat_room_id: ", chatRoomId);
+        if(chatRoomId.equals("-1")){
+            finishAndReturnData(false);
+        } else {
+            finishAndReturnData(true);
+        }
+        super.onBackPressed();
 
+    }
 }

@@ -40,6 +40,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     TextView nameView;
     TextView stuIdView;
     TextView deptView;
+    ImageView iconMenu;
     TextView timeStampView;
     TextView bodyView;
     TextView bodyAddView;
@@ -115,6 +116,9 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
 
 //        listViewLayout = (LinearLayout)itemView.findViewById(R.id.linear_board_reply_layout);
 //        listViewLayout.setOnClickListener(viewListener);
+        iconMenu = (ImageView)itemView.findViewById(R.id.image_board_menu);
+
+        iconMenu.setOnClickListener(viewListener);
         iconThumb.setOnClickListener(viewListener);
         nameView.setOnClickListener(viewListener);
         likeLayout.setOnClickListener(viewListener);
@@ -185,6 +189,11 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
                 case R.id.image_board_thumb:
                     if (mListener != null) {
                         mListener.onLikeClick(v, getAdapterPosition(), mItem, 200);
+                    }
+                    break;
+                case R.id.image_board_menu:
+                    if (mListener != null) {
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 300);
                     }
                     break;
                 case R.id.linear_like_layout:

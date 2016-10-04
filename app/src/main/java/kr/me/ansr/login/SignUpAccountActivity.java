@@ -17,7 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CommonInfo;
+import okhttp3.Request;
 
 /**
  * Created by KMS on 2016-07-11.
@@ -83,13 +86,35 @@ public class SignUpAccountActivity extends AppCompatActivity {
             return;
         }
         if(isConfirmPassword() == true){
-//            inputPw.setText("");
-//            inputPwConfirm.setText("");
-//            inputEmail.setText("");
-            Intent intent = new Intent(SignUpAccountActivity.this, SignupActivity.class);
-            intent.putExtra("email", inputEmail.getText().toString());
-            intent.putExtra("password", inputPwConfirm.getText().toString());
-            startActivity(intent);
+            String email = inputEmail.getText().toString();
+            NetworkManager.getInstance().postDongneUserEmail(SignUpAccountActivity.this, email, new NetworkManager.OnResultListener<CommonInfo>() {
+                @Override
+                public void onSuccess(Request request, CommonInfo result) {
+                    if (result.error.equals(true)) {
+                        Toast.makeText(SignUpAccountActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+                    } else {
+                        String msg = result.message.toString();
+                        Intent intent = new Intent(SignUpAccountActivity.this, SignupActivity.class);
+                        if(msg.equals("DUP_EMAIL")){
+                            Toast.makeText(SignUpAccountActivity.this, "회원가입 된 이메일입니다.", Toast.LENGTH_SHORT).show();
+                            inputLayoutEmail.setError("이메일을 확인해주세요.");
+                            requestFocus(inputEmail);
+                        } else if(msg.equals("AVAILABLE_EMAIL")){
+//                            inputPw.setText("");
+//                            inputPwConfirm.setText("");
+//                            inputEmail.setText("");
+                            intent.putExtra("email", inputEmail.getText().toString());
+                            intent.putExtra("password", inputPwConfirm.getText().toString());
+                            startActivity(intent);
+                        }
+                    }
+                }
+                @Override
+                public void onFailure(Request request, int code, Throwable cause) {
+                    Toast.makeText(SignUpAccountActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                }
+            });
+
         } else {
             Toast.makeText(getApplicationContext(), "pw confirm error", Toast.LENGTH_SHORT).show();
         }
@@ -150,7 +175,6 @@ public class SignUpAccountActivity extends AppCompatActivity {
     // Validating email
     private boolean validateEmail() {
         String email = inputEmail.getText().toString().trim();
-
         if (email.isEmpty() || !isValidEmail(email)) {
             inputLayoutEmail.setError(getString(R.string.err_msg_email));
             requestFocus(inputEmail);
@@ -158,7 +182,6 @@ public class SignUpAccountActivity extends AppCompatActivity {
         } else {
             inputLayoutEmail.setErrorEnabled(false);
         }
-
         return true;
     }
 

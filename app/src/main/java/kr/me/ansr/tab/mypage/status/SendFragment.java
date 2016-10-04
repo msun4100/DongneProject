@@ -132,7 +132,7 @@ public class SendFragment extends Fragment {
                         Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                     case 300:
                         Toast.makeText(getActivity(), "statusView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        getStatus(0, item); //pending
+                        getStatus(item); //pending
                         break;
                 }
             }
@@ -154,11 +154,7 @@ public class SendFragment extends Fragment {
 
     private void initData(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
-        if(mUnivId == ""){
-            Toast.makeText(getActivity(),"대학교 등록할 것", Toast.LENGTH_SHORT).show();
-//            return;
-            mUnivId = ""+ (0); //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
-        }
+
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().getDongneFriendsStatus(getActivity(),
                 FriendsInfo.STATUS_SEND, //mode(each status)
@@ -175,10 +171,6 @@ public class SendFragment extends Fragment {
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
                                     Log.e(TAG, ""+child);
-//                                    if(i==0 && mAdapter.getItem(1) == null){ //임시코드
-//                                        mAdapter.put("내 프로필", child); //내 정보 불러와서
-//                                    }
-//                                    mAdapter.put("받은 신청", child);
                                     mAdapter.put(child);
                                 }
                                 start++;
@@ -329,25 +321,19 @@ public class SendFragment extends Fragment {
     }
 
 
-    private void getStatus(int status, final FriendsResult mItem){
+    private void getStatus(final FriendsResult mItem){
         NetworkManager.getInstance().getDongneFriendsStatusUserId(getActivity(),
                 //userId와의 관계 및 msg 가져오기
-                status, //0
                 mItem.userId, //userId
                 new NetworkManager.OnResultListener<StatusInfo>() {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
-                        StatusResult data = result.result;
-                        Log.e("status->result", data.toString());
                         if (result.error.equals(false)) {
-                            msg = result.result.msg;
-                            if(msg.equals("") || msg == null){
-                                msg = getResources().getString(R.string.status_greeting_msg);
-                            }
-                            showDialog(msg, mItem);
+                            StatusResult data = result.result;
+                            Log.e("status->result", data.toString());
+                            showDialog(data, mItem);
                             Toast.makeText(getActivity(), "msg: "+result.result.msg, Toast.LENGTH_LONG).show();
                         } else {
-//                            showDialog("error: true", );
                             Toast.makeText(getActivity(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
@@ -364,12 +350,12 @@ public class SendFragment extends Fragment {
 
 
 
-    private void showDialog(String msg, FriendsResult item){
+    private void showDialog(StatusResult mStatus, FriendsResult item){
         InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
         Bundle b = new Bundle();
-        b.putString("msg", msg);    //서버 요청으로 받아온 요청보기 메시지
         b.putString("tag", InputDialogFragment.TAG_STATUS_SEND);
         b.putSerializable("item", item);
+        b.putSerializable("mStatus", mStatus);
         mDialogFragment.setArguments(b);
         mDialogFragment.show(getActivity().getSupportFragmentManager(), "inputDialog");
     }

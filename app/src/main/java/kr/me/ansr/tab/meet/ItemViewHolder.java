@@ -84,7 +84,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         timeStampView.setText(MyApplication.getTimeStamp(item.created_at));
         switch (item.bgColor){
             case 0:
-                bgView.setBackgroundResource(R.drawable.e__popup_three_mid);
+                bgView.setBackgroundResource(R.drawable.z_feed_none_selected_rec);
                 break;
             case 1:
                 bgView.setBackgroundResource(R.drawable.z_feed_selected_rec);

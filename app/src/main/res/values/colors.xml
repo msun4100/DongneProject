@@ -48,7 +48,8 @@
     <drawable name="dialog_background">#00000000</drawable>
 
     <!--empty_msg_color-->
-    <color name="feed_pressed">#f1f2f2</color>
+    <color name="feed_none_pressed">#f1f2f2</color>
+    <color name="feed_pressed">#ffffff</color>
     <color name="empty_msg_color">#403f41</color>
 
 

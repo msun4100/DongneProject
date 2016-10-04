@@ -227,7 +227,28 @@ public class FriendsSectionFragment extends Fragment
         confirmView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Log.e("confirm","clicked");
+                final String username = inputName.getText().toString();
+                final String enterYear = inputYear.getText().toString();
+                final String deptname = inputDept.getText().toString();
+                final String job = inputJob.getText().toString();
+                if(username == null && enterYear == null && deptname == null && job == null){
+                    Toast.makeText(getActivity(), "검색 조건을 입력해주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Log.e("s_username", username);
+                Log.e("s_enterYear", enterYear);
+                Log.e("s_deptname", deptname);
+                Log.e("s_job", job);
+                mSearchOption = 0; //이름정렬
+                start = 0;
+                if(true){
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            initSearchUsers(username, enterYear, deptname, job);
+                        }
+                    }, 500);
+                }
             }
         });
         cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
@@ -236,6 +257,16 @@ public class FriendsSectionFragment extends Fragment
             public void onClick(View v) {
                 clearSearchInput();
                 setContainerVisibility();
+                mSearchOption = spinner.getSelectedItemPosition();
+                start = 0;
+                if(true){
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            initUnivUsers();
+                        }
+                    }, 500);
+                }
             }
         });
 
@@ -281,12 +312,6 @@ public class FriendsSectionFragment extends Fragment
         }
         spinner.setSelection(0);
 //        initUnivUsers();
-//        mAdapter.put("내 프로필", new ChildItem(SectionAdapter.GROUP_PROFILE, true, "http://10.0.3.2:3000/getPic/0","user0","inha univ",16,"jobname"));
-//        for(int i=0; i<10; i++){
-//            boolean isFriend = true;
-//            if(i % 3 == 0) isFriend = false;
-//            mAdapter.put("학교 사람들", new ChildItem(SectionAdapter.GROUP_FRIENDS, isFriend, ""+ someUrls[r.nextInt(4)],("user"+i),"univ",i,"job"));
-//        }
     }
     private void initUnivUsers(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
@@ -365,6 +390,7 @@ public class FriendsSectionFragment extends Fragment
     private static final int DISPLAY_NUM = FriendsInfo.FRIEND_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
+    private String searchReqDate = null;
 
 
     @Override
@@ -494,6 +520,68 @@ public class FriendsSectionFragment extends Fragment
 //        dialog.setTitle("서버 요청 중..");
 //        dialog.show();
     }
+
+    private void initSearchUsers(String username, String enterYear, String deptname, String job){
+        String mUnivId = PropertyManager.getInstance().getUnivId();
+        searchReqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        NetworkManager.getInstance().postDongneUnivUsersSearch(getActivity(),
+                0,//mode
+                mSearchOption,//req.body.sort
+                mUnivId,
+                ""+start,
+                ""+DISPLAY_NUM,
+                ""+reqDate,
+                username,
+                enterYear,
+                deptname,
+                job,
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(Request request, FriendsInfo result) {
+                        if (result.error.equals(false)) {
+                            if(result.result != null){
+                                mAdapter.blockCount = 0;
+                                mAdapter.items.clear();
+                                mAdapter.setTotalCount(result.total);
+                                ArrayList<FriendsResult> items = result.result;
+
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    result.user.status = 1;
+                                    mAdapter.put("내 프로필", result.user);
+                                }
+
+                                for(int i=0; i < items.size(); i++){
+                                    FriendsResult child = items.get(i);
+                                    Log.e(TAG, ""+child);
+                                    if(child.status == 3){
+                                        mAdapter.blockCount++;
+                                        continue;
+                                    }
+                                    mAdapter.put("학교 사람들", child);
+                                }
+                                start++;
+                            }
+                        } else {
+                            mAdapter.items.clear();
+                            Log.e(TAG, result.message);
+                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Loading....");
+        dialog.show();
+    }
+
 
 
 

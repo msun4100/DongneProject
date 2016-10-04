@@ -53,18 +53,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/z_test"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:orientation="vertical"
             android:padding="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 android:orientation="vertical">
-
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -81,7 +76,7 @@
 
                     <EditText
                         android:id="@+id/edit_search_name"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
@@ -106,7 +101,7 @@
 
                     <EditText
                         android:id="@+id/edit_search_enteryear"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
@@ -130,7 +125,7 @@
 
                     <EditText
                         android:id="@+id/edit_search_dept"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
@@ -154,7 +149,7 @@
 
                     <EditText
                         android:id="@+id/edit_search_job"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
@@ -169,7 +164,21 @@
                     android:layout_marginBottom="16dp"
                     android:layout_marginTop="16dp"
                     android:orientation="horizontal">
-
+                    <TextView
+                        android:background="@drawable/z_btn_white_selector"
+                        android:id="@+id/text_search_cancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="취 소"
+                        android:textColor="#77a8bc"
+                        android:textSize="@dimen/search_text_size" />
+                    <LinearLayout
+                        android:layout_width="1dp"
+                        android:layout_height="20dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:background="#77a8bc"
+                        android:orientation="vertical"></LinearLayout>
                     <TextView
                         android:background="@drawable/z_btn_white_selector"
                         android:id="@+id/text_search_confirm"
@@ -179,22 +188,6 @@
                         android:textColor="#77a8bc"
                         android:textSize="@dimen/search_text_size" />
 
-                    <LinearLayout
-                        android:layout_width="1dp"
-                        android:layout_height="20dp"
-                        android:layout_marginLeft="12dp"
-                        android:layout_marginRight="12dp"
-                        android:background="#77a8bc"
-                        android:orientation="vertical"></LinearLayout>
-
-                    <TextView
-                        android:background="@drawable/z_btn_white_selector"
-                        android:id="@+id/text_search_cancel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="취 소"
-                        android:textColor="#77a8bc"
-                        android:textSize="@dimen/search_text_size" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -144,11 +144,11 @@ public class SplashActivity extends Activity {
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setCostAllowed(true);
         //type 1 for genymotion device
-        mProvider = LocationManager.GPS_PROVIDER;
+//        mProvider = LocationManager.GPS_PROVIDER;
 //		mProvider = mLM.getBestProvider(criteria, true);
 //        Toast.makeText(SplashActivity.this, "bestProvider->" + mProvider , Toast.LENGTH_SHORT).show();
         //type 2 for personal device
-//        mProvider = LocationManager.NETWORK_PROVIDER;
+        mProvider = LocationManager.NETWORK_PROVIDER;
 //        기존 코드는 NETWORK_PROVIDER만을 사용했었음. 지금은 지니모션과 병행하기 위해 bestProvider로 함
 //        onCreate()에도 mProvider를 초기화하는 코드도 있었고... <- 이코드는 필요 없는거 같은데?
 //        mProvider = LocationManager.GPS_PROVIDER;
@@ -237,7 +237,7 @@ public class SplashActivity extends Activity {
                 Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
             }
 //    		mLM.requestLocationUpdates(mProvider, 1000*60*60, 5.0f, mListener);// 프로바이더,2000==2초,// 5미터
-            mLM.requestLocationUpdates(mProvider, 5000, 5.0f, mListener);
+            mLM.requestLocationUpdates(mProvider, 2000, 5.0f, mListener);
         } //else below M version
 
     }

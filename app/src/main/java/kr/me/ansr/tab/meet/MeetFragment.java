@@ -112,12 +112,9 @@ public class MeetFragment extends PagerFragment {
 			@Override
 			public void onItemClick(View view, int position) {
 				Push data = mAdapter.getItem(position);
-				//여기서 안해도 액티비티들어갔다 나오면서 onResume 될 때 갱신됨.
-				//message_id가 5라서 StatusActivity로 들어가는 경우 말고 바로 색바뀌어야 되는 케이스가 있나?
-//				mAdapter.setItemBackGround(position);
 				data.bgColor = 1;
 				DBManager.getInstance().update(data);
-
+				mAdapter.setItemBackGround(position);	//색 바꿈
 				Intent intent;
 				switch (data.message_id){
 					case 1:	//"님이 회원님의 게시글을 좋아합니다.",
@@ -131,6 +128,10 @@ public class MeetFragment extends PagerFragment {
 //						intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
 //						intent.putExtra("currentTab", "0"); //재학생 탭 == 0
 //						getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
+						intent = new Intent(getActivity(), BoardDetailActivity.class);
+						intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.chat_room_id);
+						startActivity(intent);
+						getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 						break;
 					case 4:	//"님이 회원님의 친구 신청을 수락하였습니다.",
 						break;
@@ -215,7 +216,7 @@ public class MeetFragment extends PagerFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		initData();
+//		initData();
 		// register new push message receiver
 		// by doing this, the activity will be notified each time a new message arrives
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRegistrationBroadcastReceiver,

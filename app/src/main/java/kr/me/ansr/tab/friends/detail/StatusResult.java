@@ -70,4 +70,16 @@ public class StatusResult implements Serializable{
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
+    @Override
+    public String toString() {
+        return "StatusResult{" +
+                "from=" + from +
+                ", to=" + to +
+                ", status=" + status +
+                ", actionUser=" + actionUser +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", msg='" + msg + '\'' +
+                '}';
+    }
 }

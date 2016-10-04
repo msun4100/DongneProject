@@ -25,7 +25,9 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.common.ReportDialogFragment;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.tab.board.PagerFragment;
 import kr.me.ansr.tab.board.detail.BoardDetailActivity;
@@ -115,7 +117,12 @@ public class ChildOneFragment extends PagerFragment {
                         Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         break;
                     case 300:
-                        Toast.makeText(getActivity(), "listViewLayout click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
+                        Bundle b = new Bundle();
+                        b.putSerializable("boardInfo", data);
+                        b.putString("tag", BoardReportDialogFragment.TAG_TAB_THREE);
+                        mDialogFragment.setArguments(b);
+                        mDialogFragment.show(getActivity().getSupportFragmentManager(), "boardReportDialog");
                         break;
                     case 400:
                         Toast.makeText(getActivity(), "like view click:\n"+data.likes.toString(), Toast.LENGTH_SHORT).show();

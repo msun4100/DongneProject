@@ -74,7 +74,9 @@
                     android:background="@drawable/a_popup_search_school_input"
                     android:dropDownHeight="195dp"
                     android:popupBackground="#ffffff"
-                    android:completionThreshold="1"/>
+                    android:completionThreshold="1"
+
+                    />
                 <FrameLayout
                     android:id="@+id/frame_dialog_search_icon"
                     android:layout_width="30dp"

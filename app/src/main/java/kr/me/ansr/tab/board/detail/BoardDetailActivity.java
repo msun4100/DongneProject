@@ -28,6 +28,7 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
@@ -53,6 +54,7 @@ public class BoardDetailActivity extends AppCompatActivity
     TextView stuIdView;
     TextView deptView;
     TextView timeStampView;
+
     TextView bodyView;
     ImageView iconReply;
     TextView replyCountView;
@@ -82,13 +84,14 @@ public class BoardDetailActivity extends AppCompatActivity
         toolbarTitle.setText("");
         toolbarMenu = (ImageView)toolbar.findViewById(R.id.toolbar_menu1);
         toolbarMenu.setImageResource(R.drawable.e__more_2_modify);
+        toolbarMenu.setOnClickListener(viewListener);
         Intent intent = getIntent();
         if (intent != null) {
 //            mItem = (BoardResult)intent.getSerializableExtra(BoardInfo.BOARD_DETAIL_OBJECT);
             reqBoardId = intent.getIntExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, -1);
             mPosition = intent.getIntExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
             currentTab = intent.getStringExtra("currentTab");
-            if(reqBoardId == -1 || mPosition == -1) forcedFinish();
+            if(reqBoardId == -1) forcedFinish();
         } else {
             forcedFinish();
         }
@@ -226,7 +229,6 @@ public class BoardDetailActivity extends AppCompatActivity
 //        titleView.setTextSize(item.fontSize);
         this.mItem = item;
         if(item.type.equals("00") || item.type.equals("10")){
-
             nameView.setText(getResources().getString(R.string.board_anonymous_name));
             iconThumb.setImageResource(R.drawable.e__who_icon);
         } else {
@@ -246,10 +248,6 @@ public class BoardDetailActivity extends AppCompatActivity
         }
 
         timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
-//        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
-//            iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_on);
-//        } else {iconLike.setImageResource(R.drawable.b_main_view_contents_icon_05_off);}
-
         likeCountView.setText(""+item.likeCount);
     }
 
@@ -267,6 +265,14 @@ public class BoardDetailActivity extends AppCompatActivity
                     break;
                 case R.id.text_board_body:
                     Toast.makeText(BoardDetailActivity.this,"detail body click", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.toolbar_menu1:
+                    BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
+                    Bundle b = new Bundle();
+                    b.putSerializable("boardInfo", mItem);
+                    b.putString("tag", BoardReportDialogFragment.TAG_BOARD_DETAIL);
+                    mDialogFragment.setArguments(b);
+                    mDialogFragment.show(getSupportFragmentManager(), "boardReportDialog");
                     break;
                 default:
                     break;
@@ -358,11 +364,19 @@ public class BoardDetailActivity extends AppCompatActivity
     }
 
     private void finishAndReturnData(){
-        Intent intent = new Intent();
-        intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM, mItem);
-        intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, mPosition);
-        setResult(RESULT_OK, intent);//RESULT_OK를 BoardFragment의 온리절트에서 받음
-        finish();
+        if(mPosition != -1){
+            //board tab에서 요청한 상세보기면 setResult해줌
+            Intent intent = new Intent();
+            intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM, mItem);
+            intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, mPosition);
+            setResult(RESULT_OK, intent);//RESULT_OK를 BoardFragment의 온리절트에서 받음
+            finish();
+        } else {
+            //새소식 탭에서 요청한 상세보기면
+            finish();
+        }
+
+
     }
     private void forcedFinish(){
         Toast.makeText(getApplicationContext(), "다시 요청해주세요.",Toast.LENGTH_SHORT).show();
@@ -380,4 +394,10 @@ public class BoardDetailActivity extends AppCompatActivity
         }
         return type;
     }
+    @Override
+    public void onBackPressed() {
+        finishAndReturnData();
+        super.onBackPressed();
+    }
+
 }

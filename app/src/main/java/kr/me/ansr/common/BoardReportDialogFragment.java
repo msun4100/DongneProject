@@ -10,26 +10,30 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
+
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-09-01.
  */
-public class ReportDialogFragment extends DialogFragment {
+public class BoardReportDialogFragment extends DialogFragment {
 
-    public static final String TAG_TAB_ONE = "tabOne";
     public static final String TAG_TAB_THREE = "tabThree";
+    public static final String TAG_BOARD_DETAIL = "BoardDetail";
 
-    public ReportDialogFragment(){
+    public BoardReportDialogFragment(){
 
     }
-    Button btn1, btn2, btn3, btn4;
-    FriendsResult data;
+    Button btn1, btn2, btn3;
+    BoardResult data;
     String tag = null;
+    int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
 
-    public static ReportDialogFragment newInstance() {
-        ReportDialogFragment f = new ReportDialogFragment();
+    public static BoardReportDialogFragment newInstance() {
+        BoardReportDialogFragment f = new BoardReportDialogFragment();
         return f;
     }
     @Override
@@ -38,7 +42,7 @@ public class ReportDialogFragment extends DialogFragment {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.MyDialog);
         Bundle b = getArguments();
         if(b != null){
-            data = (FriendsResult)b.getSerializable("userInfo");
+            data = (BoardResult)b.getSerializable("boardInfo");
             tag = b.getString("tag", "0");
         }
     }
@@ -53,71 +57,85 @@ public class ReportDialogFragment extends DialogFragment {
 //		getDialog().getWindow().getAttributes().x = 120;
 //		getDialog().getWindow().getAttributes().y = -18;
 
-        View view = inflater.inflate(R.layout.dialog_report_layout, container, false);
+        View view = inflater.inflate(R.layout.dialog_board_report_layout, container, false);
 
-        btn1 = (Button)view.findViewById(R.id.btn_report_cut_off);
+        btn1 = (Button)view.findViewById(R.id.btn_board_report_top);
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
-//                        ((BoardWriteActivity) (getActivity())).nextProcess();
-                        Toast.makeText(getActivity(), "cut off", Toast.LENGTH_SHORT).show();
+                    if(tag.equals(TAG_TAB_THREE)) {
+                        Toast.makeText(getActivity(), "top", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_BOARD_DETAIL)) {
+                        Toast.makeText(getActivity(), "detail top", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 }
             }
         });
-        if(data.status == 1){
-            btn1.setText("친 구 끊 기");
-        } else {
-            btn1.setText("친 구 신 청");
-        }
-        btn2 = (Button)view.findViewById(R.id.btn_report_block);
+
+        btn2 = (Button)view.findViewById(R.id.btn_board_report_mid);
         btn2.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
-                        CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
-                        Bundle b = new Bundle();
-                        b.putString("tag", CustomDialogFragment.TAG_TAB_ONE);
-                        b.putString("title","정말 차단 하시겠습니까?");
-                        b.putString("body", "더보기 - 친구관리에서 확인하실 수 있습니다.");
-                        mDialogFragment.setArguments(b);
-                        mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
+                    if(tag.equals(TAG_TAB_THREE)) {
+                        Toast.makeText(getActivity(), "tab three mid", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_BOARD_DETAIL)) {
+                        Toast.makeText(getActivity(), "detail mid", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 }
-
-
             }//onClick
         });
-        btn3 = (Button)view.findViewById(R.id.btn_report_report);
+
+        btn3 = (Button)view.findViewById(R.id.btn_board_report_bottom);
         btn3.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
-                        Toast.makeText(getActivity(), "report", Toast.LENGTH_SHORT).show();
-                        dismiss();
+                    if(tag.equals(TAG_TAB_THREE)) {
+                        //...
                     }
                 }
-
-            }//onClick
-        });
-        btn4 = (Button)view.findViewById(R.id.btn_report_cancel);
-        btn4.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
                 dismiss();
-            }//onClick
+            }
         });
-//		initData(); //여기에서 알람 데이터목록 추가함
+
+		initData();
         return view;
+    }
+    private void initData(){
+        switch (tag){
+            case TAG_TAB_THREE:
+                btn1.setVisibility(View.GONE);
+                btn2.setBackgroundResource(R.drawable.e_popup_top_selector);
+                if(data.writer == userId){
+                    btn2.setText("수 정 하 기");
+                } else {
+                    btn2.setText("신 고 하 기");
+                }
+                break;
+            case TAG_BOARD_DETAIL:
+                if(data.writer == userId){
+                    btn1.setVisibility(View.VISIBLE);
+                    btn2.setBackgroundResource(R.drawable.e_popup_mid_selector);
+                    btn2.setText("수 정 하 기");
+                } else {
+                    btn1.setVisibility(View.GONE);
+                    btn2.setBackgroundResource(R.drawable.e_popup_top_selector);
+                    btn2.setText("신 고 하 기");
+                }
+
+                break;
+        }
+
     }
 
     @Override
@@ -126,8 +144,7 @@ public class ReportDialogFragment extends DialogFragment {
 //		getDialog().getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_launcher);
 //		getDialog().setTitle("Custom Dialog");
     }
-    private void initData(){
-    }
+
 
     @Override
     public void onDestroyView() {

@@ -2,13 +2,18 @@ package kr.me.ansr.tab.friends;
 
 
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.event.FriendsFragmentResultEvent;
 import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.login.autocomplete.univ.UnivInfo;
+import kr.me.ansr.login.autocomplete.univ.UnivResult;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
+import okhttp3.Request;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +30,8 @@ import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class FriendsFragment extends PagerFragment {
 
 
@@ -36,7 +43,7 @@ public class FriendsFragment extends PagerFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_friends, container, false);
 		activity = (AppCompatActivity) getActivity();
-		((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
+//		((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
 //		imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 //		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -83,27 +90,55 @@ public class FriendsFragment extends PagerFragment {
 				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.b_list_titlebar));
 				activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false); //챗프래그먼트에서 백버튼 자리 메뉴를 사용하기 때문에
 
-				String str = "인하대학교";
-				String m = "";
-				for(int i=0; i<str.length(); i++){
-					m += str.substring(i, i+1) + " ";
+				String str = PropertyManager.getInstance().getUnivName();
+				if(str != null && !str.equals("")){
+					makeTitleString(str);
+				} else {
+					//univname이 없으면 univItem요청해서 프로퍼티매니저에 이름 저장하고 툴바 타이틀 만듬.
+					getUnivItem();
 				}
-				m = m.substring(0, m.length()-1);
-				((MainActivity)getActivity()).getToolbarTitle().setText(m);
-
-//				String str = PropertyManager.getInstance().getUnivName();
-//				if(str != null && !str.equals("")){
-//					String m = "";
-//					for(int i=0; i<str.length(); i++){
-//						m += str.substring(i, i+1) + " ";
-//					}
-//					m = m.substring(0, m.length()-1);
-//					((MainActivity)getActivity()).getToolbarTitle().setText(m);
-//				} else {
-//					((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
-//				}
 			}
 		}
+	}
+
+	public void makeTitleString(String str){
+		String m = "";
+		for(int i=0; i<str.length(); i++){
+			m += str.substring(i, i+1) + " ";
+		}
+		m = m.substring(0, m.length()-1);//마지막 여백 제외
+		((MainActivity)getActivity()).getToolbarTitle().setText(m);
+	}
+
+	public void getUnivItem(){
+		String univId = PropertyManager.getInstance().getUnivId();
+		if(univId == null)
+			return;
+		NetworkManager.getInstance().getDongneUnivItem(getActivity(), univId, new NetworkManager.OnResultListener<UnivInfo>() {
+			@Override
+			public void onSuccess(Request request, UnivInfo result) {
+				if (result.error.equals(false)) {
+					if(result.result != null && result.result.size() == 1){
+						String univName = result.result.get(0).univname;
+						String univId = ""+result.result.get(0).univId;
+						PropertyManager.getInstance().setUnivName(univName);
+						PropertyManager.getInstance().setUnivId(univId);
+						makeTitleString(univName);
+					} else {
+						((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
+					}
+				} else { //error: true
+					((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
+					Toast.makeText(getActivity(), "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+				((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
+				Toast.makeText(getActivity(), "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 
