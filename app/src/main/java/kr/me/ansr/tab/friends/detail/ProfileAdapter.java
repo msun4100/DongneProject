@@ -29,6 +29,10 @@ public class ProfileAdapter extends BaseAdapter {
         items.add(item);
         notifyDataSetChanged();
     }
+    public void removeAll(){
+        items.clear();
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getViewTypeCount() {

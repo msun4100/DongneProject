@@ -52,5 +52,8 @@
     <color name="feed_pressed">#ffffff</color>
     <color name="empty_msg_color">#403f41</color>
 
+    <color name="total_selected">#606a72</color>
+
+
 
 </resources>

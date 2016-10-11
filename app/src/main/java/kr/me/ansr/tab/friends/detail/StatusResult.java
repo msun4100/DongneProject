@@ -12,6 +12,7 @@ public class StatusResult implements Serializable{
     public int actionUser;
     public String updatedAt;
     public String msg;
+    public int type;    //report용 변수 사실 신고 리턴할때 성공실패 여부만 보내주니까 상관없긴함
 
     public StatusResult(){}
     public StatusResult(int from, int to, int status, int actionUser, String updatedAt, String msg) {

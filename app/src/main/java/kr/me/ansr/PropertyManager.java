@@ -312,6 +312,77 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 
+	private static final String FIELD_ALARM_FRIEND = "alarmFriend";
+	private int alarmFriend = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
+
+	public int getAlarmFriend() {
+		if (alarmFriend == 0) {
+			alarmFriend = mPrefs.getInt(FIELD_ALARM_FRIEND, 0);
+		}
+		return alarmFriend;
+	}
+
+	public void setAlarmFriend(int alarm) {
+		alarmFriend = alarm;
+		mEditor.putInt(FIELD_ALARM_FRIEND, alarmFriend);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_ALARM_CHAT = "alarmChat";
+	private int alarmChat = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
+	public int getAlarmChat() {
+		if (alarmChat == 0) {
+			alarmChat = mPrefs.getInt(FIELD_ALARM_CHAT, 0);
+		}
+		return alarmChat;
+	}
+	public void setAlarmChat(int alarm) {
+		alarmChat = alarm;
+		mEditor.putInt(FIELD_ALARM_CHAT, alarmChat);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_ALARM_REPLY = "alarmReply";
+	private int alarmReply = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
+	public int getAlarmReply() {
+		if (alarmReply == 0) {
+			alarmReply = mPrefs.getInt(FIELD_ALARM_REPLY, 0);
+		}
+		return alarmReply;
+	}
+	public void setAlarmReply(int alarm) {
+		alarmReply = alarm;
+		mEditor.putInt(FIELD_ALARM_REPLY, alarmReply);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_ALARM_LIKE = "alarmLike";
+	private int alarmLike = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
+	public int getAlarmLike() {
+		if (alarmLike == 0) {
+			alarmLike = mPrefs.getInt(FIELD_ALARM_LIKE, 0);
+		}
+		return alarmLike;
+	}
+	public void setAlarmLike(int alarm) {
+		alarmLike = alarm;
+		mEditor.putInt(FIELD_ALARM_LIKE, alarmLike);
+		mEditor.commit();
+	}
+
+	private static final String FIELD_ALARM_RING_TONE = "alarmRingtone";
+	private int alarmRingtone = 2; // 0안씀 1사용, 2로 초기화해서 최초 설정창에 스위치가 on이 되도록
+	public int getAlarmRingtone() {
+		if (alarmRingtone == 0) {
+			alarmRingtone = mPrefs.getInt(FIELD_ALARM_RING_TONE, 0);
+		}
+		return alarmRingtone;
+	}
+	public void setAlarmRingtone(int alarm) {
+		alarmRingtone = alarm;
+		mEditor.putInt(FIELD_ALARM_RING_TONE, alarmRingtone);
+		mEditor.commit();
+	}
 
 
 	//==============================

@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,18 +24,23 @@ import java.util.List;
 
 import kr.me.ansr.R;
 import kr.me.ansr.common.PhotoChangeFragment;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class MediaStoreActivity extends AppCompatActivity{
     private static final String TAG = MediaStoreActivity.class.getSimpleName();
+    public static final String TAG_FRIENDS_DETAIL= "friendsDetail";
+    public static final String TAG_MY_PAGE= "myPage";
+
     private static final String F1_TAG = "tab1";
     private static final String F2_TAG = "tab2";
-    private final int ALBUM_PICKER_COUNT = 3;
+    private final int ALBUM_PICKER_COUNT = 10;
     ArrayList<ImageItem> images;
 
     //using for toolbar menu and background
     TextView toolbarTitle; ImageView iconPhoto, toolbarMenu;
-    FriendsResult mItem;
+    public static FriendsResult mItem;
+    public static String tag = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +59,7 @@ public class MediaStoreActivity extends AppCompatActivity{
         Intent intent = getIntent();
         if (intent != null) {
             mItem = (FriendsResult)intent.getSerializableExtra("mItem");
+            tag = intent.getStringExtra("tag");
             if(mItem == null) forcedFinish();
         } else {
             forcedFinish();
@@ -63,6 +70,7 @@ public class MediaStoreActivity extends AppCompatActivity{
                 Toast.makeText(MediaStoreActivity.this, "toolbar_menu", Toast.LENGTH_SHORT).show();
             }
         });
+        toolbarMenu.setVisibility(View.GONE);
 
         //아래 코드는 이미지홈프래그먼트에다가 카피
 //        iconPhoto = (ImageView)findViewById(R.id.image_prof_set_change);
@@ -177,6 +185,7 @@ public class MediaStoreActivity extends AppCompatActivity{
                     Toast.makeText(this, "in case RC_RESULT_PROFILE_CODE\n"+data.getExtras(), Toast.LENGTH_LONG).show();
                     String filePath = data.getStringExtra("filePath");
                     Toast.makeText(this, "filePath : " + filePath, Toast.LENGTH_LONG).show();
+
                     Bundle bundle = new Bundle();
                     bundle.putString("filePath", filePath);
 
@@ -240,6 +249,13 @@ public class MediaStoreActivity extends AppCompatActivity{
     }
 
     private void forcedFinish(){
+        finish();
+    }
+
+    public void finishAndReturnData(){
+        Intent intent = new Intent();
+        intent.putExtra("mItem", mItem);
+        setResult(RESULT_OK, intent);
         finish();
     }
 

@@ -4,11 +4,15 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.recycler.SectionAdapter;
 
 import android.content.Intent;
@@ -75,11 +79,8 @@ public class MypageFragment extends PagerFragment {
 		String url = Config.FILE_GET_URL.replace(":userId", "" + userId).replace(":size", "small");
 		Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
 				.centerCrop()
-//				.signature(new StringSignature(item.getUpdatedAt()))
+				.signature(new StringSignature(MyApplication.getInstance().getCurrentTimeStampString()))//매번 새로고침
 				.into(thumbIcon);
-
-
-
 	}
 
 	public View.OnClickListener mListener = new View.OnClickListener(){
@@ -120,6 +121,12 @@ public class MypageFragment extends PagerFragment {
 					break;
 				case R.id.image_my_next:
 					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
+					intent = new Intent(getActivity(), MediaStoreActivity.class);
+					intent.putExtra("mItem", FriendsSectionFragment.getUserInfo());
+					intent.putExtra("tag", MediaStoreActivity.TAG_MY_PAGE);
+//					startActivityForResult(intent, 125);
+					startActivity(intent);
+					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				default:
 					break;

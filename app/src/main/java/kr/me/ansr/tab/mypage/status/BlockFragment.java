@@ -24,6 +24,7 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CustomDialogFragment;
+import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -114,9 +115,8 @@ public class BlockFragment extends Fragment {
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("tag", InputDialogFragment.TAG_STATUS_BLOCK);
                 startActivity(intent);
-//                getParentFragment().startActivityForResult(intent, 1234); //tabHost가 있는 FriendsFragment에서 리절트를 받음
-//                null exception 뜨네 탭호스트로 안해서 그런가
             }
         });
         mAdapter.setOnAdapterItemClickListener(new StatusAdapter.OnAdapterItemClickListener() {
@@ -150,9 +150,6 @@ public class BlockFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new MyDecoration(getActivity()));
 
-        start = 0;
-        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        initData();
 
         return view;
     }
@@ -258,9 +255,9 @@ public class BlockFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // destroy all menu and re-call onCreateOptionsMenu
-//        getActivity().invalidateOptionsMenu();
-//        Toast.makeText(getActivity(),"Slideshow f onresume", Toast.LENGTH_SHORT).show();
+        start = 0;
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        initData();
     }
 
 

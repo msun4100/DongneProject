@@ -60,7 +60,7 @@ public class BoardFragment extends PagerFragment {
 		mAdapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			@Override
 			public void onTabChanged(String tabId) {
-				Log.e("current tabId:", tabId);
+//				Log.e("current tabId:", tabId);
 				switch (tabId){
 					case "ttab2":
 						currentTab = "1";
@@ -70,28 +70,24 @@ public class BoardFragment extends PagerFragment {
 						currentTab = "0";
 						break;
 				}
-				// TODO Auto-generated method stub
 			}
 		});
 		mAdapter.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int arg0) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
 			}
 		});
 
 		//custom viewpager 때 수정한 코드
 		if (savedInstanceState != null) {
 			mAdapter.onRestoreInstanceState(savedInstanceState);
-			String tag = savedInstanceState.getString("tabTag2");
+			String tag = savedInstanceState.getString("tabTag2");	//tabTag == MainActivity,
 			tabHost.setCurrentTabByTag(tag);
 		}
 

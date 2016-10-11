@@ -8,8 +8,9 @@ public class EndPoints {
 //    public static final String BASE_URL = "http://172.20.10.2/gcm_chat/v1";
 //    public static final String BASE_URL = "http://10.0.3.2:81/gcm_chat/v1";
 //public static final String BASE_URL = "http://10.0.3.2:3000";
-    public static final String BASE_URL = "http://ec2-52-78-118-216.ap-northeast-2.compute.amazonaws.com:3000";
+//    public static final String BASE_URL = "http://ec2-52-78-118-216.ap-northeast-2.compute.amazonaws.com:3000";
 
+    public static final String BASE_URL = Config.SERVER_URL;
     public static final String LOGIN = BASE_URL + "/user/login";
     public static final String USER = BASE_URL + "/user/_ID_";
     public static final String CHAT_ROOMS = BASE_URL + "/chat_rooms";

@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!--
      needed for older devices -
      used to check app background / foreground status
@@ -203,6 +202,10 @@
         <activity
             android:name=".tab.chat.plus.ChatPlusActivity"
             android:label="@string/title_activity_chat_plus"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.friends.list.FriendsListActivity"
+            android:label="@string/title_activity_friends_list"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

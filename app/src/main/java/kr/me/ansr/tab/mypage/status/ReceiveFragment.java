@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.renderscript.ScriptGroup;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -98,7 +99,6 @@ public class ReceiveFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
@@ -116,6 +116,7 @@ public class ReceiveFragment extends Fragment {
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("tag", InputDialogFragment.TAG_STATUS_RECEIVE);
                 startActivity(intent);  //forResult로 호출해서 onEvent호출받아 리스트 갱신해야함.
             }
         });
@@ -144,9 +145,8 @@ public class ReceiveFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new MyDecoration(getActivity()));
 
-        start = 0;
-        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        initData();
+
+//        initData();
 
         return view;
     }
@@ -253,9 +253,9 @@ public class ReceiveFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // destroy all menu and re-call onCreateOptionsMenu
-//        getActivity().invalidateOptionsMenu();
-//        Toast.makeText(getActivity(),"Slideshow f onresume", Toast.LENGTH_SHORT).show();
+        start = 0;
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        initData();
     }
 
 

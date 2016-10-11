@@ -3,6 +3,7 @@
     <item
         android:id="@+id/menu_image_home"
         android:orderInCategory="100"
-        android:title="complete"
+        android:title="확 인"
+        android:textColor="#abcabc"
         app:showAsAction="always" />
 </menu>

@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -36,44 +39,89 @@ public class FriendsFragment extends PagerFragment {
 
 
 	AppCompatActivity activity;
-	FragmentTabHost tabHost;
+	TabHost tabHost;
+	FriendsViewPager pager;   //	ViewPager pager;
+	TabsAdapter mAdapter;
+	TabWidget tabs;
+	private static final int PAGER_OFFSET_LIMIT = 1;
+	public static TextView totalUniv, totalFriends;
 
 	InputMethodManager imm;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_friends, container, false);
 		activity = (AppCompatActivity) getActivity();
-//		((MainActivity)getActivity()).getToolbarTitle().setText("학 교 사 람 들");
 //		imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 //		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		tabHost = (FragmentTabHost) view.findViewById(R.id.tabhost);
-		tabHost.setup(getActivity(), getChildFragmentManager(), R.id.realtabcontent);
+
+		tabs = (TabWidget)view.findViewById(android.R.id.tabs);
+		tabHost = (TabHost) view.findViewById(android.R.id.tabhost);
+		tabHost.setup();
+		pager = (FriendsViewPager)view.findViewById(R.id.pager);
+		pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
+		mAdapter = new TabsAdapter(getActivity(), getChildFragmentManager(), tabHost, pager);
 		ImageView iv1 = new ImageView(getActivity()); iv1.setImageResource(R.drawable.z_friends_tab_1_selector);
 		ImageView iv2 = new ImageView(getActivity()); iv2.setImageResource(R.drawable.z_friends_tab_2_selector);
-		tabHost.addTab(tabHost.newTabSpec("friends1").setIndicator(iv1), FriendsSectionFragment.class, null);
-		tabHost.addTab(tabHost.newTabSpec("friends2").setIndicator(iv2), FriendsTwoFragment.class, null);
-		//activity group을 extends해야 쓸 수 있는 듯--> 메인액티비티가
-//		tabHost.addTab(tabHost.newTabSpec("friends1").setIndicator("학교사람들")
-//				.setContent(new Intent(getActivity(), FriendsSectionFragment.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)));
-//		tabHost.addTab(tabHost.newTabSpec("friends2").setIndicator("일촌")
-//				.setContent(new Intent(getActivity(), FriendsTwoFragment.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)));
-//		tabHost.setCurrentTabByTag("friends1");
-		tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+		mAdapter.addTab(tabHost.newTabSpec("friends1").setIndicator(iv1), FriendsSectionFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("friends2").setIndicator(iv2), FriendsTwoFragment.class, null);
+		mAdapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			@Override
 			public void onTabChanged(String tabId) {
-				if(tabId == "friends1"){
-//					Toast.makeText(getActivity(), "f1", Toast.LENGTH_SHORT).show();
-				} else if(tabId == "friends2"){
-//					Toast.makeText(getActivity(), "f2", Toast.LENGTH_SHORT).show();
-//					tabHost.getCurrentTab();
+				switch (tabId){
+					case "friends1":
+						currentTab = "f1";
+						totalUniv.setTextColor(0xff606a72);
+						totalFriends.setTextColor(0xff99999a);
+						break;
+					case "friends2":
+					default:
+						currentTab = "f2";
+						totalUniv.setTextColor(0xff99999a);	//ffcbc8c6 보다 진한 색
+						totalFriends.setTextColor(0xff606a72);
+						break;
 				}
 			}
 		});
+		mAdapter.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageSelected(int arg0) {
 
+			}
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
 
+			}
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+
+			}
+		});
+
+		totalUniv = (TextView)view.findViewById(R.id.text_total_univ);
+		totalFriends = (TextView)view.findViewById(R.id.text_total_friends);
+
+		//custom viewpager 때 수정한 코드
+		if (savedInstanceState != null) {
+			mAdapter.onRestoreInstanceState(savedInstanceState);
+			String tag = savedInstanceState.getString("tabTagFriends");
+			tabHost.setCurrentTabByTag(tag);
+		}
 		return view;
 	}
+
+
+
+	//custom viewpager 때 수정한 코드
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mAdapter.onSaveInstanceState(outState);
+		String tag = tabHost.getCurrentTabTag();
+		outState.putString("tabTagFriends", tag);
+	}
+	public String currentTab = null;	//board에서 사용하던 변수
+
 
 
 	@Override

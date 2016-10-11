@@ -7,33 +7,75 @@
     android:orientation="vertical"
     tools:context="kr.me.ansr.tab.friends.FriendsFragment" >
 
-    <android.support.v4.app.FragmentTabHost
-        android:id="@+id/tabhost"
+    <TabHost
+        android:id="@android:id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:divider="@null"
+            android:orientation="vertical" >
+            <!--Display total count-->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-            </TabWidget>
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@null">
+                </TabWidget>
+                <LinearLayout
+                    android:layout_gravity="bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <FrameLayout
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="5dp"
+                            android:id="@+id/text_total_univ"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#606a72"
+                            android:textSize="10sp"
+                            android:text="0" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="5dp"
+                            android:id="@+id/text_total_friends"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#99999a"
+                            android:textSize="10sp"
+                            android:text="0" />
+                    </FrameLayout>
+
+                </LinearLayout>
+            </FrameLayout>
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0" >
+                android:layout_height="0dp" >
             </FrameLayout>
-            <FrameLayout
-                android:id="@+id/realtabcontent"
+
+            <kr.me.ansr.tab.friends.FriendsViewPager
+                android:id="@+id/pager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1" >
-            </FrameLayout>
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
         </LinearLayout>
-    </android.support.v4.app.FragmentTabHost>
+
+    </TabHost>
 
 </LinearLayout>

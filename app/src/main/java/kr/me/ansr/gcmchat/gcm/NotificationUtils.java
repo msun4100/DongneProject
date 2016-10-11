@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.app.Config;
 
@@ -76,14 +77,11 @@ public class NotificationUtils {
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
                 mContext);
 
-        final Uri alarmSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mContext.getPackageName() + "/raw/notification");
-//        final Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        final Uri alarmSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mContext.getPackageName() + "/raw/notification");
+        final Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (!TextUtils.isEmpty(imageUrl)) {
-
             if (imageUrl != null && imageUrl.length() > 4 && Patterns.WEB_URL.matcher(imageUrl).matches()) {
-
                 Bitmap bitmap = getBitmapFromURL(imageUrl);
-
                 if (bitmap != null) {
                     showBigNotification(bitmap, mBuilder, icon, title, message, timeStamp, resultPendingIntent, alarmSound);
                 } else {
@@ -91,8 +89,16 @@ public class NotificationUtils {
                 }
             }
         } else {
-            showSmallNotification(mBuilder, icon, title, message, timeStamp, resultPendingIntent, alarmSound);
-            playNotificationSound();
+//기존코드 아래 2줄
+//            showSmallNotification(mBuilder, icon, title, message, timeStamp, resultPendingIntent, alarmSound);
+//            playNotificationSound();//이 함수 호출해서소리 한번씩 더 나는 듯? 기본소리1회, 커스텀소리1회 효과음 발생.
+            if(PropertyManager.getInstance().getAlarmRingtone() == 0){
+                showSmallNotification(mBuilder, icon, title, message, timeStamp, resultPendingIntent, null);
+            } else {
+                showSmallNotification(mBuilder, icon, title, message, timeStamp, resultPendingIntent, alarmSound);
+            }
+
+
         }
     }
 

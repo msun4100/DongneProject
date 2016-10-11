@@ -24,8 +24,12 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.InputDialogFragment;
+import kr.me.ansr.common.ReportDialogFragment;
+import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.common.event.FriendsFragmentResultEvent;
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.friends.list.FriendsListActivity;
 import kr.me.ansr.tab.friends.model.Desc;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -36,7 +40,7 @@ import okhttp3.Request;
 public class FriendsDetailActivity extends AppCompatActivity {
     private static final String TAG = FriendsDetailActivity.class.getSimpleName();
     int[] bgArr = {R.drawable.z_profile_bg_1, R.drawable.z_profile_bg_2};
-
+    String tag = null;
     int reqUserId, mPosition;
     FriendsResult mItem;
 
@@ -57,6 +61,9 @@ public class FriendsDetailActivity extends AppCompatActivity {
             reqUserId = intent.getIntExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, -1);
             mPosition = intent.getIntExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
             mItem = (FriendsResult)intent.getSerializableExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+            //각 status프래그먼트에서 열었는지 대학교리스트에서 열었는지 등을 알기위해
+            // tag별로 InputDialog가 열렸을때 넥스트 프로세스를 수행함.
+            tag = intent.getStringExtra("tag");
             Log.e("mPosition: ", ""+mPosition);
             Log.e("mItem:", mItem.toString());
             if(reqUserId == -1 || mPosition == -1 || mItem == null) forcedFinish();
@@ -95,7 +102,6 @@ public class FriendsDetailActivity extends AppCompatActivity {
             switch (v.getId()){
                 case R.id.image_friends_detail_menu_1:
                     switch (mItem.status){
-
                         case -100:
                         case 0:
                         case 100:
@@ -126,30 +132,26 @@ public class FriendsDetailActivity extends AppCompatActivity {
 
                     break;
                 case R.id.image_friends_detail_menu_2:
-                    switch (mItem.status){
-                        case 100:
-                            break;
-                        default:
-
-                            if(mItem.userId == Integer.valueOf(PropertyManager.getInstance().getUserId())){
-//                                Intent intent = new Intent(FriendsDetailActivity.this, ProfileSettingActivity.class);
-                                Intent intent = new Intent(FriendsDetailActivity.this, MediaStoreActivity.class);
-                                intent.putExtra("mItem", mItem);
-                                startActivityForResult(intent, 123);
-                            }
-                            Toast.makeText(FriendsDetailActivity.this, "show friends list", Toast.LENGTH_SHORT).show();
-                            break;
+                    if(mItem.userId == Integer.valueOf(PropertyManager.getInstance().getUserId())){
+                        Intent intent = new Intent(FriendsDetailActivity.this, MediaStoreActivity.class);
+                        intent.putExtra("mItem", mItem);
+                        intent.putExtra("tag", MediaStoreActivity.TAG_FRIENDS_DETAIL);
+                        startActivityForResult(intent, 123);
+                    } else {
+                        Intent intent = new Intent(FriendsDetailActivity.this, FriendsListActivity.class);
+                        intent.putExtra("userId", mItem.userId);
+                        startActivityForResult(intent, 124);
                     }
                     break;
                 case R.id.image_friends_detail_menu_3:
-                    Toast.makeText(FriendsDetailActivity.this, "third menu click", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(FriendsDetailActivity.this, MediaStoreActivity.class);
-//                    Intent intent = new Intent(FriendsDetailActivity.this, ProfileSettingActivity.class);
-//                    intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
-//                    intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
-//                    intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
-                    intent.putExtra("mItem", mItem);
-                    startActivityForResult(intent, 123); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+//                    Toast.makeText(FriendsDetailActivity.this, "third menu click", Toast.LENGTH_SHORT).show();
+                    ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
+                    Bundle b = new Bundle();
+//                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
+                    b.putSerializable("userInfo", mItem);
+                    b.putString("tag", ReportDialogFragment.TAG_TAB_ONE_UNIV);
+                    mDialogFragment.setArguments(b);
+                    mDialogFragment.show(getSupportFragmentManager(), "reportDialog");
                     break;
                 case R.id.image_friends_detail_back_icon:
                     finishAndReturnData();
@@ -163,7 +165,8 @@ public class FriendsDetailActivity extends AppCompatActivity {
     private void showDialog(StatusResult sr){
         InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
         Bundle b = new Bundle();
-        b.putString("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+//        b.putString("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+        b.putString("tag", tag);
         b.putSerializable("mStatus", sr);
         b.putSerializable("item", mItem);
         mDialogFragment.setArguments(b);
@@ -202,9 +205,12 @@ public class FriendsDetailActivity extends AppCompatActivity {
         if(mItem.isFriend){
 
         }
+        mAdapter.removeAll();
         if(mItem.sns.size() != 0){
             for(Sns s : mItem.sns){
-                mAdapter.add(s);
+                if(s.url != null && !s.url.equals("")){
+                    mAdapter.add(s);
+                }
             }
         }
         if(mItem.desc.size() != 0){
@@ -240,11 +246,25 @@ public class FriendsDetailActivity extends AppCompatActivity {
 
     }
     public void nextProcess(String msg){
-//        Toast.makeText(FriendsDetailActivity.this, "msg:"+msg, Toast.LENGTH_SHORT).show();
         if(msg.equals("_cancel_")){
-            removeStatus(mItem.userId);
+            if(tag.equals(InputDialogFragment.TAG_STATUS_RECEIVE) || tag.equals(InputDialogFragment.TAG_STATUS_SEND) || tag.equals(InputDialogFragment.TAG_STATUS_BLOCK)) {
+                //이미지만 변경, 호출 프로세스는 해당 프래그먼트에서 static함수로 처리
+                //새로 고침시 리스트 갱신은 onResume때마다 리스트 불러오도록 원시적으로 처리
+                firstIcon.setImageResource(R.drawable.c__icon_4);
+                mItem.status = -1;  //이건 재차 버튼이 또 눌릴경우 그에 맞는 상태 호출을 위해
+                tag = InputDialogFragment.TAG_FRIENDS_DETAIL;   //태그가 send면 재차 눌렸을때 계속 리무브 프로세스만 진행됨. 아 코드 너무 더러워 지네
+            } else {
+                removeStatus(mItem.userId);
+            }
         } else if(msg.equals("_ok_")) {
-            updateStatus(StatusInfo.STATUS_ACCEPTED, mItem.userId, msg);
+            if(tag.equals(InputDialogFragment.TAG_STATUS_RECEIVE) || tag.equals(InputDialogFragment.TAG_STATUS_SEND) || tag.equals(InputDialogFragment.TAG_STATUS_BLOCK)){
+                //단순 이미지만 변경
+                firstIcon.setImageResource(R.drawable.c__icon_1);
+                mItem.status = 1;  //이건 재차 버튼이 또 눌릴경우 그에 맞는 상태 호출을 위해
+                tag = InputDialogFragment.TAG_FRIENDS_DETAIL;
+            }else {
+                updateStatus(StatusInfo.STATUS_ACCEPTED, mItem.userId, msg);
+            }
         } else {
             updateStatus(StatusInfo.STATUS_PENDING, mItem.userId, msg);
         }
@@ -368,4 +388,24 @@ public class FriendsDetailActivity extends AppCompatActivity {
     public void onBackPressed() {
         finishAndReturnData();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 123:
+                if (resultCode == RESULT_OK) {
+//                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+                    Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+                    mItem = result;
+                    if(mItem != null){
+                        init();
+                    }
+                }
+                break;
+        }
+
+    }
+
 }

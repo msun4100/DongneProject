@@ -101,6 +101,10 @@ public class SignupActivity extends AppCompatActivity {
 		textViewDept.setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(View v) {
+				if(textViewUniv == null || textViewUniv.getText().toString().equals("")){
+					Toast.makeText(getApplicationContext(), "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+					return;
+				}
 				SearchDeptDialogFragment mDialogFragment = new SearchDeptDialogFragment();
 				Bundle b = new Bundle();
 				b.putString("tag", SearchDeptDialogFragment.TAG_SIGN_UP);

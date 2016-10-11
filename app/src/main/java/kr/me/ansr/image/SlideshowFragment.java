@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,6 +66,14 @@ public class SlideshowFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(), "complete", Toast.LENGTH_SHORT).show();
+                if(images.size() > 0){
+                    String path = images.get(0).getLarge();
+//                sendImageToOnActivityResult(path);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("filePath", path);
+                    bundle.putSerializable("mItem", MediaStoreActivity.mItem);
+                    ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
+                }
             }
         });
         lblBack = (TextView) v.findViewById(R.id.lbl_back);
@@ -183,12 +192,44 @@ public class SlideshowFragment extends Fragment {
     }
 
 
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.menu_slide_show, menu);
+//
+//    }
+    MenuItem menuNext;
+    ImageView imageNext;
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_f_board, menu);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        menuNext = menu.findItem(R.id.menu_board_write);
+        imageNext = new ImageView(getActivity());
+        imageNext.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        imageNext.setPadding(16, 0, 16, 0);
+        imageNext.setImageResource(R.drawable.d_title_confirm_selector);
+        imageNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "menu", Toast.LENGTH_SHORT).show();
+                if(images.size() > 0){
+                    String path = images.get(0).getLarge();
+//                sendImageToOnActivityResult(path);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("filePath", path);
+                    bundle.putSerializable("mItem", MediaStoreActivity.mItem);
+                    ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
+                }
+                return;
+            }
+        });
+        menuNext.setActionView(imageNext);
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_slide_show, menu);
-
     }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -199,6 +240,7 @@ public class SlideshowFragment extends Fragment {
 //                sendImageToOnActivityResult(path);
                 Bundle bundle = new Bundle();
                 bundle.putString("filePath", path);
+                bundle.putSerializable("mItem", MediaStoreActivity.mItem);
                 ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
             }
             return true;
@@ -206,6 +248,7 @@ public class SlideshowFragment extends Fragment {
         if(id == android.R.id.home){
             Bundle bundle = new Bundle();
             bundle.putString("filePath", "");
+            bundle.putSerializable("mItem", MediaStoreActivity.mItem);
             ((MediaStoreActivity)getActivity()).callImageHomeFragment(bundle);
             return true;
         }

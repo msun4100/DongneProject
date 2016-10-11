@@ -101,7 +101,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
                     .signature(new StringSignature(item.getUpdatedAt()))
                     .into(iconThumbView);
         } else {
-            iconThumbView.setImageResource(R.mipmap.ic_launcher);
+            iconThumbView.setImageResource(R.drawable.e__who_icon);
         }
 
     }

@@ -71,6 +71,7 @@ public class InputDialogFragment extends DialogFragment {
             mItem = (FriendsResult)b.getSerializable("item");
             Log.e("inputDialog-mStatus", mStatus.toString());
             Log.e("inputDialog-mItem", mItem.toString());
+            Log.e("inputDialog-tag", tag);
         }
     }
     @Override
@@ -110,6 +111,7 @@ public class InputDialogFragment extends DialogFragment {
                     }
                     if(tag.equals(TAG_STATUS_SEND)) {
                         SendFragment.removeStatus(mItem.userId, mItem);
+                        ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");//이미지 변경을 위해
                     }
                 }
                 dismiss();
@@ -126,7 +128,8 @@ public class InputDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if(tag.equals(TAG_STATUS_RECEIVE)) {
-                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Accecpted", mItem);
+                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "", mItem);
+                        ((FriendsDetailActivity) (getActivity())).nextProcess("_ok_");// 수락버튼 클릭 이미지 변경을 위해
                         dismiss();
                     }
                 }

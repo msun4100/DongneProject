@@ -33,10 +33,10 @@ public class SnsView extends FrameLayout {
 
         if(data.sns!= null && data.sns.equals("fb")){
             iconView.setImageResource(R.mipmap.ic_album);
+        } else if(data.sns!= null && data.sns.equals("insta")){
+            iconView.setImageResource(R.mipmap.ic_album);
         } else if(data.sns!= null && data.sns.equals("kakao")){
-//            iconView.setImageDrawable(data.icon);
-        } else {
-            iconView.setImageResource(R.mipmap.ic_launcher);
+            iconView.setImageResource(R.mipmap.ic_album);
         }
 
     }

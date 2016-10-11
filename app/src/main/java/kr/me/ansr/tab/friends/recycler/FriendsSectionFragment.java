@@ -36,11 +36,14 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 
+import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.common.ReportDialogFragment;
 import kr.me.ansr.common.event.FriendsFragmentResultEvent;
+import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.friends.MySpinnerAdapter;
+import kr.me.ansr.tab.friends.PagerFragment;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -50,9 +53,10 @@ import okhttp3.Request;
 /**
  * Created by KMS on 2016-07-20.
  */
-public class FriendsSectionFragment extends Fragment
+public class FriendsSectionFragment extends PagerFragment
 {
     private static final String TAG = FriendsSectionFragment.class.getSimpleName();
+    public static final int FRIENDS_RC_NUM = 200;
     private static final String F1_TAG = "searchTab";
 
     AppCompatActivity activity;
@@ -103,7 +107,7 @@ public class FriendsSectionFragment extends Fragment
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                Log.e(TAG+"onstatechanged","aaaaaaaa");
+//                Log.e(TAG+"onstatechanged","aaaaaaaa");
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     getMoreItem();
                 }
@@ -114,15 +118,15 @@ public class FriendsSectionFragment extends Fragment
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                Log.e("111",""+lastVisibleItemPosition);
-                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
+//                Log.e("111",""+lastVisibleItemPosition);
+//                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
+//                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-                Log.e(TAG+"onscrolled","");
+//                Log.e(TAG+"onscrolled","");
             }
         });
         mAdapter = new SectionAdapter();
@@ -130,11 +134,13 @@ public class FriendsSectionFragment extends Fragment
             @Override
             public void onItemClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
                 Log.e("sectionFragment->data", data.toString());
                 Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
                 getParentFragment().startActivityForResult(intent, FriendsInfo.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
             }
         });
@@ -160,7 +166,7 @@ public class FriendsSectionFragment extends Fragment
                 Bundle b = new Bundle();
 //                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
                 b.putSerializable("userInfo", data);
-                b.putString("tag", ReportDialogFragment.TAG_TAB_ONE);
+                b.putString("tag", ReportDialogFragment.TAG_TAB_ONE_UNIV);
                 mDialogFragment.setArguments(b);
                 mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportDialog");
             }
@@ -323,6 +329,7 @@ public class FriendsSectionFragment extends Fragment
 //        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                 0,//mode
+                null,   //친구리스트 보기에서만 userId를 지정
                 mSearchOption,//req.body.sort
                 mUnivId,
                 ""+start,
@@ -338,6 +345,7 @@ public class FriendsSectionFragment extends Fragment
                                 mAdapter.blockCount = 0;
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
+                                setTabTotalCount(result.total);
 //                                FriendsDataManager.getInstance().clearFriends();
 //                                FriendsDataManager.getInstance().getList().addAll(result.result);
                                 ArrayList<FriendsResult> items = result.result;
@@ -415,6 +423,7 @@ public class FriendsSectionFragment extends Fragment
 //            int display = 50;
             NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                     0, //mode
+                    null,   //친구리스트 보기에서만 userId를 지정
                     mSearchOption, //sort
                     PropertyManager.getInstance().getUnivId(),
                     ""+start,
@@ -464,11 +473,19 @@ public class FriendsSectionFragment extends Fragment
 
     private void ModifiedSetItem(int position, FriendsResult result){
         if(position == -1 || result == null) return;
+//        mAdapter.getItem(position).status = result.status;
         mAdapter.getItem(position).status = result.status;
-//        mAdapter.getItem(position).likes = result.likes;
-//        mAdapter.getItem(position).likeCount = result.likeCount;
-//        mAdapter.getItem(position).repCount = result.repCount;
+        mAdapter.getItem(position).desc = result.desc;
+        mAdapter.getItem(position).sns = result.sns;
+        mAdapter.getItem(position).job = result.job;
+
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void setTabTotalCount(int total){
+        if(FriendsFragment.totalUniv != null){
+            FriendsFragment.totalUniv.setText(""+total);
+        }
     }
 
     private void refreshList(){
@@ -483,18 +500,30 @@ public class FriendsSectionFragment extends Fragment
             }
         }, 1000);
     }
+    public static FriendsResult getUserInfo(){
+        //mypage에서 mItem가져오기 위해
+        if(mAdapter != null){
+            FriendsResult item = mAdapter.getItem(1);
+            return item;
+        }
+        return null;
+    }
+
 
     static FriendsResult selectedItem = null;
     public static void updateStatus(int status){
+
         if(selectedItem == null){
+            Log.e("selectedItem is null","");
             return;
         }
+        Log.e("selectedItem ", selectedItem.toString());
         int to = selectedItem.userId;
         String msg = "";
         final FriendsResult mItem = selectedItem;
         //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
         NetworkManager.getInstance().postDongneFriendsUpdate(MyApplication.getContext(),
-                status, //3 report -> CustomDialog 를 통해 온 요청이면 status == 3
+                status, //3 report -> CustomDialog 를 통해 온 요청이면 status == 3, ReportFormDialog에서 온 요청이면 status = 2, msg=reportType
                 to, //to == 선택된 아이템의 userId
                 msg, //블락하는데 메세지는 상관없음.
                 new NetworkManager.OnResultListener<StatusInfo>() {
@@ -513,12 +542,47 @@ public class FriendsSectionFragment extends Fragment
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
 //                        dialog.dismiss();
                     }
                 });
 //        dialog = new ProgressDialog(getActivity());
 //        dialog.setTitle("서버 요청 중..");
 //        dialog.show();
+    }
+
+    public static void reportUser(int type){
+        if(selectedItem == null){
+            return;
+        }
+        int to = selectedItem.userId;
+        String msg = "";
+        final FriendsResult mItem = selectedItem;
+        //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneReportUpdate(MyApplication.getContext(),
+                type, //reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
+                            updateStatus(3);    //신고처리 성공시 차단친구로 변경
+//                            mAdapter.removeItem(mItem);
+//                            mAdapter.blockCount++;
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+//                            Log.e(TAG+" error: true", result.message);
+                        }
+//                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+//                        dialog.dismiss();
+                    }
+                });
     }
 
     private void initSearchUsers(String username, String enterYear, String deptname, String job){
@@ -589,7 +653,6 @@ public class FriendsSectionFragment extends Fragment
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Bundle extraBundle;
-//        Toast.makeText(getActivity(),"ffff reqCode: "+requestCode+"\nresultCode:"+resultCode, Toast.LENGTH_SHORT).show();
         switch (requestCode) {
             case FriendsInfo.FRIENDS_RC_NUM:
                 if (resultCode == getActivity().RESULT_OK) {
@@ -616,18 +679,11 @@ public class FriendsSectionFragment extends Fragment
     public FriendsSectionFragment() {
         // Required empty public constructor
     }
+    //프랜드프래그먼트의 커스텀뷰페이저 오버라이드
+    @Override
+    public void onPageCurrent() {
+        super.onPageCurrent();
+    }
 
-    /*
-    * To get EventBus's posting events. children are inherited overriding functions
-    */
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        EventBus.getInstance().register(this);
-    }
-    @Override
-    public void onDestroyView() {
-        EventBus.getInstance().unregister(this);
-        super.onDestroyView();
-    }
+
 }

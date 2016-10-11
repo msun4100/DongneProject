@@ -353,6 +353,16 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 int alarmAll = PropertyManager.getInstance().getAlarmAll();
                 Log.e("alarmAll:", ""+alarmAll);
                 if(alarmAll > 0){
+                    if(p.message_id == 1 && PropertyManager.getInstance().getAlarmLike() == 0){
+                        return;
+                    }
+                    if(p.message_id == 3 && PropertyManager.getInstance().getAlarmReply() == 0){
+                        return;
+                    }
+                    if(p.message_id == 5 && PropertyManager.getInstance().getAlarmFriend() == 0){
+                        return;
+                    }
+
                     Intent resultIntent = new Intent(getApplicationContext(), SplashActivity.class);
 //                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     // check for push notification image attachment

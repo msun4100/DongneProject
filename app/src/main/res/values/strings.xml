@@ -191,8 +191,7 @@
     <string name="empty_my_reply_msg">내가 쓴 댓글이 없습니다.</string>
     <string name="empty_my_board_like_msg">내가 좋아한 게시글이 없습니다. 학교사람들 게시글에 좋아요를 눌러보세요.</string>
     <string name="empty_my_reply_like_msg">내가 좋아한 댓글이 없습니다.</string>
-
-
+    <string name="title_activity_friends_list">FriendsListActivity</string>
 
 
 </resources>

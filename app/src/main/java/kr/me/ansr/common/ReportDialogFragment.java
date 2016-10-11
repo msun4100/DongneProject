@@ -18,8 +18,10 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
  */
 public class ReportDialogFragment extends DialogFragment {
 
-    public static final String TAG_TAB_ONE = "tabOne";
+    public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_ONE_MY = "tabOneMy";
     public static final String TAG_TAB_THREE = "tabThree";
+    public static final String TAG_LIST = "list";   //친구리스트에서
 
     public ReportDialogFragment(){
 
@@ -60,11 +62,16 @@ public class ReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
+                    if(tag.equals(TAG_TAB_ONE_UNIV)) {
 //                        ((BoardWriteActivity) (getActivity())).nextProcess();
                         Toast.makeText(getActivity(), "cut off", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
+                    if(tag.equals(TAG_LIST)) {
+                        Toast.makeText(getActivity(), "cut off", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                    }
+
                 }
             }
         });
@@ -79,10 +86,20 @@ public class ReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
+                    if(tag.equals(TAG_TAB_ONE_UNIV)) {
                         CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
                         Bundle b = new Bundle();
-                        b.putString("tag", CustomDialogFragment.TAG_TAB_ONE);
+                        b.putString("tag", CustomDialogFragment.TAG_TAB_ONE_UNIV);
+                        b.putString("title","정말 차단 하시겠습니까?");
+                        b.putString("body", "더보기 - 친구관리에서 확인하실 수 있습니다.");
+                        mDialogFragment.setArguments(b);
+                        mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_LIST)) {
+                        CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
+                        Bundle b = new Bundle();
+                        b.putString("tag", CustomDialogFragment.TAG_LIST);
                         b.putString("title","정말 차단 하시겠습니까?");
                         b.putString("body", "더보기 - 친구관리에서 확인하실 수 있습니다.");
                         mDialogFragment.setArguments(b);
@@ -100,7 +117,17 @@ public class ReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_ONE)) {
+                    if(tag.equals(TAG_TAB_ONE_UNIV)) {
+                        ReportFormDialogFragment mDialogFragment = ReportFormDialogFragment.newInstance();
+                        Bundle b = new Bundle();
+                        b.putString("tag", ReportFormDialogFragment.TAG_TAB_ONE_UNIV);
+                        b.putSerializable("fItem", data);
+                        b.putSerializable("bItem", null);
+                        mDialogFragment.setArguments(b);
+                        mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportFormDialog");
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_LIST)) {
                         Toast.makeText(getActivity(), "report", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }

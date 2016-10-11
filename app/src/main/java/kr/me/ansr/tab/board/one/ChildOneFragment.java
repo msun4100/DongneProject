@@ -374,6 +374,7 @@ public class ChildOneFragment extends PagerFragment {
     public void onPageCurrent() {
         super.onPageCurrent();
     }
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);

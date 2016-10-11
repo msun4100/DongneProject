@@ -3,6 +3,8 @@ package kr.me.ansr.common;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.Gravity;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.BoardWriteActivity;
+import kr.me.ansr.tab.friends.list.FriendsListActivity;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.mypage.status.BlockFragment;
 
@@ -26,7 +29,9 @@ import kr.me.ansr.tab.mypage.status.BlockFragment;
 public class CustomDialogFragment extends DialogFragment {
     public static final String TAG_BOARD_WRITE = "boardWrite";
     public static final String TAG_STATUS_BLOCK = "statusBlock";
-    public static final String TAG_TAB_ONE = "tab1";
+    public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_ONE_MY = "tabOneMy";
+    public static final String TAG_LIST = "list";
     public CustomDialogFragment(){
 
     }
@@ -38,6 +43,9 @@ public class CustomDialogFragment extends DialogFragment {
     String tag = null;
 
     String title, body;
+
+    Handler mHandler = new Handler(Looper.getMainLooper());
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,11 +104,24 @@ public class CustomDialogFragment extends DialogFragment {
                         dismiss();
 //                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Removed", mItem);
                     }
-                    if(tag.equals(TAG_TAB_ONE)) {
+                    if(tag.equals(TAG_TAB_ONE_UNIV)) {
+//                        BlockFragment.removeStatus();
+                        //updateStatus 성공하면 리스트에서 삭제하고 blockCount++; 해줌.
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(), tag+"Runnable", Toast.LENGTH_SHORT).show();
+                                FriendsSectionFragment.updateStatus(3);
+                                dismiss();
+                            }
+                        }, 1000);
+
+                    }
+                    if(tag.equals(TAG_LIST)) {
 //                        BlockFragment.removeStatus();
                         //updateStatus 성공하면 리스트에서 삭제하고 blockCount++; 해줌.
                         Toast.makeText(getActivity(), tag, Toast.LENGTH_SHORT).show();
-                        FriendsSectionFragment.updateStatus(3);
+//                        FriendsListActivity.updateStatus(3);
                         dismiss();
                     }
                 }

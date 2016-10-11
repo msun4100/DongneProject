@@ -21,6 +21,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +30,10 @@ import java.util.Date;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.FriendsFragmentResultEvent;
+import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.friends.MySpinnerAdapter;
+import kr.me.ansr.tab.friends.PagerFragment;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
@@ -38,7 +43,7 @@ import okhttp3.Request;
 /**
  * Created by KMS on 2016-07-25.
  */
-public class FriendsTwoFragment extends Fragment {
+public class FriendsTwoFragment extends PagerFragment {
 
     private static final String TAG = FriendsTwoFragment.class.getSimpleName();
     AppCompatActivity activity;
@@ -122,15 +127,15 @@ public class FriendsTwoFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                Log.e("111lastVisiblePosition",""+lastVisibleItemPosition);
-                Log.e("222 != NO_POSITION",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-                Log.e("333 itemCount<lastPos",""+(totalItemCount - 1 <= lastVisibleItemPosition));
+//                Log.e("111lastVisiblePosition",""+lastVisibleItemPosition);
+//                Log.e("222 != NO_POSITION",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
+//                Log.e("333 itemCount<lastPos",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-                Log.e("444 isLast:",""+isLast);
+//                Log.e("444 isLast:",""+isLast);
             }
         });
         mAdapter = new MyFriendsAdapter();
@@ -257,6 +262,7 @@ public class FriendsTwoFragment extends Fragment {
         reqDate = getCurrentTimeStamp();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                 1, //mode
+                null,
                 mSearchOption,
                 mUnivId,
                 ""+start,
@@ -271,6 +277,7 @@ public class FriendsTwoFragment extends Fragment {
                                 mAdapter.items.clear();
                                 Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
+                                setTabTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 FriendsDataManager.getInstance().clearFriends();
                                 FriendsDataManager.getInstance().getList().addAll(items);
@@ -303,7 +310,7 @@ public class FriendsTwoFragment extends Fragment {
     }
 
     boolean isMoreData = false;
-    private static final int DISPLAY_NUM = 4;
+    private static final int DISPLAY_NUM = FriendsInfo.FRIEND_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
 
@@ -322,6 +329,7 @@ public class FriendsTwoFragment extends Fragment {
 //            int display = 50;
             NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                     1, //mode
+                    null,
                     mSearchOption,
                     PropertyManager.getInstance().getUnivId(),
                     ""+start,
@@ -352,6 +360,12 @@ public class FriendsTwoFragment extends Fragment {
         }
     }
 
+    private void setTabTotalCount(int total){
+        if(FriendsFragment.totalFriends != null){
+            FriendsFragment.totalFriends.setText(""+total);
+        }
+    }
+
     public String getCurrentTimeStamp(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String currentDateandTime = sdf.format(new Date());
@@ -359,4 +373,14 @@ public class FriendsTwoFragment extends Fragment {
     }
 
     public FriendsTwoFragment(){}
+    @Override
+    public void onPageCurrent() {
+        super.onPageCurrent();
+    }
+    @Subscribe
+    public void onEvent(FriendsFragmentResultEvent activityResultEvent){
+        Log.e("onEvent:", "FriendsTwoFragment");
+//        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
+    }
+
 }

@@ -19,6 +19,12 @@
         <item>학번순 정렬(내림차순)</item>
         <item>가까이 있는 동문</item>
     </string-array>
+    <string-array name="report_items">
+        <item>신고사유를 선택해주세요</item>
+        <item>동문 사칭</item>
+        <item>욕설 및 비방</item>
+        <item>기타 동문 교류를 방해하는 행위</item>
+    </string-array>
     <string-array name="univ">
         <item>인하대</item>
         <item>세종대</item>
