@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,13 +19,18 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.ReportDialogFragment;
+import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.common.event.FriendsFragmentResultEvent;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -37,6 +43,7 @@ import okhttp3.Request;
 
 public class FriendsListActivity extends AppCompatActivity {
     private static final String TAG = FriendsListActivity.class.getSimpleName();
+    public static final int FRIENDS_RC_NUM = 202;
     TextView toolbarTitle;
     int userId;
 
@@ -49,7 +56,10 @@ public class FriendsListActivity extends AppCompatActivity {
     Handler mHandler = new Handler(Looper.getMainLooper());
 
     public int mSearchOption = 0;
-    static FriendsResult selectedItem = null;
+    FriendsResult selectedItem = null;
+
+    TextView sameCnt;
+    FriendsResult mItem;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +74,10 @@ public class FriendsListActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            userId = intent.getIntExtra("userId", Integer.parseInt(PropertyManager.getInstance().getUserId()));
+            mItem = (FriendsResult) intent.getSerializableExtra("mItem");
+            userId = mItem.userId;
             Log.e("targetId :", ""+userId);
+            Log.e("mItem: ", mItem.toString());
         }
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
@@ -73,36 +85,38 @@ public class FriendsListActivity extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
-//                mHandler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if(!dialog.isShowing()){
-//                            refreshLayout.setRefreshing(false);
-//                        }
-//                    }
-//                }, 2000);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+//                        start = 0;
+//                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+//                        initUnivUsers();
+                        if(!dialog.isShowing()){
+                            refreshLayout.setRefreshing(false);
+                        }
+                    }
+                }, 2000);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)findViewById(R.id.recycler);
-        recyclerView.addOnItemTouchListener(new MyFriendsAdapter.RecyclerTouchListener(FriendsListActivity.this, recyclerView, new MyFriendsAdapter.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                // when chat is clicked, launch full chat thread activity
-                FriendsResult data = mAdapter.getItem(position);
-                switch (view.getId()) {
-                    case 100:
-                    default:
-                        Toast.makeText(FriendsListActivity.this, "data Click: " + data.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                Toast.makeText(FriendsListActivity.this, "data Long Click\n: " + data.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }));
+//        recyclerView.addOnItemTouchListener(new MyFriendsAdapter.RecyclerTouchListener(FriendsListActivity.this, recyclerView, new MyFriendsAdapter.ClickListener() {
+//            @Override
+//            public void onClick(View view, int position) {
+//                FriendsResult data = mAdapter.getItem(position);
+//                switch (view.getId()) {
+//                    case 100:
+//                    default:
+//                        Toast.makeText(FriendsListActivity.this, "data Click: " + data.toString(), Toast.LENGTH_SHORT).show();
+//                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onLongClick(View view, int position) {
+//                FriendsResult data = mAdapter.getItem(position);
+//                Toast.makeText(FriendsListActivity.this, "data Long Click\n: " + data.toString(), Toast.LENGTH_SHORT).show();
+//            }
+//        }));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -125,6 +139,20 @@ public class FriendsListActivity extends AppCompatActivity {
             }
         });
         mAdapter = new FriendsListAdapter();
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+                Log.e("FriendsList->data", data.toString());
+                Intent intent = new Intent(FriendsListActivity.this, FriendsDetailActivity.class);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                startActivityForResult(intent, FriendsListActivity.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+            }
+        });
         mAdapter.setOnAdapterItemClickListener(new FriendsListAdapter.OnAdapterItemClickListener() {
             @Override
             public void onAdapterItemClick(FriendsListAdapter adapter, View view, FriendsResult item, int type) {
@@ -138,6 +166,21 @@ public class FriendsListActivity extends AppCompatActivity {
                 }
             }
         });
+        mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;
+                Log.e("friendslist:", "Long click");
+//                ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
+//                Bundle b = new Bundle();
+////                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
+//                b.putSerializable("userInfo", data);
+//                b.putString("tag", ReportDialogFragment.TAG_TAB_ONE_UNIV);
+//                mDialogFragment.setArguments(b);
+//                mDialogFragment.show(getSupportFragmentManager(), "reportDialog");
+            }
+        });
 
         recyclerView.setAdapter(mAdapter);
         layoutManager = new LinearLayoutManager(FriendsListActivity.this);
@@ -145,12 +188,15 @@ public class FriendsListActivity extends AppCompatActivity {
 //        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new MyDecoration(FriendsListActivity.this));
-//        initUnivUsers(); //onResume에서 호출
+
+
+        //FriendListActivity init datas.
+        sameCnt = (TextView)findViewById(R.id.text_same_cnt);
 
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initUnivUsers();
-
+        EventBus.getInstance().register(this);
     }
 
     private void initUnivUsers(){
@@ -172,8 +218,10 @@ public class FriendsListActivity extends AppCompatActivity {
                 new NetworkManager.OnResultListener<FriendsInfo>() {
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
+                        Log.e("list result: ", ""+result.error);
+                        Log.e("list result: ", ""+result.message);
                         if (result.error.equals(false)) {
-                            if(result.result != null){
+                            if(result.result != null && !result.message.equals("has no more accepted friends")){
                                 mAdapter.blockCount = 0;    //1인애들만 불러오니까 블락카운트가 증가 안하겟지
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
@@ -181,10 +229,14 @@ public class FriendsListActivity extends AppCompatActivity {
 
                                 if(result.user != null){
                                     Log.e(TAG+" user:", result.user.toString());
-                                    result.user.status = 1;
-                                    mAdapter.put("친구 프로필", result.user);
+                                    if(mItem !=null){
+                                        mAdapter.put("친구 프로필", mItem);
+                                    } else {
+                                        Toast.makeText(FriendsListActivity.this, "mItem is null..", Toast.LENGTH_SHORT).show();
+                                        result.user.status = 1;
+                                        mAdapter.put("친구 프로필", result.user);
+                                    }
                                 }
-
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
                                     Log.e(TAG, ""+child);
@@ -194,10 +246,14 @@ public class FriendsListActivity extends AppCompatActivity {
                                     }
                                     mAdapter.put("학교 사람들", child);
                                 }
+                                if(start == 0){
+                                    sameCnt.setText(""+result.sameCnt);
+                                }
                                 start++;
                             }
                         } else {
                             mAdapter.items.clear();
+                            sameCnt.setText("0");
                             Log.e(TAG, result.message);
                             Toast.makeText(FriendsListActivity.this, TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
@@ -211,6 +267,9 @@ public class FriendsListActivity extends AppCompatActivity {
                         refreshLayout.setRefreshing(false);
                     }
                 });
+        dialog = new ProgressDialog(FriendsListActivity.this);
+        dialog.setTitle("Loading....");
+        dialog.show();
     }
 
     boolean isMoreData = false;
@@ -294,6 +353,85 @@ public class FriendsListActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         super.onBackPressed();
+    }
+
+    /*
+	To get EventBus's posting events. children are inherited overriding functions
+	*/
+
+    //onCreate 마지막에 register()함
+    @Override
+    public void onDestroy() {
+        EventBus.getInstance().unregister(this);
+        super.onDestroy();
+    }
+    @Subscribe
+    public void onEvent(FriendsFragmentResultEvent activityResultEvent){
+        Log.e("onEvent:", "FriendsListActivity");
+//        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
+        //번갈아 계속 호출되는 버그
+        onEventProcess(activityResultEvent);
+    }
+
+    private void onEventProcess(FriendsFragmentResultEvent activityResultEvent){
+        if(mAdapter != null && mAdapter.getItemCount() > 0){
+            Bundle extraBundle = activityResultEvent.getData().getExtras();
+            FriendsResult fr = (FriendsResult) extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+//            int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
+            ModifiedSetItem(fr);
+            switch (fr.status){
+                case 0:
+                    break;
+                case 1:
+                    //add
+                    break;
+                case 3://blocked
+//                    remove and add blockCnt;
+
+                    break;
+                case -1://removed
+//                    remove
+
+                    break;
+
+            }
+        }
+    }
+
+    private void ModifiedSetItem(FriendsResult result){
+        if(mAdapter != null && mAdapter.getItemCount() > 0){
+            mAdapter.findOneAndModify(result);
+        }
+
+//        if(position == -1 || result == null) return;
+//        if(selectedItem.userId == result.userId){
+//            Log.e("userId: ", "equals");
+//            mAdapter.getItem(position).status = result.status;
+//            mAdapter.getItem(position).desc = result.desc;
+//            mAdapter.getItem(position).sns = result.sns;
+//            mAdapter.getItem(position).job = result.job;
+//            mAdapter.notifyDataSetChanged();
+//        } else {
+//            Log.e("userId: ", "not equals");
+//        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle extraBundle;
+        switch (requestCode) {
+            case FriendsListActivity.FRIENDS_RC_NUM:
+                if (resultCode == RESULT_OK) {
+                    extraBundle = data.getExtras();
+                    int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+                    Toast.makeText(FriendsListActivity.this,""+ result.toString() , Toast.LENGTH_SHORT).show();
+//                    ModifiedSetItem(position, result);
+                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+                    break;
+                }
+        }
     }
 
 }

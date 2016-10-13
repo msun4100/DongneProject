@@ -24,5 +24,6 @@ public class FriendsInfo {
     public String message;
     public ArrayList<FriendsResult> result;
     public int total;
+    public int sameCnt; //FriendListActivity에서 사용
     public FriendsResult user;
 }

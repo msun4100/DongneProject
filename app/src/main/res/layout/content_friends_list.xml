@@ -10,6 +10,36 @@
     tools:context=".tab.friends.list.FriendsListActivity"
     tools:showIn="@layout/activity_friends_list">
 
+    <LinearLayout
+        android:background="#ecedec"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_marginLeft="14dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#717172"
+            android:textSize="13sp"
+            android:text="함께 아는 친구 "/>
+        <TextView
+            android:id="@+id/text_same_cnt"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#717172"
+            android:textSize="13sp"
+            android:text="n"/>
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#717172"
+            android:textSize="13sp"
+            android:text="명"/>
+    </LinearLayout>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="match_parent"

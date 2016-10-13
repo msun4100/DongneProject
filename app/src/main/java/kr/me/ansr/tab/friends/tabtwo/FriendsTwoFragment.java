@@ -46,6 +46,7 @@ import okhttp3.Request;
 public class FriendsTwoFragment extends PagerFragment {
 
     private static final String TAG = FriendsTwoFragment.class.getSimpleName();
+    public static final int FRIENDS_RC_NUM = 201;
     AppCompatActivity activity;
 
     RecyclerView recyclerView;

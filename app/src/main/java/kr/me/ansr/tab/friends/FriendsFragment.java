@@ -194,7 +194,7 @@ public class FriendsFragment extends PagerFragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-			case FriendsInfo.FRIENDS_RC_NUM:
+			case FriendsSectionFragment.FRIENDS_RC_NUM:
 				if (resultCode == getActivity().RESULT_OK) {
 					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
 				}

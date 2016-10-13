@@ -139,7 +139,7 @@ public class FriendsDetailActivity extends AppCompatActivity {
                         startActivityForResult(intent, 123);
                     } else {
                         Intent intent = new Intent(FriendsDetailActivity.this, FriendsListActivity.class);
-                        intent.putExtra("userId", mItem.userId);
+                        intent.putExtra("mItem", mItem);
                         startActivityForResult(intent, 124);
                     }
                     break;

@@ -174,6 +174,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         //block 카운트를 증가시킴. 그리고 getItemCount()를 리턴할때 blockCount를 더해서 리턴
         //그래야 학교사람들 전체 토탈이랑 맞출 수 있음.
 //        return totalCount + blockCount;
+        //그냥 스크롤리스너에서 total + block 해서 검사
         return  totalCount;
     }
 

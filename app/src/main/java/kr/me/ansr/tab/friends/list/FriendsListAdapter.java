@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.friends.list;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +66,25 @@ public class FriendsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
     //for individual listener
+    public void findOneAndModify(FriendsResult child){
+        for (GroupItem g : items) {
+            for(FriendsResult fr : g.children){
+                if(fr.userId == child.userId){
+                    int index = g.children.indexOf(fr);
+                    if(index != -1){
+                        Log.e("findItem: ", "index:"+index+" "+g.children.get(index).toString());
+                        g.children.get(index).status = child.status;
+                        g.children.get(index).univ = child.univ;
+                        g.children.get(index).sns = child.sns;
+                        g.children.get(index).desc = child.desc;
+                        g.children.get(index).job = child.job;
+                    }
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
 
     public void put(String groupName, FriendsResult child) {
         GroupItem group = null;
@@ -138,13 +158,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 holder.setOnItemClickListener(this);
                 holder.setOnItemLongClickListener(this);
                 holder.setOnLikeClickListener(this);
-//                if (!TextUtils.isEmpty(holder..image)) {
-//                    Glide.with(getContext())
-//                            .load(item.image)
-//                            .into(iconView);
-//                } else {
-//                    iconView.setImageResource(R.mipmap.ic_launcher);
-//                }
+
                 return holder;
         }
         return null;
@@ -175,16 +189,11 @@ public class FriendsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         for (GroupItem g : items) {
             totalCount += (1 + g.children.size());
         }
-        //block된 유저는 아답터에 add하지 않았으므로 pass할때마다(for loop에서 continue 할때마다)
-        //block 카운트를 증가시킴. 그리고 getItemCount()를 리턴할때 blockCount를 더해서 리턴
-        //그래야 학교사람들 전체 토탈이랑 맞출 수 있음.
-//        return totalCount + blockCount;
         return  totalCount;
     }
 
     private int totalCount; //학교사람들 전체 토탈
     public int getTotalCount(){
-//        return getItemCount() - this.items.size();  //total - 그룹 갯수
         return this.totalCount;
     }
     public void setTotalCount(int count){

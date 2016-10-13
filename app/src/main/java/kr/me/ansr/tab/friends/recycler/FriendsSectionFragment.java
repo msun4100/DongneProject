@@ -141,7 +141,7 @@ public class FriendsSectionFragment extends PagerFragment
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
                 intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
-                getParentFragment().startActivityForResult(intent, FriendsInfo.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                getParentFragment().startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
             }
         });
         mAdapter.setOnAdapterItemClickListener(new SectionAdapter.OnAdapterItemClickListener() {
@@ -654,7 +654,7 @@ public class FriendsSectionFragment extends PagerFragment
         super.onActivityResult(requestCode, resultCode, data);
         Bundle extraBundle;
         switch (requestCode) {
-            case FriendsInfo.FRIENDS_RC_NUM:
+            case FriendsSectionFragment.FRIENDS_RC_NUM:
                 if (resultCode == getActivity().RESULT_OK) {
                     extraBundle = data.getExtras();
                     int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
