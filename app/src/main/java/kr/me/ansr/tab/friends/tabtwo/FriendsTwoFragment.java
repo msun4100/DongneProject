@@ -276,12 +276,19 @@ public class FriendsTwoFragment extends PagerFragment {
                             if(result.result != null && !result.message.equals("has no more accepted friends") ){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
+                                mAdapter.blockCount = 0;
                                 Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 setTabTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 FriendsDataManager.getInstance().clearFriends();
                                 FriendsDataManager.getInstance().getList().addAll(items);
+
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    result.user.status = 1;
+                                    mAdapter.put("내 프로필", result.user);
+                                }
 
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
@@ -324,7 +331,7 @@ public class FriendsTwoFragment extends PagerFragment {
         if (isMoreData) return;
         isMoreData = true;
 //        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount()) {
-        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount()) {
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() + mAdapter.blockCount) {
             //기존 코드에서 +DIS_NUM 한 것은 마지막 디스플레이가 리프레쉬 안되서 디스플레이 수만큼 +시킴.
 //            int start = mAdapter.getItemCount() + 1;
 //            int display = 50;
@@ -344,12 +351,12 @@ public class FriendsTwoFragment extends PagerFragment {
                                 Log.e(TAG+"getMore:", result.result.toString());
                                 mAdapter.addAllFriends(result.result);
                                 FriendsDataManager.getInstance().getList().addAll(result.result);
+                                start++;
                             } else {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
                             isMoreData = false;
                             refreshLayout.setRefreshing(false);
-                            start++;
                             Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
@@ -373,15 +380,51 @@ public class FriendsTwoFragment extends PagerFragment {
         return currentDateandTime;
     }
 
+    private void findOneAndModify(FriendsResult fr){
+        if(mAdapter == null || mAdapter.getItemCount() < 1) return;
+        mAdapter.findOneAndModify(fr);
+        int num;
+        switch (fr.status){
+            case -1:
+                mAdapter.removeItem(fr);
+                num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
+                setTabTotalCount(--num);
+                break;
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+            case 3:
+                mAdapter.removeItem(fr);
+                mAdapter.blockCount++;
+                num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
+                setTabTotalCount(--num);
+                break;
+            default:break;
+        }
+    }
+
+
+
     public FriendsTwoFragment(){}
     @Override
     public void onPageCurrent() {
         super.onPageCurrent();
     }
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+    }
     @Subscribe
     public void onEvent(FriendsFragmentResultEvent activityResultEvent){
-        Log.e("onEvent:", "FriendsTwoFragment");
+        Log.e("onEvent:", "FriendsTwoFragment event");
 //        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
+    }
+    @Subscribe
+    public void onEvent(FriendsResult fr){
+        Log.e("onEvent:", "FriendsTwoFragment fr");
+        findOneAndModify(fr);
     }
 
 }

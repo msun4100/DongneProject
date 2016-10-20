@@ -1,10 +1,12 @@
 package kr.me.ansr.tab.mypage.status;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
 
 import kr.me.ansr.MyApplication;
@@ -25,8 +29,10 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CustomDialogFragment;
 import kr.me.ansr.common.InputDialogFragment;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
+import kr.me.ansr.tab.friends.detail.StatusResult;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.MyDecoration;
@@ -110,13 +116,14 @@ public class BlockFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;
                 Log.e("receiveFragment->data", data.toString());
                 Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("tag", InputDialogFragment.TAG_STATUS_BLOCK);
-                startActivity(intent);
+                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                getActivity().startActivityForResult(intent, BlockFragment.FRIENDS_RC_NUM);
             }
         });
         mAdapter.setOnAdapterItemClickListener(new StatusAdapter.OnAdapterItemClickListener() {
@@ -130,13 +137,13 @@ public class BlockFragment extends Fragment {
                         Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                     case 300:
                         selectedItem = item;
-
                         CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
                         Bundle b = new Bundle();
                         b.putString("tag", CustomDialogFragment.TAG_STATUS_BLOCK);
                         b.putString("title","친구 차단을 해제 하시겠습니까?");
                         b.putString("body", "학교 사람들 리스트에 노출됩니다.");
                         mDialogFragment.setArguments(b);
+                        mDialogFragment.setTargetFragment(BlockFragment.this, DIALOG_RC_NUM);
                         mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
                         break;
                 }
@@ -150,6 +157,9 @@ public class BlockFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new MyDecoration(getActivity()));
 
+        start = 0;
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        initData();
 
         return view;
     }
@@ -255,51 +265,211 @@ public class BlockFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        start = 0;
-        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        initData();
     }
 
 
-    private void sendImageToOnActivityResult(String path){
-        String filePath = path;
-        Intent intent = new Intent();
-        intent.putExtra("filePath", filePath);
-
-//        getActivity().setResult(MediaStoreActivity.RC_SELECT_PROFILE_CODE, intent);
+    ProgressDialog dialog = null;
+    public String msg = "";
+    private void findOneAndModify(FriendsResult fr){
+        if(mAdapter == null || mAdapter.getItemCount() < 1) return;
+//        synchronized ()
+        mAdapter.findOneAndModify(fr);
+        switch (fr.status){
+            case -1:
+                mAdapter.removeItem(fr);
+                break;
+            case -100:  //"00"
+            case 0:     //"0"
+                mAdapter.removeItem(fr);
+                break;
+            case 1:
+                mAdapter.removeItem(fr);
+                break;
+            case 2:
+                break;
+            case 3:
+//                mAdapter.removeItem(fr);
+//                mAdapter.blockCount++;
+                break;
+            default:break;
+        }
     }
-
-    static FriendsResult selectedItem = null;
-    public static void removeStatus(){
-        //파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+    FriendsResult selectedItem = null;
+    public void updateStatus(final int status, int to, String msg){
         if(selectedItem == null){
+            Log.e("selectedItem is null","");
             return;
         }
-
-        NetworkManager.getInstance().postDongneFriendsRemove(MyApplication.getContext(),
-                selectedItem.userId,
+        final FriendsResult mItem = selectedItem;
+        //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneFriendsUpdate(MyApplication.getContext(),
+                status, //3 report -> CustomDialog 를 통해 온 요청이면 status == 3, ReportFormDialog에서 온 요청이면 status = 2, msg=reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
                 new NetworkManager.OnResultListener<StatusInfo>() {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
                             Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
-                            mAdapter.removeItem(selectedItem);
+                            mItem.status = status;
+                            EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
                             Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
-//                            Log.e(TAG+" error: true", result.message);
                         }
-//                        dialog.dismiss();
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
+    }
+
+    public void removeStatus(int userId, final FriendsResult mItem){
+        //파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        if(mItem == null) return;
+        NetworkManager.getInstance().postDongneFriendsRemove(MyApplication.getContext(),
+                userId,
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            mItem.status = -1;
+                            EventBus.getInstance().post(mItem); //수정된 체로 보냄
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
-//                        dialog.dismiss();
+                        dialog.dismiss();
                     }
                 });
-//        dialog = new ProgressDialog(getActivity());
-//        dialog.setTitle("서버 요청 중..");
-//        dialog.show();
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
     }
+
+    public void reportUser(int type){
+        if(selectedItem == null){
+            return;
+        }
+        final int to = selectedItem.userId;
+        String msg = "";
+        final FriendsResult mItem = selectedItem;
+        //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneReportUpdate(MyApplication.getContext(),
+                type, //reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
+    }
+
+    private void getStatus(){
+        if(selectedItem == null) return;
+        NetworkManager.getInstance().getDongneFriendsStatusUserId(getActivity(),
+                //userId와의 관계 및 msg 가져오기
+                selectedItem.userId, //userId
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            StatusResult mStatus = result.result;
+                            selectedItem.status = mStatus.status;
+                            showDialog(mStatus);
+                        } else {
+                            Toast.makeText(getActivity(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("요청 상태를 불러오는 중...");
+        dialog.show();
+    }
+
+    private void showDialog(StatusResult sr){
+        InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
+        Bundle b = new Bundle();
+        b.putString("tag", InputDialogFragment.TAG_STATUS_BLOCK);
+        b.putSerializable("mStatus", sr);
+        b.putSerializable("mItem", selectedItem);
+        mDialogFragment.setArguments(b);
+        mDialogFragment.setTargetFragment(BlockFragment.this, DIALOG_RC_NUM);
+        mDialogFragment.show(getActivity().getSupportFragmentManager(), "inputDialog");
+    }
+
+    public static final int DIALOG_RC_NUM = 200;
+    public static final int FRIENDS_RC_NUM = 199;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle extraBundle;
+        switch (requestCode) {
+            case DIALOG_RC_NUM: //다이얼로그에서 리턴받은 값.
+                if (resultCode == getActivity().RESULT_OK) {
+                    extraBundle = data.getExtras();
+                    String next = extraBundle.getString("next");
+                    Log.e("next", next);
+                    switch (next){
+                        case "_REMOVE_BLOCK_":
+                            removeStatus(selectedItem.userId, selectedItem);
+                            break;
+                    }
+                }
+                break;
+
+        }
+    }
+
+    @Subscribe
+    public void onEvent(FriendsResult fr){
+        Log.e("onEvent:", "blockF fr");
+        findOneAndModify(fr);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        EventBus.getInstance().register(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        EventBus.getInstance().unregister(this);
+        super.onDestroyView();
+    }
+
 
 }
 

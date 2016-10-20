@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -23,7 +24,7 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements OnItemClickListener, OnItemLongClickListener, ItemViewHolder.OnLikeClickListener{
 //    public List<GroupItem> items = new ArrayList<GroupItem>();
     public List<FriendsResult> items = new ArrayList<FriendsResult>();
-
+    public int blockCount = 0;
     public interface OnAdapterItemClickListener {
         public void onAdapterItemClick(StatusAdapter adapter, View view, FriendsResult item, int type);
     }
@@ -62,6 +63,24 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
     //for individual listener
+    public void findOneAndModify(FriendsResult child){
+        for(FriendsResult fr : items){
+            if(fr.userId == child.userId){
+                int index = items.indexOf(fr);
+                if(index != -1){
+                    items.get(index).status = child.status;
+                    items.get(index).univ = child.univ;
+                    items.get(index).sns = child.sns;
+                    items.get(index).desc = child.desc;
+                    items.get(index).job = child.job;
+                }
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+
     public void put(FriendsResult child){
         items.add(child);
         notifyDataSetChanged();
@@ -74,7 +93,15 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
     public void removeItem(FriendsResult child){
-        items.remove(child);
+//        to solve 'ConcurrentModificationException' problem.
+        Iterator<FriendsResult> iterator = items.iterator();
+        while(iterator.hasNext()){
+            FriendsResult fr = iterator.next();
+            if(fr.userId == child.userId){
+                iterator.remove();
+                break;
+            }
+        }
         notifyDataSetChanged();
     }
 

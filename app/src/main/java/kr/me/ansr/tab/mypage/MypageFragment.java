@@ -2,7 +2,6 @@ package kr.me.ansr.tab.mypage;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
@@ -10,17 +9,14 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
-import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
-import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
-import kr.me.ansr.tab.friends.recycler.SectionAdapter;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,9 +86,14 @@ public class MypageFragment extends PagerFragment {
 			switch (v.getId()){
 				case R.id.image_my_0_0:
 					Toast.makeText(getActivity(), "00", Toast.LENGTH_SHORT).show();
+					intent = new Intent(getActivity(), MyWritingActivity.class);
+					startActivity(intent);
+					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_0_1:
-					Toast.makeText(getActivity(), "01", Toast.LENGTH_SHORT).show();
+					intent = new Intent(getActivity(), MyInterestActivity.class);
+					startActivity(intent);
+					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_0_2:
 					Toast.makeText(getActivity(), "02", Toast.LENGTH_SHORT).show();
@@ -122,7 +123,8 @@ public class MypageFragment extends PagerFragment {
 				case R.id.image_my_next:
 					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), MediaStoreActivity.class);
-					intent.putExtra("mItem", FriendsSectionFragment.getUserInfo());
+					FriendsResult item = new FriendsSectionFragment().getUserInfo();
+					intent.putExtra("mItem", item);
 					intent.putExtra("tag", MediaStoreActivity.TAG_MY_PAGE);
 //					startActivityForResult(intent, 125);
 					startActivity(intent);

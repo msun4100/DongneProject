@@ -34,7 +34,7 @@ public class MediaStoreActivity extends AppCompatActivity{
 
     private static final String F1_TAG = "tab1";
     private static final String F2_TAG = "tab2";
-    private final int ALBUM_PICKER_COUNT = 10;
+    private final int ALBUM_PICKER_COUNT = 1;
     ArrayList<ImageItem> images;
 
     //using for toolbar menu and background
@@ -71,21 +71,6 @@ public class MediaStoreActivity extends AppCompatActivity{
             }
         });
         toolbarMenu.setVisibility(View.GONE);
-
-        //아래 코드는 이미지홈프래그먼트에다가 카피
-//        iconPhoto = (ImageView)findViewById(R.id.image_prof_set_change);
-//        iconPhoto.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                PhotoChangeFragment mDialogFragment = PhotoChangeFragment.newInstance();
-//                Bundle b = new Bundle();
-//                b.putSerializable("userInfo", mItem);
-//                mDialogFragment.setArguments(b);
-//                mDialogFragment.show(getSupportFragmentManager(), "photoChangeDialog");
-//            }
-//        });
-
-
 //이하 합치기 전 코드 들
         images = new ArrayList<>();
         images.clear();
@@ -125,7 +110,7 @@ public class MediaStoreActivity extends AppCompatActivity{
         }
     }   //onCreate
 
-    public void startAlbum(){
+    public void startFishBunAlbum(){
         FishBun.with(MediaStoreActivity.this)
                 .setAlbumThumnaliSize(150)//you can resize album thumnail size
                 .setPickerCount(ALBUM_PICKER_COUNT)//you can restrict photo count
@@ -198,29 +183,16 @@ public class MediaStoreActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_empty_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-//        if(id == android.R.id.home){
-//            Intent intent = new Intent(MediaStoreActivity.this, LoginActivity.class);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(intent);
-//            finish();
-//        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -249,6 +221,7 @@ public class MediaStoreActivity extends AppCompatActivity{
     }
 
     private void forcedFinish(){
+        Log.e("mItem", "is null");
         finish();
     }
 

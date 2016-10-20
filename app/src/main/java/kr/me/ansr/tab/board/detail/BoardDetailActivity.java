@@ -29,6 +29,7 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.BoardReportDialogFragment;
+import kr.me.ansr.common.IDataReturned;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
@@ -38,7 +39,7 @@ import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 import okhttp3.Request;
 
-public class BoardDetailActivity extends AppCompatActivity
+public class BoardDetailActivity extends AppCompatActivity implements IDataReturned
 {
     private static final String TAG = BoardDetailActivity.class.getSimpleName();
     TextView toolbarTitle;
@@ -208,6 +209,10 @@ public class BoardDetailActivity extends AppCompatActivity
                         mItem = result.result.get(0);
                         mItem.repCount = mAdapter.getCount();   //client용 repCount 초기화
                         setBoardItem(mItem);
+                    } else {
+                        //DOCS_LENGTH_ERROR;
+                        Toast.makeText(getApplicationContext(), ""+result.message, Toast.LENGTH_SHORT).show();
+                        forcedFinish();
                     }
                 } else {
                     Toast.makeText(BoardDetailActivity.this, "error: true" + result.message, Toast.LENGTH_LONG).show();
@@ -379,7 +384,7 @@ public class BoardDetailActivity extends AppCompatActivity
 
     }
     private void forcedFinish(){
-        Toast.makeText(getApplicationContext(), "다시 요청해주세요.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "게시글을 찾을 수 없습니다.",Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -399,5 +404,18 @@ public class BoardDetailActivity extends AppCompatActivity
         finishAndReturnData();
         super.onBackPressed();
     }
-
+    @Override
+    public void onDataReturned(String choice) {
+        //Use the returned value
+        if(choice != null){
+            Log.e("choice", choice);
+            switch (choice){
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                    break;
+            }
+        }
+    }
 }

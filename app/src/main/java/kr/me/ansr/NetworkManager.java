@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -44,6 +43,7 @@ import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.mypage.mywriting.tabtwo.MyCommentInfo;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -722,6 +722,281 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_BOARD_LIST_SEARCH = SERVER_URL + "/board/list/:univId/:tab/search";
+    public Request postDongneBoardListSearch(Context context, String univId, String tab, String start, String display, String reqDate, String word, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST_SEARCH.replace(":univId", ""+univId).replace(":tab", ""+tab);
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            json.addProperty("word", word);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_BOARD_LIST_MY_WRITING = SERVER_URL + "/board/mywriting";
+    public Request postDongneBoardListMyWriting(Context context, String univId, String userId, String start, String display, String reqDate, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST_MY_WRITING;
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("univId", univId);
+            json.addProperty("userId", userId);
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_BOARD_LIST_MY_WRITING_SEARCH = SERVER_URL + "/board/mywriting/search";
+    public Request postDongneBoardListMyWritingSearch(Context context, String univId, String userId, String start, String display, String reqDate, String word, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST_MY_WRITING_SEARCH;
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("univId", univId);
+            json.addProperty("userId", userId);
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            json.addProperty("word", word);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_BOARD_LIST_MY_INTEREST = SERVER_URL + "/board/myinterest";
+    public Request postDongneBoardListMyInterest(Context context, String univId, String userId, String start, String display, String reqDate, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST_MY_INTEREST;
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("univId", univId);
+            json.addProperty("userId", userId);
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private static final String URL_BOARD_LIST_MY_INTEREST_SEARCH = SERVER_URL + "/board/myinterest/search";
+    public Request postDongneBoardListMyInterestSearch(Context context, String univId, String userId, String start, String display, String reqDate, String word, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_LIST_MY_INTEREST_SEARCH;
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("univId", univId);
+            json.addProperty("userId", userId);
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            json.addProperty("word", word);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_BOARD_REMOVE = SERVER_URL + "/board/remove";
+    public Request postDongneBoardRemove(Context context, String boardId, String writer, final OnResultListener<BoardInfo> listener) {
+        try {
+            String url = URL_BOARD_REMOVE;
+            final CallbackObject<BoardInfo> callbackObject = new CallbackObject<BoardInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("boardId", boardId);
+            json.addProperty("writer", writer);
+            String jsonString = json.toString();
+
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    BoardInfo result = gson.fromJson(response.body().charStream(), BoardInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     private static final String URL_BOARD_LIKE = SERVER_URL + "/board/like";
     public Request postDongneBoardLike(Context context, int like, String boardId, String userId, String to, final OnResultListener<LikeInfo> listener) {
         try {
@@ -870,6 +1145,53 @@ public class NetworkManager {
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
                     .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    WriteInfo result = gson.fromJson(response.body().charStream(), WriteInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Request putDongneBoardWrite(Context context, int pageId, int boardId, String type, String title, String content, final OnResultListener<WriteInfo> listener) {
+        try {
+            String url = URL_BOARD_WRITE;
+
+            final CallbackObject<WriteInfo> callbackObject = new CallbackObject<WriteInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("pageId", ""+pageId);
+            json.addProperty("boardId", ""+boardId);
+            json.addProperty("univId", ""+PropertyManager.getInstance().getUnivId());
+            json.addProperty("writer", ""+PropertyManager.getInstance().getUserId());
+            json.addProperty("type", type);
+            json.addProperty("title", title);
+            json.addProperty("body", content);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").put(body).tag(context).build();
             callbackObject.request = request;
             callbackObject.listener = listener;
             mClient.newCall(request).enqueue(new Callback() {
@@ -1266,6 +1588,49 @@ public class NetworkManager {
                 public void onResponse(Call call, Response response) throws IOException {
                     Gson gson = new Gson();
                     StatusInfo result = gson.fromJson(response.body().charStream(), StatusInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_COMMENTS = SERVER_URL + "/comments";
+    public Request postDongneCommentsMyWriting(Context context, String userId, String start, String display, String reqDate, final OnResultListener<MyCommentInfo> listener) {
+        try {
+            String url = URL_COMMENTS;
+            final CallbackObject<MyCommentInfo> callbackObject = new CallbackObject<MyCommentInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("userId", userId);
+            json.addProperty("start", start);
+            json.addProperty("display", display);
+            json.addProperty("reqDate", reqDate);
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    MyCommentInfo result = gson.fromJson(response.body().charStream(), MyCommentInfo.class);
                     callbackObject.result = result;
                     Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
                     mHandler.sendMessage(msg);

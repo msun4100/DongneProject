@@ -1,16 +1,21 @@
 package kr.me.ansr.tab.mypage;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.mypage.status.BlockFragment;
 import kr.me.ansr.tab.mypage.status.InviteFragment;
 import kr.me.ansr.tab.mypage.status.ReceiveFragment;
@@ -34,7 +39,6 @@ public class FriendStatusActivity extends AppCompatActivity implements View.OnCl
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.common_back_selector);
         toolbar.setBackgroundResource(R.drawable.z_titlebar_friend);
-//        toolbar.setBackgroundResource(R.drawable.f__titlebar_friend);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
@@ -47,6 +51,7 @@ public class FriendStatusActivity extends AppCompatActivity implements View.OnCl
         blockIcon.setOnClickListener(this);
         inviteIcon.setOnClickListener(this);
 
+        EventBus.getInstance().register(this);
         init();
     }
 
@@ -151,5 +156,29 @@ public class FriendStatusActivity extends AppCompatActivity implements View.OnCl
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        EventBus.getInstance().unregister(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ReceiveFragment.FRIENDS_RC_NUM:
+                if (resultCode == RESULT_OK) {
+//					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+//					sectionFragment말고 모든 FriendsResult를 사용하는 아답터들이 알아야 하니까 굳이 위처럼하지말고 여기 스텝에서 포스트 이벤트를 뿌림.
+                    Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+                    if(result != null) Log.e("FriendsStatusActivity",result.toString());
+                    EventBus.getInstance().post(result);
+                }
+                break;
+        }
+
     }
 }

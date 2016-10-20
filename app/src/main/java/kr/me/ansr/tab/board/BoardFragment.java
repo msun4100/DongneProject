@@ -118,7 +118,8 @@ public class BoardFragment extends PagerFragment {
 				Toast.makeText(getActivity(), "currentTab: " + currentTab, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(getActivity(), BoardWriteActivity.class);
 				intent.putExtra("currentTab", currentTab);
-				startActivityForResult(intent, 100); //tabHost가 있는 BoardFragment에서 리절트를 받음
+				intent.putExtra("type", "new");
+				startActivityForResult(intent, BoardWriteActivity.BOARD_WRITE_RC_NEW); //tabHost가 있는 BoardFragment에서 리절트를 받음
 			}
 		});
 		menuNext.setActionView(imageNext);
@@ -178,7 +179,7 @@ public class BoardFragment extends PagerFragment {
 					EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
 				}
 				break;
-			case 100:
+			case BoardWriteActivity.BOARD_WRITE_RC_NEW:
 				if (resultCode == getActivity().RESULT_OK) {
 					Bundle extraBundle = data.getExtras();
 					String returnString = extraBundle.getString("return");
@@ -188,6 +189,20 @@ public class BoardFragment extends PagerFragment {
 						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
 					} else {
 						Log.e("afterWrite", "failure");
+						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
+					}
+				}
+				break;
+			case BoardWriteActivity.BOARD_WRITE_RC_EDIT:
+				if (resultCode == getActivity().RESULT_OK) {
+					Bundle extraBundle = data.getExtras();
+					String returnString = extraBundle.getString("return");
+					Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_LONG).show();
+					if(returnString.equals("success")){
+						Log.e("afterEdit", "success");
+						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+					} else {
+						Log.e("afterEdit", "failure");
 						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
 					}
 				}

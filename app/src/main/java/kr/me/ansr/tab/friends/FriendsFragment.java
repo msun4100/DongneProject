@@ -11,6 +11,7 @@ import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.login.autocomplete.univ.UnivInfo;
 import kr.me.ansr.login.autocomplete.univ.UnivResult;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
 import okhttp3.Request;
@@ -196,7 +197,11 @@ public class FriendsFragment extends PagerFragment {
 		switch (requestCode) {
 			case FriendsSectionFragment.FRIENDS_RC_NUM:
 				if (resultCode == getActivity().RESULT_OK) {
-					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+//					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+//					sectionFragment말고 모든 FriendsResult를 사용하는 아답터들이 알아야 하니까 굳이 위처럼하지말고 여기 스텝에서 포스트 이벤트를 뿌림.
+					Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+					EventBus.getInstance().post(result);
 				}
 				break;
 //			case 100:

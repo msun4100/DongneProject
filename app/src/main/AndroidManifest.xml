@@ -206,6 +206,14 @@
         <activity
             android:name=".tab.friends.list.FriendsListActivity"
             android:label="@string/title_activity_friends_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.mypage.MyWritingActivity"
+            android:label="@string/title_activity_my_writing"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.mypage.MyInterestActivity"
+            android:label="@string/title_activity_my_interest"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

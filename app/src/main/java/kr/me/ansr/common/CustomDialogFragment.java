@@ -1,12 +1,15 @@
 package kr.me.ansr.common;
 
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,7 +22,9 @@ import android.widget.Toast;
 
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.BoardWriteActivity;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.friends.list.FriendsListActivity;
+import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.mypage.status.BlockFragment;
 
@@ -27,10 +32,14 @@ import kr.me.ansr.tab.mypage.status.BlockFragment;
  * Created by KMS on 2016-08-04.
  */
 public class CustomDialogFragment extends DialogFragment {
+    public static final String TAG_FRIENDS_DETAIL = "friendsDetail";
     public static final String TAG_BOARD_WRITE = "boardWrite";
     public static final String TAG_STATUS_BLOCK = "statusBlock";
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
+    public static final String TAG_TAB_THREE_STU = "tabThreeStu";
+    public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
+
     public static final String TAG_LIST = "list";
     public CustomDialogFragment(){
 
@@ -43,18 +52,29 @@ public class CustomDialogFragment extends DialogFragment {
     String tag = null;
 
     String title, body;
-
+    String choice;
     Handler mHandler = new Handler(Looper.getMainLooper());
 
+    FriendsResult mItem;
+    BoardResult bItem;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.MyDialog);
         Bundle b = getArguments();
         if(b != null){
-            tag = b.getString("tag", "0");
+            tag = b.getString("tag", null);
             title = b.getString("title","default title");
             body = b.getString("body","default body");
+            mItem = (FriendsResult) b.getSerializable("mItem");
+            choice = b.getString("choice", null);   //디테일액티비티 callback위해
+            bItem = (BoardResult) b.getSerializable("bItem");
+            if(mItem != null){
+                Log.e("CustomDialogF", mItem.toString());
+            }
+            if(bItem != null){
+                Log.e("CustomDialogF", bItem.toString());
+            }
         }
 
     }
@@ -80,7 +100,7 @@ public class CustomDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "dialog cancel", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "dialog cancel", Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });
@@ -89,33 +109,49 @@ public class CustomDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-//				Toast.makeText(getActivity(), "dialog ok", Toast.LENGTH_SHORT).show();
-//                Bundle b = new Bundle();
-//                UnsignPWDialogFragment f = new UnsignPWDialogFragment();
-//                f.setArguments(b);
-//                f.show(getActivity().getSupportFragmentManager(), "unsignpwdialog");
                 if(tag != null){
                     if(tag.equals(TAG_BOARD_WRITE)) {
-                        ((BoardWriteActivity) (getActivity())).nextProcess();
+                        mCallback.onDataReturned("close"); //창 닫힘
                         dismiss();
                     }
                     if(tag.equals(TAG_STATUS_BLOCK)) {
-                        BlockFragment.removeStatus();
+                        Intent intent = new Intent();
+                        intent.putExtra("next", "_REMOVE_BLOCK_");
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
-//                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "Removed", mItem);
                     }
                     if(tag.equals(TAG_TAB_ONE_UNIV)) {
-//                        BlockFragment.removeStatus();
-                        //updateStatus 성공하면 리스트에서 삭제하고 blockCount++; 해줌.
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getActivity(), tag+"Runnable", Toast.LENGTH_SHORT).show();
-                                FriendsSectionFragment.updateStatus(3);
-                                dismiss();
-                            }
-                        }, 1000);
-
+                        Intent intent = new Intent();
+                        intent.putExtra("mItem", mItem);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_THREE_STU)) {
+                        Intent intent = new Intent();
+                        if(choice != null){
+                            intent.putExtra("choice", choice);  //사실상 필요 없음 ok만 누른거 확인되면 됨
+                        }
+                        if(bItem != null){
+                            intent.putExtra("bItem", bItem);
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_MY_WRITING_ONE)) {
+                        Intent intent = new Intent();
+                        if(choice != null){
+                            intent.putExtra("choice", choice);  //사실상 필요 없음 ok만 누른거 확인되면 됨
+                        }
+                        if(bItem != null){
+                            intent.putExtra("bItem", bItem);
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_FRIENDS_DETAIL)) {
+                        if(choice != null)
+                            mCallback.onDataReturned(choice);
+                        dismiss();
                     }
                     if(tag.equals(TAG_LIST)) {
 //                        BlockFragment.removeStatus();
@@ -151,4 +187,24 @@ public class CustomDialogFragment extends DialogFragment {
         initData();
     }
 
+    private IDataReturned mCallback;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback = (IDataReturned) activity;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Activity doesn't implements 'IDataReturned interface'");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        try{
+            mCallback = null;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Exception occurred while onDetach");
+        }
+    }
 }

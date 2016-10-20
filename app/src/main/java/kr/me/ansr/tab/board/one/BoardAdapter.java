@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -57,6 +58,54 @@ public class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemLongClickListener.onItemLongClick(view, position);
         }
     }
+
+//    public void remove(BoardResult child){
+//        if(items.size() == 0)
+//            return;
+//        items.remove(child);
+//        notifyDataSetChanged();
+//    }
+public void removeItem(BoardResult child){
+//        to solve 'ConcurrentModificationException' problem.
+    Iterator<BoardResult> iterator = items.iterator();
+    while(iterator.hasNext()){
+        BoardResult br = iterator.next();
+        if(br.writer == child.writer && br.boardId == child.boardId){
+            iterator.remove();
+            break;
+        }
+    }
+    notifyDataSetChanged();
+}
+
+    public void findOneAndModify(BoardResult child){
+        for(BoardResult br : items){
+            if(br.boardId == child.boardId){
+                int index = items.indexOf(br);
+                if(index != -1){
+                    items.get(index)._id = child._id;
+                    items.get(index).boardId = child.boardId;
+                    items.get(index).univId = child.univId;
+                    items.get(index).writer = child.writer;
+                    items.get(index).pageId = child.pageId;
+                    items.get(index).title = child.title;
+                    items.get(index).commentId = child.commentId;
+                    items.get(index).updatedAt = child.updatedAt;
+                    items.get(index).createdAt = child.createdAt;
+                    items.get(index).likes = child.likes;
+                    items.get(index).likeCount = child.likeCount;
+                    items.get(index).viewCount = child.viewCount;
+                    items.get(index).repCount = child.repCount;
+                    items.get(index).body = child.body;
+                    items.get(index).type = child.type;
+                    items.get(index).user = child.user;
+                }
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 
     public void add(BoardResult item){
         items.add(item);

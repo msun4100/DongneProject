@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.friends.recycler;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,26 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
     //for individual listener
 
+    public void findOneAndModify(FriendsResult child){
+        for (GroupItem g : items) {
+            for(FriendsResult fr : g.children){
+                if(fr.userId == child.userId){
+                    int index = g.children.indexOf(fr);
+                    if(index != -1){
+                        g.children.get(index).status = child.status;
+                        g.children.get(index).univ = child.univ;
+                        g.children.get(index).sns = child.sns;
+                        g.children.get(index).desc = child.desc;
+                        g.children.get(index).job = child.job;
+                    }
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+
     public void put(String groupName, FriendsResult child) {
         GroupItem group = null;
         for (GroupItem g : items) {
@@ -80,11 +101,21 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
+
     public void removeItem(FriendsResult child){
-//        items.remove(child);
-        this.items.get(GROUP_FRIENDS).children.remove(child);
+//        this.items.get(GROUP_FRIENDS).children.remove(child);
+        for (GroupItem g : items) {
+            for (FriendsResult fr : g.children) {
+                if(fr.userId == child.userId){
+                    int index = g.children.indexOf(fr);
+                    g.children.remove(index);
+                    break;
+                }
+            }
+        }
         notifyDataSetChanged();
     }
+
 
     public void clearAllFriends() {
 //        items.clear();

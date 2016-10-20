@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,10 +24,11 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CustomDialogFragment;
+import kr.me.ansr.common.IDataReturned;
 import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.ReportDialogFragment;
-import kr.me.ansr.common.event.EventBus;
-import kr.me.ansr.common.event.FriendsFragmentResultEvent;
+
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.list.FriendsListActivity;
@@ -34,10 +36,10 @@ import kr.me.ansr.tab.friends.model.Desc;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.model.Sns;
-import kr.me.ansr.tab.friends.set.ProfileSettingActivity;
+
 import okhttp3.Request;
 
-public class FriendsDetailActivity extends AppCompatActivity {
+public class FriendsDetailActivity extends AppCompatActivity implements IDataReturned {
     private static final String TAG = FriendsDetailActivity.class.getSimpleName();
     int[] bgArr = {R.drawable.z_profile_bg_1, R.drawable.z_profile_bg_2};
     String tag = null;
@@ -124,10 +126,19 @@ public class FriendsDetailActivity extends AppCompatActivity {
                             Toast.makeText(FriendsDetailActivity.this, "1:1대화", Toast.LENGTH_SHORT).show();
                             break;
                         case 2:
-                        case 3:
-                        default:
-                            Toast.makeText(FriendsDetailActivity.this, "차단 해제\nstatus:"+mItem.status, Toast.LENGTH_SHORT).show();
                             break;
+                        case 3:
+                            CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("tag", CustomDialogFragment.TAG_FRIENDS_DETAIL);
+                            b.putString("title","친구 차단을 해제 하시겠습니까?");
+                            b.putString("body", "학교 사람들 리스트에 노출됩니다.");
+                            b.putString("choice","blockOff");
+                            b.putSerializable("mItem", mItem);
+                            mDialogFragment.setArguments(b);
+                            mDialogFragment.show(getSupportFragmentManager(), "customDialog");
+                            break;
+                        default: break;
                     }
 
                     break;
@@ -144,12 +155,10 @@ public class FriendsDetailActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.image_friends_detail_menu_3:
-//                    Toast.makeText(FriendsDetailActivity.this, "third menu click", Toast.LENGTH_SHORT).show();
                     ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
                     Bundle b = new Bundle();
-//                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
                     b.putSerializable("userInfo", mItem);
-                    b.putString("tag", ReportDialogFragment.TAG_TAB_ONE_UNIV);
+                    b.putString("tag", ReportDialogFragment.TAG_FRIENDS_DETAIL);
                     mDialogFragment.setArguments(b);
                     mDialogFragment.show(getSupportFragmentManager(), "reportDialog");
                     break;
@@ -165,10 +174,9 @@ public class FriendsDetailActivity extends AppCompatActivity {
     private void showDialog(StatusResult sr){
         InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
         Bundle b = new Bundle();
-//        b.putString("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
         b.putString("tag", tag);
         b.putSerializable("mStatus", sr);
-        b.putSerializable("item", mItem);
+        b.putSerializable("mItem", mItem);
         mDialogFragment.setArguments(b);
         mDialogFragment.show(getSupportFragmentManager(), "inputDialog");
     }
@@ -310,6 +318,9 @@ public class FriendsDetailActivity extends AppCompatActivity {
                             mItem.status = result.result.status;
                             //.. imageButton1 이미지 변경
                             switch (mItem.status){
+                                case 3:
+                                    firstIcon.setImageResource(R.mipmap.ic_launcher);
+                                    break;
                                 case 1:
                                     firstIcon.setImageResource(R.drawable.c__icon_1);
                                     break;
@@ -317,7 +328,6 @@ public class FriendsDetailActivity extends AppCompatActivity {
                                     firstIcon.setImageResource(R.drawable.c__icon_5);
                                     break;
                             }
-//                            Toast.makeText(getApplicationContext(), "친구 요청이 완료되었습니다."+"\n"+result.message, Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
                             Log.e(TAG+" error: true", result.message);
@@ -362,6 +372,39 @@ public class FriendsDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    public void reportUser(int type){
+        if(mItem == null){
+            return;
+        }
+        final int to = mItem.userId;
+        String msg = "friends";
+        NetworkManager.getInstance().postDongneReportUpdate(MyApplication.getContext(),
+                type, //reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(FriendsDetailActivity.this);
+        dialog.setTitle("신고 요청 중..");
+        dialog.show();
+    }
+
     private void finishAndReturnData(){
         Intent intent = new Intent();
         intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, mItem);
@@ -398,8 +441,8 @@ public class FriendsDetailActivity extends AppCompatActivity {
 //                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
                     Bundle extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
-                    mItem = result;
-                    if(mItem != null){
+                    if(result != null){
+                        mItem = result;
                         init();
                     }
                 }
@@ -408,4 +451,28 @@ public class FriendsDetailActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onDataReturned(String choice) {
+        //Use the returned value
+        if(choice != null){
+            Log.e("choice", choice);
+            switch (choice){
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                    reportUser(Integer.parseInt(choice));
+                    break;
+                case "block":
+                    updateStatus(3, mItem.userId, "");
+                    break;
+                case "blockOff":
+                    removeStatus(mItem.userId);
+                    break;
+                case "cutOff":
+                    removeStatus(mItem.userId);
+                    break;
+            }
+        }
+    }
 }

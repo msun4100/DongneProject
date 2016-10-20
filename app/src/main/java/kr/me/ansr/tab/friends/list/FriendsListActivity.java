@@ -306,13 +306,13 @@ public class FriendsListActivity extends AppCompatActivity {
                             if(!result.message.equals("has no more accepted friends")){
                                 Log.e(TAG+"getMore:", result.result.toString());
                                 mAdapter.addAllFriends(result.result);
+                                start++;
 //                                FriendsDataManager.getInstance().getList().addAll(result.result);
                             } else {
                                 Toast.makeText(FriendsListActivity.this, result.message, Toast.LENGTH_SHORT).show();
                             }
                             isMoreData = false;
                             refreshLayout.setRefreshing(false);
-                            start++;
                             Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
@@ -366,54 +366,30 @@ public class FriendsListActivity extends AppCompatActivity {
         super.onDestroy();
     }
     @Subscribe
-    public void onEvent(FriendsFragmentResultEvent activityResultEvent){
-        Log.e("onEvent:", "FriendsListActivity");
+    public void onEvent(FriendsResult fr){
+        Log.e("onEvent:", "FriendsListActivity fr");
 //        onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
         //번갈아 계속 호출되는 버그
-        onEventProcess(activityResultEvent);
+        findOneAndModify(fr);
     }
-
-    private void onEventProcess(FriendsFragmentResultEvent activityResultEvent){
-        if(mAdapter != null && mAdapter.getItemCount() > 0){
-            Bundle extraBundle = activityResultEvent.getData().getExtras();
-            FriendsResult fr = (FriendsResult) extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
-//            int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
-            ModifiedSetItem(fr);
-            switch (fr.status){
-                case 0:
-                    break;
-                case 1:
-                    //add
-                    break;
-                case 3://blocked
-//                    remove and add blockCnt;
-
-                    break;
-                case -1://removed
-//                    remove
-
-                    break;
-
-            }
+    private void findOneAndModify(FriendsResult fr){
+        if(mAdapter == null || mAdapter.getItemCount() < 1) return;
+        mAdapter.findOneAndModify(fr);
+        switch (fr.status){
+            case -1:
+                break;
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                mAdapter.removeItem(fr);
+                mAdapter.blockCount++;
+                break;
+            default:break;
         }
-    }
-
-    private void ModifiedSetItem(FriendsResult result){
-        if(mAdapter != null && mAdapter.getItemCount() > 0){
-            mAdapter.findOneAndModify(result);
-        }
-
-//        if(position == -1 || result == null) return;
-//        if(selectedItem.userId == result.userId){
-//            Log.e("userId: ", "equals");
-//            mAdapter.getItem(position).status = result.status;
-//            mAdapter.getItem(position).desc = result.desc;
-//            mAdapter.getItem(position).sns = result.sns;
-//            mAdapter.getItem(position).job = result.job;
-//            mAdapter.notifyDataSetChanged();
-//        } else {
-//            Log.e("userId: ", "not equals");
-//        }
     }
 
     @Override
@@ -424,11 +400,10 @@ public class FriendsListActivity extends AppCompatActivity {
             case FriendsListActivity.FRIENDS_RC_NUM:
                 if (resultCode == RESULT_OK) {
                     extraBundle = data.getExtras();
-                    int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
                     Toast.makeText(FriendsListActivity.this,""+ result.toString() , Toast.LENGTH_SHORT).show();
-//                    ModifiedSetItem(position, result);
-                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+//                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+                    EventBus.getInstance().post(result);
                     break;
                 }
         }

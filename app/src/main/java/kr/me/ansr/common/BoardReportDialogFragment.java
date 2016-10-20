@@ -1,8 +1,11 @@
 package kr.me.ansr.common;
 
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +24,11 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
  */
 public class BoardReportDialogFragment extends DialogFragment {
 
-    public static final String TAG_TAB_THREE = "tabThree";
+    public static final String TAG_TAB_THREE_STUDENT = "tabThreeStudent";
+    public static final String TAG_TAB_THREE_GRADUATE = "tabThreeGraduate";
     public static final String TAG_BOARD_DETAIL = "BoardDetail";
+
+    public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
 
     public BoardReportDialogFragment(){
 
@@ -52,10 +58,6 @@ public class BoardReportDialogFragment extends DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
         getDialog().getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
         getDialog().getWindow().setGravity(Gravity.CENTER_VERTICAL);
-//		getDialog().getWindow().setLayout(300,300);
-//		getDialog().getWindow().setGravity(Gravity.LEFT | Gravity.TOP);
-//		getDialog().getWindow().getAttributes().x = 120;
-//		getDialog().getWindow().getAttributes().y = -18;
 
         View view = inflater.inflate(R.layout.dialog_board_report_layout, container, false);
 
@@ -64,12 +66,30 @@ public class BoardReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_THREE)) {
-                        Toast.makeText(getActivity(), "top", Toast.LENGTH_SHORT).show();
+                    if(tag.equals(TAG_TAB_THREE_STUDENT)) {
+                        Toast.makeText(getActivity(), "top 삭제하기", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_DELETE_");
+                        } else {
+                            intent.putExtra("next", "");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
+                    if(tag.equals(TAG_TAB_MY_WRITING_ONE)) {
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_DELETE_");
+                        } else {
+                            intent.putExtra("next", "");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+
                     if(tag.equals(TAG_BOARD_DETAIL)) {
-                        Toast.makeText(getActivity(), "detail top", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "detail top 삭제하기", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 }
@@ -82,8 +102,26 @@ public class BoardReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_THREE)) {
-                        Toast.makeText(getActivity(), "tab three mid", Toast.LENGTH_SHORT).show();
+                    if(tag.equals(TAG_TAB_THREE_STUDENT)) {
+                        Toast.makeText(getActivity(), "tab three mid "+ getTargetRequestCode(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_EDIT_");
+                        } else {
+                            intent.putExtra("next", "_REPORT_");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_MY_WRITING_ONE)) {
+                        Toast.makeText(getActivity(), "tab three mid "+ getTargetRequestCode(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_EDIT_");
+                        } else {
+                            intent.putExtra("next", "_REPORT_");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
                     if(tag.equals(TAG_BOARD_DETAIL)) {
@@ -100,7 +138,7 @@ public class BoardReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_TAB_THREE)) {
+                    if(tag.equals(TAG_TAB_THREE_STUDENT)) {
                         //...
                     }
                 }
@@ -113,16 +151,19 @@ public class BoardReportDialogFragment extends DialogFragment {
     }
     private void initData(){
         switch (tag){
-            case TAG_TAB_THREE:
-                btn1.setVisibility(View.GONE);
-                btn2.setBackgroundResource(R.drawable.e_popup_top_selector);
-                if(data.writer == userId){
-                    btn2.setText("수 정 하 기");
-                } else {
-                    btn2.setText("신 고 하 기");
-                }
-                break;
+//            case TAG_TAB_THREE_STUDENT:
+//                btn1.setVisibility(View.GONE);
+//                btn2.setBackgroundResource(R.drawable.e_popup_top_selector);
+//                if(data.writer == userId){
+//                    btn2.setText("수 정 하 기");
+//                } else {
+//                    btn2.setText("신 고 하 기");
+//                }
+//                break;
+            case TAG_TAB_THREE_STUDENT:
+            case TAG_TAB_MY_WRITING_ONE:
             case TAG_BOARD_DETAIL:
+                default:
                 if(data.writer == userId){
                     btn1.setVisibility(View.VISIBLE);
                     btn2.setBackgroundResource(R.drawable.e_popup_mid_selector);
@@ -154,6 +195,27 @@ public class BoardReportDialogFragment extends DialogFragment {
     public void onResume() {
         super.onResume();
         initData();
+    }
+
+    private IDataReturned mCallback;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback = (IDataReturned) activity;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Activity doesn't implements 'IDataReturned interface'");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        try{
+            mCallback = null;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Exception occurred while onDetach");
+        }
     }
 
 }

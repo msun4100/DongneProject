@@ -1,7 +1,9 @@
 package kr.me.ansr.common;
 
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -42,6 +44,7 @@ public class InputDialogFragment extends DialogFragment {
     public static final String TAG_STATUS_RECEIVE = "statusReceive";
     public static final String TAG_STATUS_SEND = "statusSend";
     public static final String TAG_STATUS_BLOCK = "statusBlock";
+    public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
 
     public InputDialogFragment(){
 
@@ -66,9 +69,9 @@ public class InputDialogFragment extends DialogFragment {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.MyDialog);
         Bundle b = getArguments();
         if(b != null){
-            tag = b.getString("tag", "0");
+            tag = b.getString("tag", null);
             mStatus = (StatusResult)b.getSerializable("mStatus");
-            mItem = (FriendsResult)b.getSerializable("item");
+            mItem = (FriendsResult)b.getSerializable("mItem");
             Log.e("inputDialog-mStatus", mStatus.toString());
             Log.e("inputDialog-mItem", mItem.toString());
             Log.e("inputDialog-tag", tag);
@@ -96,6 +99,7 @@ public class InputDialogFragment extends DialogFragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent();
                 if(tag != null){
                     if(tag.equals(TAG_FRIENDS_DETAIL)) {
                         String str = inputView.getText().toString();
@@ -109,9 +113,24 @@ public class InputDialogFragment extends DialogFragment {
                             ((FriendsDetailActivity) (getActivity())).nextProcess(str); //str==msg와 함께 친구 요청함 nextProcess의 else
                         }
                     }
+                    if(tag.equals(TAG_TAB_ONE_UNIV)) {
+                        String str = inputView.getText().toString();
+                        if(str == null || str.equals("")){
+                            str = getResources().getString(R.string.status_greeting_msg);
+                        }
+                        if(mStatus.status == 0 && mStatus.from == userId){
+//                            FriendsSection에서는 0이면 토스트 처리.
+                        } else{
+                            //mStatus.status == -1
+                            intent.putExtra("mItem", mItem);
+                            intent.putExtra("msg", str);
+                            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        }
+                    }
                     if(tag.equals(TAG_STATUS_SEND)) {
-                        SendFragment.removeStatus(mItem.userId, mItem);
-                        ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");//이미지 변경을 위해
+                        intent.putExtra("next", "_REQ_CANCEL_");
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
                     }
                 }
                 dismiss();
@@ -122,14 +141,15 @@ public class InputDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 //요청 수락 프로세스
+                Intent intent = new Intent();
                 if(tag != null){
                     if(tag.equals(TAG_FRIENDS_DETAIL)) {
                         ((FriendsDetailActivity) (getActivity())).nextProcess("_ok_");// 수락버튼 클릭
                         dismiss();
                     }
                     if(tag.equals(TAG_STATUS_RECEIVE)) {
-                        ReceiveFragment.updateStatus(Integer.valueOf(FriendsInfo.STATUS_ACCEPT), mItem.userId, "", mItem);
-                        ((FriendsDetailActivity) (getActivity())).nextProcess("_ok_");// 수락버튼 클릭 이미지 변경을 위해
+                        intent.putExtra("next", "_OK_");
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
                 }
@@ -140,13 +160,15 @@ public class InputDialogFragment extends DialogFragment {
         btnCancel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent();
                 if(tag != null){
                     if(tag.equals(TAG_FRIENDS_DETAIL)) {
                         ((FriendsDetailActivity) (getActivity())).nextProcess("_cancel_");
                         dismiss();
                     }
                     if(tag.equals(TAG_STATUS_RECEIVE)) {
-                        ReceiveFragment.removeStatus(mItem.userId, mItem);
+                        intent.putExtra("next", "_CANCEL_");
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
                 }

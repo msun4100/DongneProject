@@ -14,6 +14,7 @@ public class ReplyResult implements Serializable {
     public String type;
     public ArrayList<Integer> likes;
     public int likeCount;
+    public int boardId; //MyWriting value
 
     public ArrayList<ReplyResult> replies;
     public String updatedAt;

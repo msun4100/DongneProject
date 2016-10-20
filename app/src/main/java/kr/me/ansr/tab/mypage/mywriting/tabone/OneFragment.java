@@ -1,4 +1,4 @@
-package kr.me.ansr.tab.board.one;
+package kr.me.ansr.tab.mypage.mywriting.tabone;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -28,25 +28,27 @@ import kr.me.ansr.R;
 import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.common.CustomDialogFragment;
 import kr.me.ansr.common.CustomEditText;
-import kr.me.ansr.common.ReportDialogFragment;
 import kr.me.ansr.common.ReportFormDialogFragment;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.tab.board.BoardWriteActivity;
-import kr.me.ansr.tab.board.PagerFragment;
 import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.like.LikeInfo;
+import kr.me.ansr.tab.board.one.BoardAdapter;
+import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.board.one.BoardResult;
+import kr.me.ansr.tab.board.one.OnItemClickListener;
+import kr.me.ansr.tab.board.one.OnItemLongClickListener;
 import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
-import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.mypage.PagerFragment;
 import okhttp3.Request;
 
 /**
- * Created by KMS on 2016-07-25.
+ * Created by KMS on 2016-10-18.
  */
-public class ChildOneFragment extends PagerFragment {
-
-    private static final String TAG = ChildOneFragment.class.getSimpleName();
+public class OneFragment extends PagerFragment{
+    private static final String TAG = OneFragment.class.getSimpleName();
 
     RecyclerView recyclerView;
     BoardAdapter mAdapter;
@@ -61,7 +63,7 @@ public class ChildOneFragment extends PagerFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_board_one, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_writing_one, container, false);
 
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
@@ -114,7 +116,7 @@ public class ChildOneFragment extends PagerFragment {
                 intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
                 intent.putExtra("currentTab", "0"); //재학생 탭 == 0
-                getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
+                getActivity().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
             }
         });
         mAdapter.setOnAdapterItemClickListener(new BoardAdapter.OnAdapterItemClickListener() {
@@ -133,9 +135,9 @@ public class ChildOneFragment extends PagerFragment {
                         BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
                         Bundle b = new Bundle();
                         b.putSerializable("boardInfo", data);
-                        b.putString("tag", BoardReportDialogFragment.TAG_TAB_THREE_STUDENT);
+                        b.putString("tag", BoardReportDialogFragment.TAG_TAB_MY_WRITING_ONE);
                         mDialogFragment.setArguments(b);
-                        mDialogFragment.setTargetFragment(ChildOneFragment.this, ChildOneFragment.DIALOG_RC_NUM);
+                        mDialogFragment.setTargetFragment(OneFragment.this, DIALOG_RC_NUM);
                         mDialogFragment.show(getActivity().getSupportFragmentManager(), "boardReportDialog");
                         break;
                     case 400:
@@ -157,20 +159,16 @@ public class ChildOneFragment extends PagerFragment {
                 BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
                 Bundle b = new Bundle();
                 b.putSerializable("boardInfo", data);
-                b.putString("tag", BoardReportDialogFragment.TAG_TAB_THREE_STUDENT);
+                b.putString("tag", BoardReportDialogFragment.TAG_TAB_MY_WRITING_ONE);
                 mDialogFragment.setArguments(b);
-                mDialogFragment.setTargetFragment(ChildOneFragment.this, ChildOneFragment.DIALOG_RC_NUM);
+                mDialogFragment.setTargetFragment(OneFragment.this, DIALOG_RC_NUM);
                 mDialogFragment.show(getActivity().getSupportFragmentManager(), "boardReportDialog");
             }
         });
         recyclerView.setAdapter(mAdapter);
         layoutManager = new LinearLayoutManager(getActivity());
-//        layoutManager.scrollToPosition(5);
-//        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
         recyclerView.setLayoutManager(layoutManager);
 //        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
-
-
 //        search views
         searchInput = (CustomEditText)view.findViewById(R.id.custom_editText1);
         searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
@@ -179,14 +177,11 @@ public class ChildOneFragment extends PagerFragment {
             public void onClick(View v) {
                 word = searchInput.getText().toString();
                 if(!word.equals("") && word != null){
-//                    searchInput.setText("");
                     searchInput.setText(word + " (취소:검색어 초기화 후 검색 버튼 클릭.)");
-//                    Toast.makeText(getActivity(), "searchInput:"+word, Toast.LENGTH_SHORT).show();
                     start = 0;
                     reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                     searchBoard();
                 } else {
-//                    searchInput.setHint("게시글 검색 (작성자/내용)");
                     word = "";
                     start = 0;
                     reqDate = MyApplication.getInstance().getCurrentTimeStampString();
@@ -203,15 +198,15 @@ public class ChildOneFragment extends PagerFragment {
 
     private void initBoard(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
-        String tab = ""+0;  //재학생 탭 == 0
+        String userId = PropertyManager.getInstance().getUserId();
         if(mUnivId == ""){
             Toast.makeText(getActivity(),"대학교 등록할 것", Toast.LENGTH_SHORT).show();
             mUnivId = "1";
             return;
         }
-        NetworkManager.getInstance().postDongneBoardList(getActivity(),
+        NetworkManager.getInstance().postDongneBoardListMyWriting(getActivity(),
                 mUnivId,
-                tab,
+                userId,
                 ""+start,
                 ""+DISPLAY_NUM,
                 ""+reqDate,
@@ -278,15 +273,15 @@ public class ChildOneFragment extends PagerFragment {
     private void searchBoard(){
         if (word == null || word.equals("")) return;
         String mUnivId = PropertyManager.getInstance().getUnivId();
-        String tab = ""+0;  //재학생 탭 == 0
+        String userId = PropertyManager.getInstance().getUserId();
         if(mUnivId == ""){
             Toast.makeText(getActivity(),"대학교 등록할 것", Toast.LENGTH_SHORT).show();
             mUnivId = "1";
             return;
         }
-        NetworkManager.getInstance().postDongneBoardListSearch(getActivity(),
+        NetworkManager.getInstance().postDongneBoardListMyWritingSearch(getActivity(),
                 mUnivId,
-                tab,
+                userId,
                 ""+start,
                 ""+DISPLAY_NUM,
                 ""+reqDate,
@@ -358,15 +353,10 @@ public class ChildOneFragment extends PagerFragment {
     private void getMoreItem(){
         if (isMoreData) return;
         isMoreData = true;
-        String tab = "0";
-//        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount()) {
         if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount()) {
-            //기존 코드에서 +DIS_NUM 한 것은 마지막 디스플레이가 리프레쉬 안되서 디스플레이 수만큼 +시킴.
-//            int start = mAdapter.getItemCount() + 1;
-//            int display = 50;
-            NetworkManager.getInstance().postDongneBoardList(getActivity(),
+            NetworkManager.getInstance().postDongneBoardListMyWriting(getActivity(),
                     PropertyManager.getInstance().getUnivId(),
-                    tab,
+                    PropertyManager.getInstance().getUserId(),
                     ""+start,
                     ""+DISPLAY_NUM,
                     ""+reqDate,
@@ -406,9 +396,9 @@ public class ChildOneFragment extends PagerFragment {
         isMoreData = true;
         String tab = "0";
         if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount()) {
-            NetworkManager.getInstance().postDongneBoardListSearch(getActivity(),
+            NetworkManager.getInstance().postDongneBoardListMyWritingSearch(getActivity(),
                     PropertyManager.getInstance().getUnivId(),
-                    tab,
+                    PropertyManager.getInstance().getUserId(),
                     ""+start,
                     ""+DISPLAY_NUM,
                     ""+reqDate,
@@ -549,9 +539,16 @@ public class ChildOneFragment extends PagerFragment {
         dialog.show();
     }
 
-    private void findOneAndModify(BoardResult br){
+    private void findOneAndModify(BoardResult br, String mode){
         if(mAdapter == null || mAdapter.getItemCount() < 1) return;
         mAdapter.findOneAndModify(br);
+        switch (mode){
+            case "_REMOVE_":
+                break;
+            case "_EDIT_":
+                break;
+            default:break;
+        }
     }
 
 
@@ -571,7 +568,7 @@ public class ChildOneFragment extends PagerFragment {
                     extraBundle = data.getExtras();
                     int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
                     BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
-                    Log.e("ChildOne", "result_ok");
+                    Log.e("MyOne", "result_ok");
                     ModifiedSetItem(position, result);
                     break;
                 }
@@ -582,7 +579,7 @@ public class ChildOneFragment extends PagerFragment {
                 if(resultCode == getActivity().RESULT_OK){
                     extraBundle = data.getExtras();
                     BoardResult br = (BoardResult)extraBundle.getSerializable("mItem");
-                    findOneAndModify(br);
+                    findOneAndModify(br, "_EDIT_");
                 }
                 break;
             case DIALOG_RC_NUM:
@@ -594,11 +591,11 @@ public class ChildOneFragment extends PagerFragment {
                         case "_REPORT_":
                             ReportFormDialogFragment mDialogFragment = ReportFormDialogFragment.newInstance();
                             Bundle b = new Bundle();
-                            b.putString("tag", ReportFormDialogFragment.TAG_TAB_THREE_STUDENT);
+                            b.putString("tag", ReportFormDialogFragment.TAG_TAB_MY_WRITING_ONE);
                             b.putSerializable("fItem", null);
                             b.putSerializable("bItem", selectedItem);
                             mDialogFragment.setArguments(b);
-                            mDialogFragment.setTargetFragment(ChildOneFragment.this, DIALOG_RC_REPORT);
+                            mDialogFragment.setTargetFragment(OneFragment.this, DIALOG_RC_REPORT);
                             mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportFormDialog");
                             Log.e("childOne", "report");
                             break;
@@ -608,17 +605,17 @@ public class ChildOneFragment extends PagerFragment {
                             intent.putExtra("currentTab", "0"); // 0 = 재학생, 1 = 졸업생
                             intent.putExtra("type", "edit");
                             intent.putExtra("mItem", selectedItem);
-                            getParentFragment().startActivityForResult(intent, BoardWriteActivity.BOARD_WRITE_RC_EDIT); //tabHost가 있는 BoardFragment에서 리절트를 받음
+                            getActivity().startActivityForResult(intent, BoardWriteActivity.BOARD_WRITE_RC_EDIT); //tabHost가 있는 BoardFragment에서 리절트를 받음
                             break;
                         case "_DELETE_":
                             CustomDialogFragment cDialogFragment = CustomDialogFragment.newInstance();
                             Bundle bb = new Bundle();
-                            bb.putString("tag", CustomDialogFragment.TAG_TAB_THREE_STU);
+                            bb.putString("tag", CustomDialogFragment.TAG_TAB_MY_WRITING_ONE);
                             bb.putString("title","게시글을 삭제 하시겠습니까?");
                             bb.putString("body", "해당 게시글이 삭제됩니다.");
                             bb.putString("choice","delete");
                             bb.putSerializable("bItem", selectedItem);
-                            cDialogFragment.setTargetFragment(ChildOneFragment.this, DIALOG_RC_DELETE);
+                            cDialogFragment.setTargetFragment(OneFragment.this, DIALOG_RC_DELETE);
                             cDialogFragment.setArguments(bb);
                             cDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
                             break;
@@ -652,13 +649,13 @@ public class ChildOneFragment extends PagerFragment {
     //register/unregister 하는 과정은 baseFragment인 PagerFragment에서
     @Subscribe
     public void onEvent(ActivityResultEvent activityResultEvent){
-        Log.e("onEvent:", "ChildOne");
+        Log.e("onEvent:", "MyOne");
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
 
 
 
-    public ChildOneFragment(){}
+    public OneFragment(){}
     //보드 프래그먼트의 커스텀뷰페이저 오버라이드
     @Override
     public void onPageCurrent() {

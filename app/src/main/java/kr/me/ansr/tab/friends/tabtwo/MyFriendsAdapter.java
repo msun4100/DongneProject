@@ -2,6 +2,7 @@ package kr.me.ansr.tab.friends.tabtwo;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,6 +25,7 @@ import kr.me.ansr.tab.friends.recycler.SectionHeaderViewHolder;
 public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements  ItemViewHolder.OnLikeClickListener{
     public List<GroupItem> items = new ArrayList<GroupItem>();
+    public int blockCount = 0;
 
     public interface OnAdapterItemClickListener {
         public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type);
@@ -42,6 +44,41 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     Random r = new Random();
+    public void findOneAndModify(FriendsResult child){
+        for (GroupItem g : items) {
+            for(FriendsResult fr : g.children){
+                if(fr.userId == child.userId){
+                    int index = g.children.indexOf(fr);
+                    if(index != -1){
+                        Log.e("find item:", "index:"+index +" "+fr.toString());
+                        g.children.get(index).status = child.status;
+                        g.children.get(index).univ = child.univ;
+                        g.children.get(index).sns = child.sns;
+                        g.children.get(index).desc = child.desc;
+                        g.children.get(index).job = child.job;
+                    }
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(FriendsResult child){
+//        this.items.get(GROUP_FRIENDS).children.remove(child);
+        for (GroupItem g : items) {
+            for (FriendsResult fr : g.children) {
+                if(fr.userId == child.userId){
+                    int index = g.children.indexOf(fr);
+                    g.children.remove(index);
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+
     public void put(String groupName, FriendsResult child) {
         GroupItem group = null;
         for (GroupItem g : items) {

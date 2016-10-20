@@ -36,6 +36,7 @@ public void clearProperties() {
 	setUserId("");
 	setUserName("");
 	setProfile("");
+	setUnivName("");
 //	setRegistrationId("");
 }
 

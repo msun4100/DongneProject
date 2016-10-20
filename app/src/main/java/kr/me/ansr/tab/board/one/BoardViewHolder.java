@@ -147,13 +147,6 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             bodyAddView.setVisibility(View.VISIBLE);
         }
 
-//        if (!TextUtils.isEmpty(item.user.pic)) {
-//            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer);
-//            Glide.with(mContext).load(url).placeholder(R.drawable.b_main_view_contents_icon_05_on).into(iconThumb);
-//
-//        } else {
-//            iconThumb.setImageResource(R.mipmap.ic_launcher);
-//        }
         String stuId = String.valueOf(item.user.enterYear);
         if(stuId.length()==4){
             stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
@@ -239,7 +232,8 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
 
             // Set list height.
             ViewGroup.LayoutParams params = listView.getLayoutParams();
-            params.height = totalItemsHeight + totalDividersHeight;
+//            params.height = totalItemsHeight + totalDividersHeight;
+            params.height = totalItemsHeight + totalDividersHeight + 32; //32 == bottom padding
             listView.setLayoutParams(params);
             listView.requestLayout();
             return true;

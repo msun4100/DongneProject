@@ -1,6 +1,8 @@
 package kr.me.ansr.common;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,13 +30,14 @@ import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
  * Created by KMS on 2016-10-06.
  */
 public class ReportFormDialogFragment extends DialogFragment {
-
-    public static final String TAG_TAB_THREE = "tabThree";
+    public static final String TAG_FRIENDS_DETAIL = "friendsDetail";
+    public static final String TAG_TAB_THREE_STUDENT = "tabThreeStudent";
     public static final String TAG_BOARD_DETAIL = "BoardDetail";
 
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
 
+    public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
 
     public ReportFormDialogFragment() {
 
@@ -87,16 +90,14 @@ public class ReportFormDialogFragment extends DialogFragment {
                     return;
                 }
                 if (tag != null) {
+                    if (tag.equals(TAG_FRIENDS_DETAIL)) {
+                        mCallback.onDataReturned("" + spinnerPos);
+                        dismiss();
+                    }
                     if (tag.equals(TAG_TAB_ONE_UNIV)) {
-                        if(true){
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-//                                  리스트 삭제하는 프로세스 진행
-                                    FriendsSectionFragment.reportUser(spinnerPos);
-                                }
-                            }, 500);
-                        }
+                        Intent intent = new Intent();
+                        intent.putExtra("type", spinnerPos);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
                     if (tag.equals(TAG_TAB_ONE_MY)) {
@@ -104,8 +105,16 @@ public class ReportFormDialogFragment extends DialogFragment {
                         dismiss();
                     }
 
-                    if (tag.equals(TAG_TAB_THREE)) {
-                        Toast.makeText(getActivity(), "tab three report btn", Toast.LENGTH_SHORT).show();
+                    if (tag.equals(TAG_TAB_THREE_STUDENT)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("type", spinnerPos);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if (tag.equals(TAG_TAB_MY_WRITING_ONE)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("type", spinnerPos);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                         dismiss();
                     }
                     if (tag.equals(TAG_BOARD_DETAIL)) {
@@ -176,5 +185,26 @@ public class ReportFormDialogFragment extends DialogFragment {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    private IDataReturned mCallback;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback = (IDataReturned) activity;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Activity doesn't implements 'IDataReturned interface'");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        try{
+            mCallback = null;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Exception occurred while onDetach");
+        }
     }
 }

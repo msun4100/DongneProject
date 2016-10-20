@@ -112,7 +112,7 @@ public class ImageHomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 //                Toast.makeText(getActivity(), "imageview clicked", Toast.LENGTH_SHORT).show();
-                ((MediaStoreActivity)getActivity()).startAlbum();
+                ((MediaStoreActivity)getActivity()).startFishBunAlbum();
             }
         });
         sw = (SwitchCompat) v.findViewById(R.id.sw_prof_set_location);
