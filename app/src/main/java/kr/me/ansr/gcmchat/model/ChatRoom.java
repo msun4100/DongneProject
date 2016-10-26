@@ -9,13 +9,14 @@ import java.io.Serializable;
  */
 public class ChatRoom implements Serializable {
     @SerializedName("chat_room_id")
-    int id;
-    String name;
-    String lastMessage; //클라이언트용 변수
+    public int id;
+    public String name;
+    public String lastMessage; //클라이언트용 변수
     @SerializedName("created_at")
-    String timestamp;
-    int unreadCount;
-
+    public String timestamp;
+    public int unreadCount;
+    public String image;
+    public int bgColor = 0; //백그라운드 칼라
     public ChatRoom() {
     }
 
@@ -65,5 +66,18 @@ public class ChatRoom implements Serializable {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatRoom{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lastMessage='" + lastMessage + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", unreadCount=" + unreadCount +
+                ", image='" + image + '\'' +
+                ", bgColor=" + bgColor +
+                '}';
     }
 }

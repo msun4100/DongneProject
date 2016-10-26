@@ -91,18 +91,23 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         deptView.setText(item.univ.get(0).getDeptname());
         jobView.setText(""+item.job.getName() + " " + item.job.getTeam());
         distanceView.setText(item.temp);
-//        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-//        Glide.with(mContext).load(url).into(iconThumbView);
-        if (!TextUtils.isEmpty(item.pic.small)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-            Glide.with(mContext).load(url)
-                    .placeholder(R.drawable.e__who_icon)
-                    .centerCrop()
-                    .signature(new StringSignature(item.getUpdatedAt()))
-                    .into(iconThumbView);
-        } else {
-            iconThumbView.setImageResource(R.drawable.e__who_icon);
-        }
+
+        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+        Glide.with(mContext).load(url)
+                .placeholder(R.drawable.e__who_icon)
+                .centerCrop()
+                .signature(new StringSignature(item.getUpdatedAt()))
+                .into(iconThumbView);
+//        if (!TextUtils.isEmpty(item.pic.small)) {
+//            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+//            Glide.with(mContext).load(url)
+//                    .placeholder(R.drawable.e__who_icon)
+//                    .centerCrop()
+//                    .signature(new StringSignature(item.getUpdatedAt()))
+//                    .into(iconThumbView);
+//        } else {
+//            iconThumbView.setImageResource(R.drawable.e__who_icon);
+//        }
 
     }
 

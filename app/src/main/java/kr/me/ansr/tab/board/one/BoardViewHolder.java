@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,6 +56,8 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     PreReplyAdapter mAdapter;
     LinearLayout listViewLayout;
     LinearLayout likeLayout;
+
+    ImageView bodyImage;
 
     public OnItemClickListener itemClickListener;
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -100,6 +103,8 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         //for adapter item click
         likeLayout = (LinearLayout)itemView.findViewById(R.id.linear_like_layout);
 
+        bodyImage = (ImageView)itemView.findViewById(R.id.image_board_body);
+
         listView = (ListView)itemView.findViewById(R.id.listView_board);
 		mAdapter = new PreReplyAdapter(context);
         mAdapter.setOnAdapterItemClickListener(new PreReplyAdapter.OnAdapterItemClickListener() {
@@ -140,7 +145,14 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         } else {
             nameView.setText(item.user.username);
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-            Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
+            Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.updatedAt)).into(iconThumb);
+        }
+        if (item.pic.size() > 0){
+            bodyImage.setVisibility(View.VISIBLE);
+            String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+item.pic.get(0));
+            Glide.with(mContext).load(url).centerCrop().signature(new StringSignature(item.updatedAt)).into(bodyImage);
+        } else {
+            bodyImage.setVisibility(View.GONE);
         }
         bodyView.setText(item.body);
         if(bodyView.getText().toString().length() > 80){

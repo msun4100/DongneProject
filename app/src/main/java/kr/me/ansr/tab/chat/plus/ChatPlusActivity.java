@@ -101,9 +101,7 @@ public class ChatPlusActivity extends AppCompatActivity {
                             intent.putExtra("name", item.username);
                             intent.putExtra("mItem", item);
                             intent.putExtra("mList", list);
-
                             startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
-//                            finish();
                         }
                         break;
                     default:

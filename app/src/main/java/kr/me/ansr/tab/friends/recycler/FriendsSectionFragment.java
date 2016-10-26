@@ -70,7 +70,7 @@ public class FriendsSectionFragment extends PagerFragment
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
-    SectionAdapter mAdapter;
+    public static SectionAdapter mAdapter;
 //    RecyclerView.LayoutManager layoutManager;
     LinearLayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;
@@ -509,7 +509,7 @@ public class FriendsSectionFragment extends PagerFragment
             }
         }, 1000);
     }
-    public FriendsResult getUserInfo(){
+    static public FriendsResult getUserInfo(){
         //mypage에서 mItem가져오기 위해
         if(mAdapter != null){
             FriendsResult item = mAdapter.getItem(1);

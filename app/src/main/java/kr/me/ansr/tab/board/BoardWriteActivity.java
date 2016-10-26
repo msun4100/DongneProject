@@ -1,22 +1,66 @@
 package kr.me.ansr.tab.board;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
+import com.sangcomz.fishbun.FishBun;
+import com.sangcomz.fishbun.define.Define;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
@@ -24,6 +68,10 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CustomDialogFragment;
 import kr.me.ansr.common.IDataReturned;
+import kr.me.ansr.image.ImageItem;
+import kr.me.ansr.image.SlideshowFragment;
+import kr.me.ansr.image.upload.AndroidMultiPartEntity;
+import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.one.BoardResult;
 import okhttp3.Request;
 
@@ -45,6 +93,13 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     LinearLayout addImageView;
     CheckBox checkBox;
     Button btn;
+    private ProgressBar progressBar;
+    private TextView txtPercentage;
+    long totalSize = 0;
+
+    ImageView bodyImage, removeImage;
+    View rootView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,14 +122,69 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         }
         checkBox = (CheckBox)findViewById(R.id.check_write_anonymous1);
         inputBody = (EditText)findViewById(R.id.edit_write_input);
+
         addImageView = (LinearLayout)findViewById(R.id.linear_write_add_image_layout);
         addImageView.setOnClickListener(mListener);
         btn = (Button)findViewById(R.id.btn_write_send);
         btn.setOnClickListener(mListener);
 
+        txtPercentage = (TextView) findViewById(R.id.txtPercentage);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        bodyImage = (ImageView) findViewById(R.id.image_write_body);
+        bodyImage.setVisibility(View.GONE);
+        removeImage = (ImageView) findViewById(R.id.image_write_remove);
+        removeImage.setVisibility(View.GONE);
+        removeImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(bodyImage.getVisibility() == View.VISIBLE){
+                    bodyImage.setVisibility(View.GONE);
+                    removeImage.setVisibility(View.GONE);
+
+                    if(mItem != null && mItem.pic.size() > 0){
+                        mItem.pic.remove(0);
+                    }
+                }
+            }
+        });
+        // Checking camera availability
+        if (!isDeviceSupportCamera()) {
+            Toast.makeText(getApplicationContext(), "Sorry! Your device doesn't support camera", Toast.LENGTH_LONG).show();
+            // will close the app if the device does't have camera
+            finish();
+        }
+        images = new ArrayList<>();
+        images.clear();
         if(mItem != null && type != null && type.equals("edit")){
             initData();
         }
+
+        rootView = (View)findViewById(R.id.rootView);
+        setupParent(rootView);
+    }
+
+    protected void setupParent(View view) {
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard();
+                    return false;
+                }
+            });
+        }
+        //If a layout container, iterate over children
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupParent(innerView);
+            }
+        }
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
     private void initData(){
@@ -86,7 +196,15 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         checkBox.setEnabled(false);
         inputBody.setText(mItem.body);
         btn.setText("수 정 하 기");
-
+        if(mItem.pic.size() > 0){
+            bodyImage.setVisibility(View.VISIBLE);
+            String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+mItem.pic.get(0));
+            Glide.with(this).load(url).centerCrop().signature(new StringSignature(mItem.updatedAt)).into(bodyImage);
+            removeImage.setVisibility(View.VISIBLE);
+        } else {
+            bodyImage.setVisibility(View.GONE);
+            removeImage.setVisibility(View.GONE);
+        }
     }
 
     private View.OnClickListener mListener = new View.OnClickListener() {
@@ -96,9 +214,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                 case R.id.btn_write_send:
                     switch (type){
                         case "new":
-//                            if(filePath != null){
-//                                upload();
-//                            }
                             postWrite();
                             break;
                         case "edit":
@@ -107,8 +222,12 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                     }
                     break;
                 case R.id.linear_write_add_image_layout:
-                    Toast.makeText(BoardWriteActivity.this, "add image view click", Toast.LENGTH_SHORT).show();
-
+                    startFishBunAlbum();
+//                    if(mItem == null || mItem.pic.get(0).isEmpty()){
+//                        startFishBunAlbum();
+//                    } else {
+//                        Toast.makeText(BoardWriteActivity.this, "이미지 삭제 후 이용해주세요.", Toast.LENGTH_SHORT).show();
+//                    }
                     break;
                 default:
                 break;
@@ -121,19 +240,27 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             return;
         }
         String type = getBoardType();
-        Log.e("postWriteType:", type);
+        Log.e("putWriteType:", type);
         //임시 pageId == univId
         int pageId = Integer.valueOf(PropertyManager.getInstance().getUserId());
         int boardId = mItem.boardId;
         String title = "Title";
         String content = inputBody.getText().toString();
-        NetworkManager.getInstance().putDongneBoardWrite(BoardWriteActivity.this, pageId, boardId,type, title, content, new NetworkManager.OnResultListener<WriteInfo>() {
+        String pic = null;
+        if(mItem.pic.size() == 1){
+            pic = mItem.pic.get(0);
+        }
+        NetworkManager.getInstance().putDongneBoardWrite(BoardWriteActivity.this, pageId, boardId,type, title, content, pic, new NetworkManager.OnResultListener<WriteInfo>() {
             @Override
             public void onSuccess(Request request, WriteInfo result) {
                 if(result.error.equals(false)){
                     Log.e(TAG+" result.message: ", result.message);
                     mItem = result.result;
-                    finishAndReturnData(true);
+                    if(filePath != null){
+                        imageUpload(""+result.result.boardId);
+                    } else {
+                        finishAndReturnData(true);
+                    }
                 } else {
                     Toast.makeText(BoardWriteActivity.this, "error: true\n" + result.message, Toast.LENGTH_LONG).show();
                 }
@@ -164,7 +291,11 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             public void onSuccess(Request request, WriteInfo result) {
                 if(result.error.equals(false)){
                     Log.e(TAG+" result.message: ", result.message);
-                    finishAndReturnData(true);
+                    if(filePath != null){
+                        imageUpload(""+result.result.boardId);
+                    } else {
+                        finishAndReturnData(true);
+                    }
                 } else {
                     Toast.makeText(BoardWriteActivity.this, "error: true\n" + result.message, Toast.LENGTH_LONG).show();
                 }
@@ -251,4 +382,194 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             }
         }
     }
+
+
+    /**
+     * Checking device has camera hardware or not
+     * */
+    private boolean isDeviceSupportCamera() {
+        if (getApplicationContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA)) {
+            // this device has a camera
+            return true;
+        } else {
+            // no camera on this device
+            return false;
+        }
+    }
+    private static final int ALBUM_PICKER_COUNT = 1;
+    public void startFishBunAlbum(){
+        FishBun.with(BoardWriteActivity.this)
+                .setAlbumThumnaliSize(150)//you can resize album thumnail size
+//                .setActionBarColor(getResources().getColor(R.color.pressed), getResources().getColor(R.color.pressed))
+                .setPickerCount(ALBUM_PICKER_COUNT)//you can restrict photo count
+                .startAlbum();
+    }
+
+
+    ArrayList<ImageItem> images;
+    public String filePath = null;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case Define.ALBUM_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    List<String> path = data.getStringArrayListExtra(Define.INTENT_PATH);
+                    //==Custom codes====
+                    images.clear();
+                    for(int i=0; i<path.size(); i++){
+                        ImageItem image = new ImageItem();
+                        image.setName("path"+i);
+                        image.setSmall(path.get(i));
+                        image.setMedium(path.get(i));
+                        image.setLarge(path.get(i));
+                        image.setTimestamp("custom timeStamp "+i);
+                        images.add(image);
+                        Log.e("img:", ""+images.get(i));
+                    }
+                    //==================
+                    filePath = path.get(0); //실제론 이 변수 사용
+                    bodyImage.setVisibility(View.VISIBLE);
+                    removeImage.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(filePath).centerCrop().into(bodyImage);
+                    if(mItem != null){
+                        if(mItem.pic.size() == 0){
+                            mItem.pic.add("board_"+mItem.boardId);
+                        } else if(mItem.pic.size() == 1){
+                            mItem.pic.remove(0);
+                            mItem.pic.add("board_"+mItem.boardId);
+                        }
+                        Log.e("get(0)", mItem.pic.get(0));
+                    }
+                }
+                break;
+
+        }
+    }
+
+    private String returnBoardId = null;
+    String imgKey = null;
+    private void imageUpload(String boardId){
+        returnBoardId = boardId;
+        new UploadFileToServer().execute();
+    }
+
+    /**
+     * Uploading the file to server
+     * */
+    private class UploadFileToServer extends AsyncTask<Void, Integer, String> {
+        @Override
+        protected void onPreExecute() {
+            // setting progress bar to zero
+            progressBar.setProgress(0);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            // Making progress bar visible and updates value
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setProgress(progress[0]);
+            // updating percentage value
+            txtPercentage.setVisibility(View.VISIBLE);
+            txtPercentage.setText(String.valueOf(progress[0]) + "%");
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return uploadFile();
+        }
+
+        @SuppressWarnings("deprecation")
+        private String uploadFile() {
+            String responseString = null;
+
+            HttpClient httpclient = new DefaultHttpClient();
+            String url = Config.BOARD_FILE_UPLOAD_URL.replace(":boardId", ""+returnBoardId);
+            HttpPost httppost = new HttpPost(url);
+            try {
+                AndroidMultiPartEntity entity = new AndroidMultiPartEntity(
+                        new AndroidMultiPartEntity.ProgressListener() {
+                            @Override
+                            public void transferred(long num) {
+                                publishProgress((int) ((num / (float) totalSize) * 100));
+                            }
+                        });
+                File sourceFile = new File(filePath);
+                // Adding file data to http body
+                entity.addPart("photo", new FileBody(sourceFile));
+                // Extra parameters if you want to pass to server
+                String reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                entity.addPart("reqDate", new StringBody(reqDate));
+//                entity.addPart("title", new StringBody("new title string"));
+                totalSize = entity.getContentLength();
+                httppost.setEntity(entity);
+                // Making server call
+                HttpResponse response = httpclient.execute(httppost);
+                HttpEntity r_entity = response.getEntity();
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 200) {
+                    // Server response
+                    responseString = EntityUtils.toString(r_entity);
+                    try {
+                        JSONObject obj = new JSONObject(responseString);
+                        if (obj.getBoolean("error") == false) {
+                            imgKey = obj.getString("result");
+                        } else { //when {"error": true, ..}
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {    //Server response error
+                    responseString = "Error occurred! Http Status Code: " + statusCode;
+                }
+            } catch (ClientProtocolException e) {
+                responseString = e.toString();
+            } catch (IOException e) {
+                responseString = e.toString();
+            }
+            return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.e(TAG, "Response from server: " + result);
+            // showing the server response in an alert dialog
+            finishAndReturnData(true);
+//            final String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+imgKey);
+//                Glide.with(getActivity()).load(url).into(profileView);
+//                profileView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Glide.with(BoardWriteActivity.this).load(url)
+//                                .placeholder(R.drawable.e__who_icon)
+//                                .centerCrop()
+//                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
+//                                .into(profileView);
+//                    }
+//                },1500);
+            super.onPostExecute(result);
+        }
+    }
+
+    /**
+     * Method to show alert dialog
+     * */
+    private void showAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(BoardWriteActivity.this);
+        builder.setMessage(message).setTitle("Response from Server")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+//                        Toast.makeText(getActivity(), "objectId: "+PropertyManager.getInstance().getProfile(),Toast.LENGTH_SHORT).show();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+
+
 }

@@ -7,16 +7,21 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
+import kr.me.ansr.tab.mypage.account.ManagementActivity;
+import kr.me.ansr.tab.mypage.setting.SettingActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,20 +107,20 @@ public class MypageFragment extends PagerFragment {
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_1_0:
-					Toast.makeText(getActivity(), "10", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), FriendStatusActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_1_1:
-					Toast.makeText(getActivity(), "11", Toast.LENGTH_SHORT).show();
+					intent = new Intent(getActivity(), ManagementActivity.class);
+					startActivity(intent);
+					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_1_2:
-					Toast.makeText(getActivity(), "12", Toast.LENGTH_SHORT).show();
-					break;
-
 				case R.id.frame_my_1_2:
-					Toast.makeText(getActivity(), "12", Toast.LENGTH_SHORT).show();
+					intent = new Intent(getActivity(), SettingActivity.class);
+					startActivity(intent);
+					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_thumb:
 					Toast.makeText(getActivity(), "thumb", Toast.LENGTH_SHORT).show();
@@ -123,18 +128,38 @@ public class MypageFragment extends PagerFragment {
 				case R.id.image_my_next:
 					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), MediaStoreActivity.class);
-					FriendsResult item = new FriendsSectionFragment().getUserInfo();
+					FriendsResult item = FriendsSectionFragment.getUserInfo();
 					intent.putExtra("mItem", item);
 					intent.putExtra("tag", MediaStoreActivity.TAG_MY_PAGE);
-//					startActivityForResult(intent, 125);
-					startActivity(intent);
-					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
+					startActivityForResult(intent, 125);
+//					startActivity(intent);
+//					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				default:
 					break;
 			}
 		}
 	};
+
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+			case 125:
+				if (resultCode == Activity.RESULT_OK) {
+//                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+					Bundle extraBundle = data.getExtras();
+					FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+					EventBus.getInstance().post(result);
+					if(result != null){
+//						mItem = result;
+						initData();
+					}
+				}
+				break;
+		}
+	}
 
 	@Override
 	public void onPageCurrent() {

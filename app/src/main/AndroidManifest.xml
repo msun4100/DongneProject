@@ -37,7 +37,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
@@ -72,10 +73,12 @@
         <activity
             android:name=".gcmchat.activity.LoginActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
         <activity
             android:name=".gcmchat.activity.ChatRoomActivity"
             android:label="@string/title_activity_chat_room_discussion"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:parentActivityName=".gcmchat.activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -178,7 +181,8 @@
         <activity
             android:name=".tab.board.BoardWriteActivity"
             android:label="@string/title_activity_board_write"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".tab.friends.detail.FriendsDetailActivity"
             android:label="@string/title_activity_friends_detail"
@@ -202,7 +206,8 @@
         <activity
             android:name=".tab.chat.plus.ChatPlusActivity"
             android:label="@string/title_activity_chat_plus"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".tab.friends.list.FriendsListActivity"
             android:label="@string/title_activity_friends_list"
@@ -214,6 +219,14 @@
         <activity
             android:name=".tab.mypage.MyInterestActivity"
             android:label="@string/title_activity_my_interest"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.mypage.account.ManagementActivity"
+            android:label="@string/title_activity_management"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".tab.mypage.setting.SettingActivity"
+            android:label="@string/title_activity_setting"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

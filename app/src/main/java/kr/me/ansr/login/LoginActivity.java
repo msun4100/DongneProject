@@ -7,8 +7,10 @@ import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.MediaStoreActivity;
+import kr.me.ansr.image.TakePhotoActivity;
 import okhttp3.Request;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, MediaStoreActivity.class);
+				Intent intent = new Intent(LoginActivity.this, TakePhotoActivity.class);
 //				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 //				finish();
@@ -189,6 +191,7 @@ public class LoginActivity extends AppCompatActivity {
 			}
 		}
 	}
+	ProgressDialog dialog = null;
 
 	private void doLogin(){
 		if(!validateEmail()){
@@ -220,13 +223,18 @@ public class LoginActivity extends AppCompatActivity {
 					startActivity(intent);
 					finish();
 				}
+				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
 				Log.e(TAG, cause.toString());
+				dialog.dismiss();
 			}
 		});
+		dialog = new ProgressDialog(LoginActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
 	}
 }

@@ -99,6 +99,7 @@ public void removeItem(BoardResult child){
                     items.get(index).body = child.body;
                     items.get(index).type = child.type;
                     items.get(index).user = child.user;
+                    items.get(index).pic = child.pic;
                 }
                 break;
             }

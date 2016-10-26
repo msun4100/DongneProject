@@ -87,7 +87,7 @@ public class MediaStoreActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 FishBun.with(MediaStoreActivity.this)
-                        .setAlbumThumnaliSize(150)//you can resize album thumnail size
+                        .setAlbumThumnaliSize(120)//you can resize album thumnail size
                         .setPickerCount(ALBUM_PICKER_COUNT)//you can restrict photo count
                         .startAlbum();
             }
@@ -163,8 +163,8 @@ public class MediaStoreActivity extends AppCompatActivity{
                     bundle.putInt("position", 0);
 
                     callSlideshowFragment(bundle);
-                    break;
                 }
+                break;
             case RC_SELECT_PROFILE_CODE:
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "in case RC_RESULT_PROFILE_CODE\n"+data.getExtras(), Toast.LENGTH_LONG).show();
@@ -175,8 +175,8 @@ public class MediaStoreActivity extends AppCompatActivity{
                     bundle.putString("filePath", filePath);
 
                     callImageHomeFragment(bundle);
-                    break;
                 }
+                break;
         }
     }
 

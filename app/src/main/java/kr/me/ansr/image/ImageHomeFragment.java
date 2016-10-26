@@ -1,6 +1,7 @@
 package kr.me.ansr.image;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -188,6 +189,9 @@ public class ImageHomeFragment extends Fragment {
             }
         }
     }
+
+    ProgressDialog dialog = null;
+
     private void editUser(){
         final String desc1 = inputDesc1.getText().toString();
         final String desc2 = inputDesc2.getText().toString();
@@ -216,13 +220,18 @@ public class ImageHomeFragment extends Fragment {
                     Toast.makeText(getActivity(), "회원정보가 수정되었습니다.", Toast.LENGTH_SHORT).show();
                     ((MediaStoreActivity)getActivity()).finishAndReturnData();
                 }
+                dialog.dismiss();
             }
 
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
                 Toast.makeText(getActivity(), "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Loading....");
+        dialog.show();
     }
     @Override
     public void onResume() {
@@ -366,32 +375,19 @@ public class ImageHomeFragment extends Fragment {
         protected void onPostExecute(String result) {
             Log.e(TAG, "Response from server: " + result);
             // showing the server response in an alert dialog
-            if(PropertyManager.getInstance().getProfile() != ""){
-                showAlert(result);
-//                textView3.setVisibility(View.VISIBLE);
-//                textView3.setText("프로필 사진 등록 완료");
-//                Glide.with(getActivity()).load(filePath).into(profileView);
-                String userId = PropertyManager.getInstance().getUserId();
-                final String url = Config.FILE_GET_URL.replace(":userId", ""+userId).replace(":size", "small");
+            String userId = PropertyManager.getInstance().getUserId();
+            final String url = Config.FILE_GET_URL.replace(":userId", ""+userId).replace(":size", "small");
 //                Glide.with(getActivity()).load(url).into(profileView);
-                profileView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Glide.with(getActivity()).load(url)
-                                .placeholder(R.drawable.e__who_icon)
-                                .centerCrop()
-                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
-                                .into(profileView);
-                    }
-                },1500);
-            } else {
-                showAlert(result);
-//                txtPercentage.setVisibility(View.GONE);
-//                progressBar.setVisibility(View.GONE);
-//                textView3.setVisibility(View.VISIBLE);
-//                textView3.setText("프로필 사진을 다시 등록해주세요.");
-                profileView.setImageResource(R.drawable.e__who_icon);
-            }
+            profileView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Glide.with(getActivity()).load(url)
+                            .placeholder(R.drawable.e__who_icon)
+                            .centerCrop()
+                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
+                            .into(profileView);
+                }
+            },1000);
             super.onPostExecute(result);
         }
     }

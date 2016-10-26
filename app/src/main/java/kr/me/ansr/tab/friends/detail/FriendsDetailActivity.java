@@ -238,19 +238,12 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             distanceView.setText(mItem.temp);
         } else { distanceView.setText("0m");}
 
-        if (!TextUtils.isEmpty(mItem.pic.small)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
-            Glide.with(getApplicationContext()).load(url)
-                    .placeholder(R.drawable.e__who_icon)
-//                    .fitCenter()
-                    .centerCrop()
-                    .signature(new StringSignature(mItem.getUpdatedAt()))
-//                    .signature(new StringSignature(System.currentTimeMillis()/(24 * 60 * 60 * 1000)))
-//                    .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
-                    .into(thumbIcon);
-        } else {
-            thumbIcon.setImageResource(R.drawable.e__who_icon);
-        }
+        String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
+        Glide.with(getApplicationContext()).load(url)
+                .placeholder(R.drawable.e__who_icon)
+                .centerCrop()
+                .signature(new StringSignature(mItem.getUpdatedAt()))
+                .into(thumbIcon);
 
     }
     public void nextProcess(String msg){

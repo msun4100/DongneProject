@@ -10,6 +10,9 @@ public class Config {
 	public static final String FILE_UPLOAD_URL = kr.me.ansr.gcmchat.app.Config.SERVER_URL + "/updatePic/user/:userId";
 	public static final String FILE_GET_URL = kr.me.ansr.gcmchat.app.Config.SERVER_URL + "/getPic/user/:userId/:size";
 
+	public static final String BOARD_FILE_UPLOAD_URL = kr.me.ansr.gcmchat.app.Config.SERVER_URL + "/updatePic/board/:boardId";
+	public static final String BOARD_FILE_GET_URL = kr.me.ansr.gcmchat.app.Config.SERVER_URL + "/getPic/board/:imgKey";
+
 	// Directory name to store captured images and videos
     public static final String IMAGE_DIRECTORY_NAME = "Dongne File Upload";
 }

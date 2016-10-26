@@ -40,6 +40,7 @@ import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.WriteInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.chat.ChatRoomInfo;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -251,6 +252,53 @@ public class NetworkManager {
 //        catch (UnsupportedEncodingException e) {
 //            e.printStackTrace();
 //        }
+
+        return null;
+    }
+
+    private static final String URL_LOGOUT = SERVER_URL + "/account/logout";
+    public Request getDongneLogout(Context context, final OnResultListener<CommonInfo> listener) {
+        try {
+//            String url = String.format(URL_LOGIN, URLEncoder.encode(keyword, "utf-8")); //get method
+            String url = URL_LOGOUT;
+            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+
+            JsonObject json = new JsonObject();
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json") //API전용 헤더인듯?
+//                    .post(body)
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+
+            return request;
+
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         return null;
     }
@@ -1173,7 +1221,7 @@ public class NetworkManager {
         return null;
     }
 
-    public Request putDongneBoardWrite(Context context, int pageId, int boardId, String type, String title, String content, final OnResultListener<WriteInfo> listener) {
+    public Request putDongneBoardWrite(Context context, int pageId, int boardId, String type, String title, String content, String pic, final OnResultListener<WriteInfo> listener) {
         try {
             String url = URL_BOARD_WRITE;
 
@@ -1187,6 +1235,7 @@ public class NetworkManager {
             json.addProperty("type", type);
             json.addProperty("title", title);
             json.addProperty("body", content);
+            json.addProperty("pic", pic);
 
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
@@ -1645,4 +1694,94 @@ public class NetworkManager {
         return null;
     }
 
+    private static final String URL_USERS_PW = SERVER_URL + "/users/pw";
+    public Request putDongneChangePW(Context context, String email, String password, String value, final OnResultListener<CommonInfo> listener) {
+        try {
+            String url = URL_USERS_PW;
+            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("email", email);
+            json.addProperty("password", password);
+            json.addProperty("value", value);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").put(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_CHAT_ROOMS = SERVER_URL + "/chat_rooms";
+    public Request postDongneChatRooms(Context context, ArrayList<String> roomList, final OnResultListener<ChatRoomInfo> listener) {
+        try {
+            String url = URL_CHAT_ROOMS;
+            final CallbackObject<ChatRoomInfo> callbackObject = new CallbackObject<ChatRoomInfo>();
+
+
+            JsonObject json = new JsonObject();
+            for (int i=0; i< roomList.size(); i++){
+                json.addProperty("roomList[" + i + "]", ""+roomList.get(i));
+//                json.addProperty("roomList", ""+roomList.indexOf(i));
+            }
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatRoomInfo result = gson.fromJson(response.body().charStream(), ChatRoomInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 }
+

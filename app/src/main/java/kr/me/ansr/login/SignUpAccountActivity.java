@@ -1,5 +1,6 @@
 package kr.me.ansr.login;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -71,6 +72,7 @@ public class SignUpAccountActivity extends AppCompatActivity {
         textConfirm.setVisibility(View.GONE);
     }
 
+    ProgressDialog dialog = null;
     /**
      * logging in user. Will make http post request with name, email
      * as parameters
@@ -108,13 +110,17 @@ public class SignUpAccountActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     }
+                    dialog.dismiss();
                 }
                 @Override
                 public void onFailure(Request request, int code, Throwable cause) {
                     Toast.makeText(SignUpAccountActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 }
             });
-
+            dialog = new ProgressDialog(SignUpAccountActivity.this);
+            dialog.setTitle("Loading....");
+            dialog.show();
         } else {
             Toast.makeText(getApplicationContext(), "pw confirm error", Toast.LENGTH_SHORT).show();
         }

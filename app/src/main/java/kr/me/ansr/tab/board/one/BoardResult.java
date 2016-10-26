@@ -26,6 +26,7 @@ public class BoardResult implements Serializable {
     public String body;
     public String type;
     public BoardUser user;
+    public ArrayList<String> pic;
 //    public ArrayList<PreReply> preReplies;
     public ArrayList<ReplyResult> preReplies;
     public BoardResult(){
@@ -36,7 +37,6 @@ public class BoardResult implements Serializable {
         public int enterYear;
         public String username;
         public String deptname;
-        public Pic pic;
         public BoardUser(){}
     }
 

@@ -2,6 +2,7 @@ package kr.me.ansr.database;
 
 /**
  * Created by KMS on 2016-09-22.
+ * 기존 채팅 푸시와 최대한 같은 구조 유지를 위해 chat_room_id와 message_id 그대로 사용함
  */
 public class Push {
 
@@ -9,8 +10,8 @@ public class Push {
 
     public long id = -1;
     public String image;
-    public int chat_room_id;
-    public int message_id;
+    public int chat_room_id;    //boardId or userId
+    public int message_id;      //push type
     public String message;
     public String created_at;
 

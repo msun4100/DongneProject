@@ -19,7 +19,8 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="20dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/e__who_icon" />
+            android:src="@drawable/e__who_icon"
+            android:background="@drawable/z_rectangle"/>
 
         <LinearLayout
             android:layout_marginBottom="8dp"
@@ -71,8 +72,8 @@
             android:visibility="invisible" />
         <LinearLayout
             android:layout_marginBottom="14dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="25dp"
             android:orientation="horizontal">
@@ -81,11 +82,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <TextView
+
                     android:id="@+id/text_board_timestamp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginRight="25dp"
+                    android:layout_gravity="center_horizontal|center"
+                    android:layout_marginRight="12dp"
                     android:text="타임스탬프"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="#a2a1a1"
@@ -96,13 +98,22 @@
                     android:layout_height="17dp"
                     android:layout_marginRight="12dp"
                     android:layout_marginBottom="1dp"
-                    android:layout_gravity="bottom|end"
+                    android:layout_gravity="center|end"
                     android:src="@drawable/e__more_1"/>
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
     <!-- 상단 뷰-->
-
+    <ImageView
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/image_board_body"
+        android:src="@null"/>
+    <!--android:scaleType="centerCrop"-->
+    <!--android:minHeight="220dp"-->
+    <!--android:maxHeight="348dp"-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

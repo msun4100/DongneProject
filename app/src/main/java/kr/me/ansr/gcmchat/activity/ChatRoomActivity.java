@@ -43,11 +43,13 @@ import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.adapter.ChatRoomThreadAdapter;
 import kr.me.ansr.gcmchat.app.Config;
 import kr.me.ansr.gcmchat.app.EndPoints;
 import kr.me.ansr.gcmchat.gcm.NotificationUtils;
 import kr.me.ansr.gcmchat.model.ChatInfo;
+import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
 import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -371,13 +373,13 @@ public class ChatRoomActivity extends AppCompatActivity {
             public void onSuccess(okhttp3.Request request, ChatInfo result) {
                 if (result.error.equals(false)) {
                     if(result.messages != null){
-
                         for(int i=0; i<result.messages.size(); i++){
                             Log.e("msg"+i+" :", result.messages.get(i).toString());
                             Message message = new Message();
                             message.setId(result.messages.get(i).getId());
                             message.setMessage(result.messages.get(i).getMessage());
                             message.setCreatedAt(result.messages.get(i).getCreatedAt());
+                            message.chat_room_id = result.messages.get(i).chat_room_id;
                             chatRoomId = ""+ result.messages.get(i).chat_room_id;
 
                             int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
@@ -389,6 +391,16 @@ public class ChatRoomActivity extends AppCompatActivity {
 //                            message.setUser(result.messages.get(i).getUser());
                             message.setUser(user);
                             messageArrayList.add(message);
+                            // insert to DB
+                            ChatRoom cr = new ChatRoom();
+                            cr.setId(message.chat_room_id);
+                            cr.setName(mItem.username);
+                            cr.setLastMessage(message.message);
+                            cr.setUnreadCount(0);
+                            cr.setTimestamp(message.createdAt);
+                            cr.bgColor = 0; //없으면 저장 안되나?
+                            cr.image ="";
+                            DBManager.getInstance().insertRoom(cr);
                         }
                     }
                     mAdapter.notifyDataSetChanged();

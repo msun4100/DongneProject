@@ -117,6 +117,7 @@ public class MyWritingActivity extends AppCompatActivity {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == RESULT_OK) {
                     EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+//                    EventBus.getInstance().post(data.getExtras().getSerializable());
                 }
                 break;
             case BoardWriteActivity.BOARD_WRITE_RC_NEW:

@@ -105,6 +105,8 @@
     <string name="title_activity_friends_list">FriendsListActivity</string>
     <string name="title_activity_my_writing">MyWritingActivity</string>
     <string name="title_activity_my_interest">MyInterestActivity</string>
+    <string name="title_activity_management">ManagementActivity</string>
+    <string name="title_activity_setting">SettingActivity</string>
 
 
 </resources>

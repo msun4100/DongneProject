@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
 
 import java.util.ArrayList;
 
@@ -61,6 +62,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     TextView replyCountView;
     ImageView iconLike;
     TextView likeCountView;
+    ImageView bodyImage;
 
     ListView listView;
     DetailReplyAdapter mAdapter;
@@ -239,7 +241,14 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         } else {
             nameView.setText(item.user.username);
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-            Glide.with(this).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
+            Glide.with(this).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.updatedAt)).into(iconThumb);
+        }
+        if (item.pic.size() > 0){
+            bodyImage.setVisibility(View.VISIBLE);
+            String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+item.pic.get(0));
+            Glide.with(this).load(url).centerCrop().signature(new StringSignature(item.updatedAt)).into(bodyImage);
+        } else {
+            bodyImage.setVisibility(View.GONE);
         }
 
         bodyView.setText(item.body);
@@ -363,6 +372,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         likeCountView = (TextView)findViewById(R.id.text_board_like_count);
 
         likeLayout = (LinearLayout)findViewById(R.id.linear_like_layout);
+        bodyImage = (ImageView)findViewById(R.id.image_board_body);
 
         listView = (ListView)findViewById(R.id.listView_board);
         mAdapter = new DetailReplyAdapter(this);

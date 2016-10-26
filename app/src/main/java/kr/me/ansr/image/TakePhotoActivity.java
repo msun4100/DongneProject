@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.sangcomz.fishbun.FishBun;
 
 import java.io.File;
 
@@ -52,7 +53,11 @@ public class TakePhotoActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callGallery();
+//                callGallery();
+                FishBun.with(TakePhotoActivity.this)
+                        .setAlbumThumnaliSize(150)//you can resize album thumnail size
+                        .setPickerCount(1)//you can restrict photo count
+                        .startAlbum();
             }
         });
 

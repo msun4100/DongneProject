@@ -25,6 +25,12 @@
         <item>욕설 및 비방</item>
         <item>기타 동문 교류를 방해하는 행위</item>
     </string-array>
+    <string-array name="withdraw_items">
+        <item>탈퇴사유를 선택해주세요</item>
+        <item>사칭하는 동문이 많다.</item>
+        <item>부적절한 콘텐츠(음란물, 광고성)가 많다.</item>
+        <item>기타</item>
+    </string-array>
     <string-array name="univ">
         <item>인하대</item>
         <item>세종대</item>

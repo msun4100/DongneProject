@@ -2,14 +2,17 @@ package kr.me.ansr.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.gcmchat.model.ChatRoom;
 
 /**
  * Created by KMS on 2016-09-22.
@@ -41,11 +44,38 @@ public class DBManager extends SQLiteOpenHelper {
                 DBConstant.PushTable.COLUMN_USER_ID+" INTEGER," +
                 DBConstant.PushTable.COLUMN_NAME+" TEXT," +
                 DBConstant.PushTable.COLUMN_BG+" INTEGER);";
+
+        String sql2 = "CREATE TABLE "+ DBConstant.ChatRoomsTable.TABLE_NAME+"(" +
+                DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID+" INTEGER PRIMARY KEY," +
+                DBConstant.ChatRoomsTable.COLUMN_IMAGE+" TEXT," +
+                DBConstant.ChatRoomsTable.COLUMN_CREATED_AT+" TEXT," +
+                DBConstant.ChatRoomsTable.COLUMN_LAST_MSG+" TEXT," +
+                DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT+" INTEGER," +
+                DBConstant.ChatRoomsTable.COLUMN_NAME+" TEXT," +
+                DBConstant.ChatRoomsTable.COLUMN_BG+" INTEGER);";
+
+        String sql3 = "CREATE TABLE "+ DBConstant.MessagesTable.TABLE_NAME+"(" +
+                DBConstant.MessagesTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                DBConstant.MessagesTable.COLUMN_IMAGE+" TEXT," +
+                DBConstant.MessagesTable.COLUMN_MESSAGE_ID+" INTEGER," +
+                DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID+" INTEGER," +
+                DBConstant.MessagesTable.COLUMN_CREATED_AT+" TEXT," +
+                DBConstant.MessagesTable.COLUMN_MESSAGE+" TEXT," +
+                DBConstant.MessagesTable.COLUMN_USER_ID+" INTEGER," +
+                DBConstant.MessagesTable.COLUMN_BG+" INTEGER);";
+
         db.execSQL(sql);
+        db.execSQL(sql2);
+        db.execSQL(sql3);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //on upgrade older tables
+        db.execSQL("DROP TABLE IF EXISTS " + DBConstant.ChatRoomsTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DBConstant.MessagesTable.TABLE_NAME);
+        // create new tables
+        onCreate(db);
     }
 
     ContentValues values = new ContentValues();
@@ -178,4 +208,155 @@ public class DBManager extends SQLiteOpenHelper {
         c.close();
         return list;
     }
+
+    //chat_room_table
+    public long insertRoom(ChatRoom cr) {
+        values.clear();
+        values.put(DBConstant.ChatRoomsTable.COLUMN_IMAGE, cr.image);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID, cr.id);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_NAME, cr.name);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_LAST_MSG, cr.lastMessage);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT, cr.unreadCount);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_CREATED_AT, cr.timestamp);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_BG, cr.bgColor);
+        SQLiteDatabase db = getWritableDatabase();
+        long num = 0;
+        try{
+            num = db.insert(DBConstant.ChatRoomsTable.TABLE_NAME, null, values);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+    public int updateRoom(ChatRoom cr) {
+        values.clear();
+        values.put(DBConstant.ChatRoomsTable.COLUMN_IMAGE, cr.image);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID, cr.id);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_NAME, cr.name);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_LAST_MSG, cr.lastMessage);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT, cr.unreadCount);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_CREATED_AT, cr.timestamp);
+        values.put(DBConstant.ChatRoomsTable.COLUMN_BG, cr.bgColor);
+
+        String where = DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID + " = ?";
+        String[] args = {""+cr.id};
+
+        SQLiteDatabase db = getWritableDatabase();
+        int num =0;
+        try{
+            num = db.update(DBConstant.ChatRoomsTable.TABLE_NAME, values, where, args);
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+//    public void deleteRoom(ChatRoom cr) {
+    public int deleteRoom(int chatRoomId) {
+        String where = DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID + " = ?";
+//        String[] args = {""+cr.id};
+        String[] args = {""+chatRoomId};
+        SQLiteDatabase db = getWritableDatabase();
+        int num = 0;
+        try {
+            num = db.delete(DBConstant.ChatRoomsTable.TABLE_NAME, where, args);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+    public Cursor selectCursorRoom(String roomName) {
+        String[] columns = {
+//                DBConstant.ChatRoomsTable._ID,
+                DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID,
+                DBConstant.ChatRoomsTable.COLUMN_NAME,
+                DBConstant.ChatRoomsTable.COLUMN_IMAGE,
+                DBConstant.ChatRoomsTable.COLUMN_LAST_MSG,
+                DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT,
+                DBConstant.ChatRoomsTable.COLUMN_CREATED_AT,
+                DBConstant.ChatRoomsTable.COLUMN_BG,
+                DBConstant.ChatRoomsTable.COLUMN_IMAGE
+        };
+        String where = null;
+        String[] whereArgs = null;
+        if (!TextUtils.isEmpty(roomName)) {
+            where = DBConstant.ChatRoomsTable.COLUMN_NAME + " LIKE ?";
+            whereArgs = new String[]{"%" + roomName + "%"};
+        }
+        String groupBy = null;
+        String having = null;
+        String orderBy = DBConstant.ChatRoomsTable.COLUMN_NAME + " COLLATE LOCALIZED ASC";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(DBConstant.ChatRoomsTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);
+        return c;
+    }
+
+    public List<ChatRoom> searchRoom(String roomName) {
+        Cursor c = selectCursorRoom(roomName);
+        List<ChatRoom> list = new ArrayList<ChatRoom>();
+        while(c.moveToNext()) {
+            ChatRoom cr = new ChatRoom();
+            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable._ID));
+            cr.name = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_NAME));
+            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID));
+            cr.lastMessage = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_LAST_MSG));
+            cr.unreadCount = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT));
+            cr.timestamp = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_CREATED_AT));
+            cr.bgColor = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_BG));
+            cr.image = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_IMAGE));
+            list.add(cr);
+        }
+        c.close();
+        return list;
+    }
+
+    public List<ChatRoom> searchAllRoom() {
+        String[] columns = {
+//                DBConstant.ChatRoomsTable._ID,
+                DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID,
+                DBConstant.ChatRoomsTable.COLUMN_NAME,
+                DBConstant.ChatRoomsTable.COLUMN_IMAGE,
+                DBConstant.ChatRoomsTable.COLUMN_LAST_MSG,
+                DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT,
+                DBConstant.ChatRoomsTable.COLUMN_CREATED_AT,
+                DBConstant.ChatRoomsTable.COLUMN_BG,
+                DBConstant.ChatRoomsTable.COLUMN_IMAGE
+        };
+        String where = null;
+        String[] whereArgs = null;
+//        if (!TextUtils.isEmpty(keyword)) {
+//            where = DBConstant.PushTable.COLUMN_NAME + " LIKE ?";
+//            whereArgs = new String[]{"%" + keyword + "%"};
+//        }
+        where = DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID + " > ?";
+        whereArgs = new String[]{"0"};  //SELECT * FROM PushTable WHERE id > 0
+
+        String groupBy = null;
+        String having = null;
+        String orderBy = DBConstant.ChatRoomsTable.COLUMN_NAME + " COLLATE LOCALIZED ASC";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(DBConstant.ChatRoomsTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);  //return c 대신 풀코드 복사
+
+        List<ChatRoom> list = new ArrayList<ChatRoom>();
+        while(c.moveToNext()) {
+            ChatRoom cr = new ChatRoom();
+//            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable._ID));
+            cr.name = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_NAME));
+            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID));
+            cr.lastMessage = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_LAST_MSG));
+            cr.unreadCount = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_UNREAD_CNT));
+            cr.timestamp = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_CREATED_AT));
+            cr.bgColor = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_BG));
+            cr.image = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_IMAGE));
+            list.add(cr);
+        }
+        c.close();
+        return list;
+    }
+
+
+
+
 }

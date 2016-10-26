@@ -160,7 +160,7 @@ public class BoardFragment extends PagerFragment {
 				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.e__titlebar_1));
 				activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false); //챗프래그먼트에서 백버튼 자리 메뉴를 사용하기 때문에
 				((MainActivity)getActivity()).getToolbarTitle().setText("");
-
+				MainActivity.setStatusBarColor(activity, 0xffffff);
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,11 +45,12 @@ import java.util.Random;
 
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CustomEditText;
-import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.activity.LoginActivity;
 import kr.me.ansr.gcmchat.adapter.ChatRoomsAdapter;
@@ -60,6 +62,7 @@ import kr.me.ansr.gcmchat.helper.SimpleDividerItemDecoration;
 import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
+import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.tab.chat.plus.ChatPlusActivity;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
 
@@ -157,7 +160,12 @@ public class GcmChatFragment extends PagerFragment {
 
             @Override
             public void onLongClick(View view, int position) {
-
+                ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();    //show all room threads
+                if(list != null && list.size() > 0){
+                    for(ChatRoom cr : list){
+                        Log.e("longclick chatlist", cr.toString());
+                    }
+                }
             }
         }));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -184,6 +192,7 @@ public class GcmChatFragment extends PagerFragment {
         if (checkPlayServices()) {
             registerGCM();
             fetchChatRooms();
+//            fetchChatRoomsVolley();
         }
 
 
@@ -276,7 +285,7 @@ public class GcmChatFragment extends PagerFragment {
             String crGetId = ""+cr.getId();
             if (crGetId.equals(chatRoomId)) {
                 int index = chatRoomArrayList.indexOf(cr);
-//                cr.setLastMessage(message.getMessage());
+                cr.setLastMessage("");  //last message 초기화든 값 안 넣으면 레이아웃이 겹쳐짐
                 cr.setUnreadCount(0);
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
@@ -289,7 +298,52 @@ public class GcmChatFragment extends PagerFragment {
     /**
      * fetching the chat rooms by making http call
      */
-    private void fetchChatRooms() {
+
+    private void fetchChatRooms(){
+        ArrayList<String> roomList = new ArrayList<>();
+        roomList.add("74");
+        roomList.add(""+ (-1));
+        roomList.add(""+ 116);
+        roomList.add(""+21);
+        roomList.add(""+24);
+        NetworkManager.getInstance().postDongneChatRooms(getActivity(), roomList, new NetworkManager.OnResultListener<ChatRoomInfo>(){
+            @Override
+            public void onSuccess(okhttp3.Request request, ChatRoomInfo result) {
+                if (result.error.equals(false)) {
+//                    sendMessage 후에 오는 message 객체는 무조건 length가 1일 것임
+                    if(result.chat_rooms != null){
+                        ArrayList<ChatRoom> chatRoomsArray = result.chat_rooms;
+                        for(int i=0; i<chatRoomsArray.size(); i++){
+                            ChatRoom cr = new ChatRoom();
+                            cr.setId(chatRoomsArray.get(i).id);
+                            cr.setName(chatRoomsArray.get(i).name);
+                            cr.setLastMessage("last message");  //modification required
+                            Random r = new Random();
+                            cr.setUnreadCount(r.nextInt(10)+1);     //modification required
+                            cr.setTimestamp(chatRoomsArray.get(i).timestamp);   //modification required
+
+                            chatRoomArrayList.add(cr);
+                        }
+
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                }
+                mAdapter.notifyDataSetChanged();
+                // subscribing to all chat room topics
+                subscribeToAllTopics();
+            }
+
+            @Override
+            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                Toast.makeText(getActivity(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+    private void fetchChatRoomsVolley() {
         StringRequest strReq = new StringRequest(Request.Method.GET,
                 EndPoints.CHAT_ROOMS, new Response.Listener<String>() {
 
@@ -299,7 +353,6 @@ public class GcmChatFragment extends PagerFragment {
 
                 try {
                     JSONObject obj = new JSONObject(response);
-
                     // check for error flag
                     if (obj.getBoolean("error") == false) {
                         JSONArray chatRoomsArray = obj.getJSONArray("chat_rooms");
@@ -470,7 +523,14 @@ public class GcmChatFragment extends PagerFragment {
 
             @Override
             public void onClick(View v) {
-//				((WriteActivity)getActivity()).imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//                DBManager.getInstance().deleteRoom(21);   //delete
+////                ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom("new"); //keyword search
+//                ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();    //show all room threads
+//                if(list != null && list.size() > 0){
+//                    for(ChatRoom cr : list){
+//                        Log.e("chat list", cr.toString());
+//                    }
+//                }
                 Toast.makeText(getActivity(), ""+ FriendsDataManager.getInstance().getList().size(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), ChatPlusActivity.class);
                 intent.putExtra("key", "passed key");
@@ -554,10 +614,7 @@ public class GcmChatFragment extends PagerFragment {
                 chatRoomArrayList.clear();
                 mAdapter.notifyDataSetChanged();
                 fetchChatRooms();
-//                mAdapter.clearAll();
-//                start = 0;
-//                reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-//                initBoard();
+//                fetchChatRoomsVolley();
             }
         }, 1000);
     }

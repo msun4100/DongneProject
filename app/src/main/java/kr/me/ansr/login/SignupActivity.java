@@ -1,5 +1,6 @@
 package kr.me.ansr.login;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -160,6 +161,10 @@ public class SignupActivity extends AppCompatActivity {
 
 		initData();
 	}
+
+
+	ProgressDialog dialog = null;
+
 	public void getUniv(){
 		NetworkManager.getInstance().getDongneUniv(getApplicationContext(), new NetworkManager.OnResultListener<UnivInfo>() {
 			@Override
@@ -179,13 +184,18 @@ public class SignupActivity extends AppCompatActivity {
 					mUnivAdapter.clearAll();
 					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
 				}
+				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(SignupActivity.this, TAG + "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+				dialog.dismiss();
 			}
 		});
+		dialog = new ProgressDialog(SignupActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
 	}
 	public void getDept(int univId) {
 		NetworkManager.getInstance().getDongneDept(getApplicationContext(), univId, new NetworkManager.OnResultListener<DeptInfo>() {
@@ -206,13 +216,18 @@ public class SignupActivity extends AppCompatActivity {
 				} else {
 					Toast.makeText(SignupActivity.this, TAG + "error: true" + result.message, Toast.LENGTH_SHORT).show();
 				}
+				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(SignupActivity.this, TAG + "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+				dialog.dismiss();
 			}
 		});
+		dialog = new ProgressDialog(SignupActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
 	}
 
 	private void doSignUp(){
@@ -285,13 +300,18 @@ public class SignupActivity extends AppCompatActivity {
 					PropertyManager.getInstance().setUnivName("");
 					PropertyManager.getInstance().setDeptName("");
 				}
+				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(SignupActivity.this, TAG+" onFailure:" + cause, Toast.LENGTH_LONG).show();
+				dialog.dismiss();
 			}
 		});
+		dialog = new ProgressDialog(SignupActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
 	}
 	private void doLogin(){
 		final String email = PropertyManager.getInstance().getEmail();
@@ -312,13 +332,18 @@ public class SignupActivity extends AppCompatActivity {
 					startActivity(intent);
 //					finish();
 				}
+				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
 				Toast.makeText(SignupActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				dialog.dismiss();
 			}
 		});
+		dialog = new ProgressDialog(SignupActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
 	}
 
 	private void initData() {

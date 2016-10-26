@@ -9,12 +9,14 @@ import java.io.Serializable;
  */
 public class Message implements Serializable {
     @SerializedName("message_id")
-    int id;
-    String message;
+    public int id;
+    public String message;
     @SerializedName("created_at")
-    String createdAt;
+    public String createdAt;
     public int chat_room_id; //Config.PUSH_TYPE_NEW_ROOM notification
-    User user;
+    public User user;
+    public String image;
+    public int bgColor = 0; //백그라운드 칼라
 
     public Message() {
     }

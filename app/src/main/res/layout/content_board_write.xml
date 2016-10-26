@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/rootView"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.me.ansr.tab.board.BoardWriteActivity"
     tools:showIn="@layout/activity_board_write">
-
+    <!--android:id="@+id/write_parent"-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,10 +37,18 @@
                 android:textColor="@color/list_search_colorHint"
                 android:textSize="12sp"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-            <EditText
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/text_write_imgName"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center_vertical"
+                android:textSize="12sp"
+                android:text=""
                 android:visibility="invisible" />
 
             <LinearLayout
@@ -66,19 +75,80 @@
             android:layout_below="@+id/LinearLayout1"
             android:layout_marginBottom="@dimen/board_write_layout_margin"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <EditText
-                android:id="@+id/edit_write_input"
+            android:orientation="vertical">
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:textSize="14sp"
-                android:textColor="@color/list_search_colorHint"
-                android:textColorHint="#cbc8c6"
-                android:hint="내용을 입력하세요." />
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:id="@+id/scrollView">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:orientation="vertical">
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="220dp"
+                            android:maxHeight="348dp"
+                            android:scaleType="centerCrop"
+                            android:id="@+id/image_write_body"
+                            android:src="@drawable/z_profile_bg_1"/>
+                        <ImageView
+                            android:layout_marginTop="8dp"
+                            android:layout_marginRight="8dp"
+                            android:layout_gravity="end|right"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:id="@+id/image_write_remove"
+                            android:src="@drawable/abc_ic_clear_mtrl_alpha"/>
+                    </FrameLayout>
+                    <EditText
+                        android:id="@+id/edit_write_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxHeight="200dp"
+                        android:background="@null"
+                        android:padding="10dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/list_search_colorHint"
+                        android:textColorHint="#cbc8c6"
+                        android:hint="내용을 입력하세요."
+                        android:inputType="textMultiLine"
+                        android:singleLine="false"
+                        android:overScrollMode="always"
+                        android:scrollbarStyle="insideInset"
+                        android:scrollbars="vertical"/>
+                </LinearLayout>
+            </ScrollView>
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:layout_marginBottom="90dp"
+        android:layout_gravity="center_horizontal">
+        <TextView
+            android:id="@+id/txtPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="0%"
+            android:textSize="15dp"
+            android:visibility="visible"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="250dp"
+            android:layout_height="20dp"
+            android:visibility="visible"/>
     </LinearLayout>
 
     <LinearLayout
@@ -89,7 +159,6 @@
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         android:weightSum="4">
-
         <Button
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="48dp"
@@ -102,6 +171,6 @@
             android:textSize="18sp"
             android:textColor="#ffffff"
              />
-
     </LinearLayout>
+
 </RelativeLayout>
