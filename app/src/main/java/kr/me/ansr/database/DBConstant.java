@@ -39,6 +39,7 @@ public class DBConstant {
         public static final String COLUMN_CREATED_AT = "created_at";
         public static final String COLUMN_BG = "bg";
         public static final String COLUMN_IMAGE = "image";
+        public static final String COLUMN_USER_NAME = "user_name";
     }
 
 }

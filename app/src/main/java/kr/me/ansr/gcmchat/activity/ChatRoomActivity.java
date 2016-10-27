@@ -74,6 +74,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     FriendsResult mItem;
     ArrayList<FriendsResult> mList = new ArrayList<>(); //단톡방 리스트
     String roomName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,8 +198,11 @@ public class ChatRoomActivity extends AppCompatActivity {
     private void handlePushNotification(Intent intent) {
         Message message = (Message) intent.getSerializableExtra("message");
         String chatRoomId = intent.getStringExtra("chat_room_id");
-
+        message.chat_room_id = Integer.parseInt(chatRoomId);    // 1026;아마 노티로 보내주는 message엔 chat_room_id가 없을 것임.
         if (message != null && chatRoomId != null) {
+
+            DBManager.getInstance().insertMsg(message);
+
             messageArrayList.add(message);
             mAdapter.notifyDataSetChanged();
             if (mAdapter.getItemCount() > 1) {
@@ -313,7 +317,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         MyApplication.getInstance().addToRequestQueue(strReq);
     }
 
-    private void sendMessage(int chatRoomId, String userId){
+    private void sendMessage(final int chatRoomId, String userId){
         final String message = this.inputMessage.getText().toString().trim();
 
         if (TextUtils.isEmpty(message)) {
@@ -328,22 +332,26 @@ public class ChatRoomActivity extends AppCompatActivity {
                 if (result.error.equals(false)) {
 //                    sendMessage 후에 오는 message 객체는 무조건 length가 1일 것임
                     if(result.messages != null){
-                        for(int i=0; i<result.messages.size(); i++){
-                            Log.e("msg"+i+" :", result.messages.get(i).toString());
-                            Message message = new Message();
-                            message.setId(result.messages.get(i).getId());
-                            message.setMessage(result.messages.get(i).getMessage());
-                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
-                            int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
-                            String username = PropertyManager.getInstance().getUserName();
-                            String email = PropertyManager.getInstance().getEmail();
-                            User user = new User(userId, username, email);
-                            //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
-                            //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
-//                            message.setUser(result.messages.get(i).getUser());
-                            message.setUser(user);
-                            messageArrayList.add(message);
-                        }
+//                        for(int i=0; i<result.messages.size(); i++){
+//                            Log.e("msg"+i+" :", result.messages.get(i).toString());
+//                            Message message = new Message();
+//                            message.setId(result.messages.get(i).getId());
+//                            message.setMessage(result.messages.get(i).getMessage());
+//                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
+//                            message.chat_room_id = chatRoomId;
+//                            int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
+//                            String username = PropertyManager.getInstance().getUserName();
+//                            String email = PropertyManager.getInstance().getEmail();
+//                            User user = new User(userId, username, email);
+//                            //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
+//                            //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
+////                            message.setUser(result.messages.get(i).getUser());
+//                            message.setUser(user);
+//                            DBManager.getInstance().insertMsg(message);
+//                            messageArrayList.add(message);
+
+//                        }
+                        Log.e("sendMsg",result.messages.get(0).toString());
                     }
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
@@ -400,7 +408,10 @@ public class ChatRoomActivity extends AppCompatActivity {
                             cr.setTimestamp(message.createdAt);
                             cr.bgColor = 0; //없으면 저장 안되나?
                             cr.image ="";
-                            DBManager.getInstance().insertRoom(cr);
+                            if( DBManager.getInstance().insertRoom(cr) > 0 ){
+                                Log.e("msg.toString", message.toString());
+                                DBManager.getInstance().insertMsg(message);
+                            }
                         }
                     }
                     mAdapter.notifyDataSetChanged();
@@ -420,37 +431,63 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void fetchChatThread(int chatRoomId){
-        NetworkManager.getInstance().getDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, new NetworkManager.OnResultListener<ChatInfo>(){
-            @Override
-            public void onSuccess(okhttp3.Request request, ChatInfo result) {
-                if (result.error.equals(false)) {
-                    if(result.messages != null){
-                        for(int i=0; i<result.messages.size(); i++){
-                            Log.e("msg"+i+" :", result.messages.get(i).toString());
-                            Message message = new Message();
-                            message.setId(result.messages.get(i).getId());
-                            message.setMessage(result.messages.get(i).getMessage());
-                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
-                            message.setUser(result.messages.get(i).getUser());
-                            messageArrayList.add(message);
-                        }
-                    }
-                    mAdapter.notifyDataSetChanged();
-                    if (mAdapter.getItemCount() > 1) {
-//                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
-                        recyclerView.scrollToPosition(mAdapter.getItemCount()-1);
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
-                }
-            }
+        ArrayList<Message> list = new ArrayList<Message>();
+        list = (ArrayList<Message>) DBManager.getInstance().searchAllMsg(chatRoomId);
 
-            @Override
-            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+        if(list != null && list.size() > 0){
+            for(int i=0; i<list.size(); i++){
+                Log.e("list.get("+i+")", list.get(i).toString());
+                Message message = new Message();
+                message.setId(list.get(i).getId());
+                message.setMessage(list.get(i).getMessage());
+                message.setCreatedAt(list.get(i).getCreatedAt());
+                message.chat_room_id = chatRoomId; // added on 1026
+                User user = new User(list.get(i).user.id, list.get(i).user.name);   //userId, username
+                message.setUser(user);
+                messageArrayList.add(message);
             }
-        });
+        }
+        mAdapter.notifyDataSetChanged();
+        if (mAdapter.getItemCount() > 1) {
+//            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
+            recyclerView.scrollToPosition(mAdapter.getItemCount()-1);
+        }
+
+
     }
+//    private void fetchChatThread(int chatRoomId){
+//        NetworkManager.getInstance().getDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, new NetworkManager.OnResultListener<ChatInfo>(){
+//            @Override
+//            public void onSuccess(okhttp3.Request request, ChatInfo result) {
+//                if (result.error.equals(false)) {
+//                    if(result.messages != null){
+//                        for(int i=0; i<result.messages.size(); i++){
+//                            Log.e("msg"+i+" :", result.messages.get(i).toString());
+//                            Message message = new Message();
+//                            message.setId(result.messages.get(i).getId());
+//                            message.setMessage(result.messages.get(i).getMessage());
+//                            message.chat_room_id = chatRoomId; // added on 1026
+//                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
+//                            message.setUser(result.messages.get(i).getUser());
+//                            messageArrayList.add(message);
+//                        }
+//                    }
+//                    mAdapter.notifyDataSetChanged();
+//                    if (mAdapter.getItemCount() > 1) {
+////                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
+//                        recyclerView.scrollToPosition(mAdapter.getItemCount()-1);
+//                    }
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+//                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     /**
      * Fetching all the messages of a single chat room
@@ -672,6 +709,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         Intent intent = new Intent();
         if(result){
             intent.putExtra("return", "success");
+            Message lastMsg = messageArrayList.get( messageArrayList.size()-1 );
+            intent.putExtra("lastMsg", lastMsg);
         } else {    //result == false
             intent.putExtra("return", "failure");
         }

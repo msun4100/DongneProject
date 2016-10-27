@@ -24,6 +24,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.common.CustomEditText;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.model.ChatInfo;
+import kr.me.ansr.gcmchat.model.Message;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -250,8 +251,10 @@ public class ChatPlusActivity extends AppCompatActivity {
                     Log.e("PLUS_NEXT", "RESULT_OK");
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
+                    Message lastMsg = (Message)extraBundle.getSerializable("lastMsg");
                     Intent intent = new Intent();
                     intent.putExtra("return", returnString);
+                    intent.putExtra("lastMsg", lastMsg);
                     this.setResult(RESULT_OK, intent);
                     finish();
                 }

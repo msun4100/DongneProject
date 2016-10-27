@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="284dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/z_btn_layout_rectangle"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__popup_three_top"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_marginTop="24dp"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#091723"
+            android:textStyle="bold"
+            android:text="[ 아이디 찾기 ]"
+            />
+        <TextView
+            android:id="@+id/text_find_msg"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#9c9c9d"
+            android:textStyle="bold"
+            android:text="회원 정보를 입력해주세요."/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__popup_three_top"
+        android:orientation="vertical">
+        <!--android:inputType="textPassword"-->
+        <kr.me.ansr.common.CustomEditText
+
+            android:id="@+id/edit_find_name"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="#9c9c9d"
+            android:textStyle="bold"
+            android:nextFocusDown="@+id/edit_find_univ"
+            android:hint="이름 입력"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__popup_three_top"
+        android:orientation="vertical">
+        <!--android:inputType="textPassword"-->
+        <kr.me.ansr.common.CustomEditText
+
+            android:id="@+id/edit_find_univ"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="#9c9c9d"
+            android:textStyle="bold"
+            android:hint="학교명 입력"
+            android:nextFocusDown="@+id/edit_find_dept"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__popup_three_top"
+        android:orientation="vertical">
+        <!--android:inputType="textPassword"-->
+        <kr.me.ansr.common.CustomEditText
+
+            android:id="@+id/edit_find_dept"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="#9c9c9d"
+            android:textStyle="bold"
+            android:hint="학과 입력"
+            android:nextFocusDown="@+id/edit_find_enterYear"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/e__popup_three_top"
+        android:orientation="vertical">
+
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_find_enterYear"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="#9c9c9d"
+            android:textStyle="bold"
+            android:hint="입학년도(ex: 2016, 2015)"
+            android:imeOptions="actionSend"
+            />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_form_mid"
+        android:background="@drawable/e_popup_mid_selector"
+        android:textColor="#565555"
+        android:textSize="19sp"
+        android:text="이메일 받기"/>
+    <Button
+        android:layout_width="284dp"
+        android:layout_height="56dp"
+        android:id="@+id/btn_report_form_bottom"
+        android:background="@drawable/e_popup_bottom_selector"
+        android:textColor="#ffffff"
+        android:textSize="19sp"
+        android:text="취 소"/>
+</LinearLayout>

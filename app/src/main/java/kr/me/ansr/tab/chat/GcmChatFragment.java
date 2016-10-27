@@ -86,9 +86,6 @@ public class GcmChatFragment extends PagerFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        TextView tv = new TextView(getActivity());
-//        tv.setText("Fragment gcm chat");
-//        return tv;
         View view = inflater.inflate(R.layout.fragment_gcmchat, container, false);
         setHasOptionsMenu(true);
         if (MyApplication.getInstance().getPrefManager().getUser() == null) {
@@ -150,7 +147,7 @@ public class GcmChatFragment extends PagerFragment {
             public void onClick(View view, int position) {
                 // when chat is clicked, launch full chat thread activity
                 ChatRoom chatRoom = chatRoomArrayList.get(position);
-                removeUnreadCount(""+chatRoom.getId());
+//                removeUnreadCount(""+chatRoom.getId());
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
                 intent.putExtra("chat_room_id", ""+chatRoom.getId());
                 intent.putExtra("name", chatRoom.getName());
@@ -235,9 +232,9 @@ public class GcmChatFragment extends PagerFragment {
         if (type == Config.PUSH_TYPE_CHATROOM) {
             Message message = (Message) intent.getSerializableExtra("message");
             String chatRoomId = intent.getStringExtra("chat_room_id");
-
             if (message != null && chatRoomId != null) {
                 updateRow(chatRoomId, message);
+                DBManager.getInstance().insertMsg(message);
             }
         } else if (type == Config.PUSH_TYPE_USER) {
             // push belongs to user alone
@@ -256,6 +253,7 @@ public class GcmChatFragment extends PagerFragment {
             refreshList();
             if (message != null && chatRoomId != null) {
                 updateRow(chatRoomId, message);
+                DBManager.getInstance().insertMsg(message);
             }
         } else if (type == Config.PUSH_TYPE_NOTIFICATION){
 
@@ -265,6 +263,24 @@ public class GcmChatFragment extends PagerFragment {
     /**
      * Updates the chat list unread count and the last message
      */
+    //채팅방 들어갔따 나올 때
+    private void updateRowLastMsg(String chatRoomId, Message message) {
+        for (ChatRoom cr : chatRoomArrayList) {
+            String crGetId = ""+cr.getId();
+            if (crGetId.equals(chatRoomId)) {
+                int index = chatRoomArrayList.indexOf(cr);
+                cr.setLastMessage(message.getMessage());
+                cr.setUnreadCount(0);
+                cr.setTimestamp(message.getCreatedAt());
+                chatRoomArrayList.remove(index);
+                chatRoomArrayList.add(index, cr);
+                DBManager.getInstance().updateRoom(cr);
+                break;
+            }
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+    //push message 받으면
     private void updateRow(String chatRoomId, Message message) {
         for (ChatRoom cr : chatRoomArrayList) {
             String crGetId = ""+cr.getId();
@@ -272,8 +288,10 @@ public class GcmChatFragment extends PagerFragment {
                 int index = chatRoomArrayList.indexOf(cr);
                 cr.setLastMessage(message.getMessage());
                 cr.setUnreadCount(cr.getUnreadCount() + 1);
+                cr.setTimestamp(message.getCreatedAt());
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
+                DBManager.getInstance().updateRoom(cr);
                 break;
             }
         }
@@ -289,6 +307,7 @@ public class GcmChatFragment extends PagerFragment {
                 cr.setUnreadCount(0);
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
+                DBManager.getInstance().updateRoom(cr);
                 break;
             }
         }
@@ -301,11 +320,18 @@ public class GcmChatFragment extends PagerFragment {
 
     private void fetchChatRooms(){
         ArrayList<String> roomList = new ArrayList<>();
-        roomList.add("74");
-        roomList.add(""+ (-1));
-        roomList.add(""+ 116);
-        roomList.add(""+21);
-        roomList.add(""+24);
+//        roomList.add("74"); roomList.add(""+ (-1)); roomList.add(""+ 116); roomList.add(""+21); roomList.add(""+24);
+        ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();
+        for(ChatRoom cr : list){
+            roomList.add(""+cr.id);
+        }
+        if(roomList.size() < 1) {
+            chatRoomArrayList.clear();
+            mAdapter.notifyDataSetChanged();
+            Log.e("fetchChatRooms","roomList is null");
+            return;
+        }
+
         NetworkManager.getInstance().postDongneChatRooms(getActivity(), roomList, new NetworkManager.OnResultListener<ChatRoomInfo>(){
             @Override
             public void onSuccess(okhttp3.Request request, ChatRoomInfo result) {
@@ -317,14 +343,19 @@ public class GcmChatFragment extends PagerFragment {
                             ChatRoom cr = new ChatRoom();
                             cr.setId(chatRoomsArray.get(i).id);
                             cr.setName(chatRoomsArray.get(i).name);
-                            cr.setLastMessage("last message");  //modification required
-                            Random r = new Random();
-                            cr.setUnreadCount(r.nextInt(10)+1);     //modification required
+                            // set last Message from mydb.
+                            ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(chatRoomsArray.get(i).name);
+                            if(list != null && list.size() == 1){
+                                cr.setLastMessage(list.get(0).lastMessage);
+                                cr.setUnreadCount(list.get(0).unreadCount);
+                            } else {
+                                cr.setLastMessage(chatRoomsArray.get(i).lastMessage);  //modification required
+                                Random r = new Random();
+                                cr.setUnreadCount(r.nextInt(15)+1);
+                            }
                             cr.setTimestamp(chatRoomsArray.get(i).timestamp);   //modification required
-
                             chatRoomArrayList.add(cr);
                         }
-
                     }
                 } else {
                     Toast.makeText(getActivity(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
@@ -565,9 +596,14 @@ public class GcmChatFragment extends PagerFragment {
                 if (resultCode == getActivity().RESULT_OK) {
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
+                    Message lastMsg = (Message)extraBundle.getSerializable("lastMsg");
                     if(returnString.equals("success")){
                         Log.e("afterChatRoomActivity", "success");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
+                        if(lastMsg != null){
+                            Log.e("lastMsg", lastMsg.toString());
+                            updateRowLastMsg(""+lastMsg.chat_room_id, lastMsg);
+                        }
 //                        refreshList();
 //                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                     } else {
@@ -589,9 +625,14 @@ public class GcmChatFragment extends PagerFragment {
                 } else if(resultCode == getActivity().RESULT_OK){
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
+                    Message lastMsg = (Message)extraBundle.getSerializable("lastMsg");
                     if(returnString.equals("success")){
                         Log.e("afterChatRoomActivity", "success");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
+                        if(lastMsg != null){
+                            Log.e("lastMsg", lastMsg.toString());
+                            updateRowLastMsg(""+lastMsg.chat_room_id, lastMsg);
+                        }
                         refreshList();
                     } else {
                         Log.e("afterChatRoomActivity", "failure");

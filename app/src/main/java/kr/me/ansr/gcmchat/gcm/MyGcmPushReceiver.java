@@ -109,20 +109,16 @@ public class MyGcmPushReceiver extends GcmListenerService {
      * */
     private void processChatRoomPush(String title, boolean isBackground, String data) {
         if (!isBackground) {
-
             try {
                 JSONObject datObj = new JSONObject(data);
-
                 String chatRoomId = datObj.getString("chat_room_id");
-
                 JSONObject mObj = datObj.getJSONObject("message");
                 Message message = new Message();
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getInt("message_id"));
                 message.setCreatedAt(mObj.getString("created_at"));
-
+                message.chat_room_id = Integer.parseInt(chatRoomId);    //added on 1026
                 JSONObject uObj = datObj.getJSONObject("user");
-
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
                 // but it might differs in your scenario
@@ -156,9 +152,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         resultIntent.putExtra("chat_room_id", chatRoomId);
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                     }
-
                 } else {
-
                     // app is in background. show the message in notification try
                     Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
@@ -175,12 +169,11 @@ public class MyGcmPushReceiver extends GcmListenerService {
             // like inserting it in to SQLite
         }
     }
+
     private void processChatRoomPushAndRefresh(String title, boolean isBackground, String data) {
         if (!isBackground) {
-
             try {
                 JSONObject datObj = new JSONObject(data);
-
                 String chatRoomId = datObj.getString("chat_room_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
@@ -188,7 +181,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getInt("message_id"));
                 message.setCreatedAt(mObj.getString("created_at"));
-
+                message.chat_room_id = Integer.parseInt(chatRoomId);    //added on 1026
                 JSONObject uObj = datObj.getJSONObject("user");
 
                 // skip the message if the message belongs to same user as
@@ -253,7 +246,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 
             try {
                 JSONObject datObj = new JSONObject(data);
-
+                String chatRoomId = datObj.getString("chat_room_id");
                 String imageUrl = datObj.getString("image");
 
                 JSONObject mObj = datObj.getJSONObject("message");
@@ -261,7 +254,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getInt("message_id"));
                 message.setCreatedAt(mObj.getString("created_at"));
-
+                if(chatRoomId != null) message.chat_room_id = Integer.parseInt(chatRoomId);    //added on 1026
                 JSONObject uObj = datObj.getJSONObject("user");
                 User user = new User();
                 user.setId(uObj.getInt("user_id"));

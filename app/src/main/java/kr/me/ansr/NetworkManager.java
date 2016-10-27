@@ -31,6 +31,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import kr.me.ansr.common.CommonInfo;
+import kr.me.ansr.common.account.FindAccountInfo;
+import kr.me.ansr.common.account.FindAccountModel;
 import kr.me.ansr.gcmchat.app.Config;
 import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.login.LoginInfo;
@@ -1736,6 +1738,92 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_FIND_ID = SERVER_URL + "/findID";
+    public Request postDongneFindID(Context context, FindAccountModel info, final OnResultListener<FindAccountInfo> listener) {
+        try {
+            String url = URL_FIND_ID;
+            final CallbackObject<FindAccountInfo> callbackObject = new CallbackObject<FindAccountInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("username", info.username);
+            json.addProperty("univ", info.univname);
+            json.addProperty("dept", info.deptname);
+            json.addProperty("enterYear", info.enterYear);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    FindAccountInfo result = gson.fromJson(response.body().charStream(), FindAccountInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final String URL_FIND_PW = SERVER_URL + "/findPW";
+    public Request postDongneFindPW(Context context, String email, final OnResultListener<CommonInfo> listener) {
+        try {
+            String url = URL_FIND_PW;
+            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("email", email);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     private static final String URL_CHAT_ROOMS = SERVER_URL + "/chat_rooms";
     public Request postDongneChatRooms(Context context, ArrayList<String> roomList, final OnResultListener<ChatRoomInfo> listener) {

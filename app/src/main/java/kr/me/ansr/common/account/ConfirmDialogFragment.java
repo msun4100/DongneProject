@@ -19,16 +19,18 @@ import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
- * Created by KMS on 2016-10-21.
+ * Created by KMS on 2016-10-27.
  */
-public class LogoutDialogFragment extends DialogFragment {
-    public static final String TAG_LOGOUT = "logout";
-    public static final String TAG_WITHDRAW = "withdraw";
-    public LogoutDialogFragment(){
+public class ConfirmDialogFragment extends DialogFragment{
+
+    public static final String TAG_FIND_ID = "findID";
+    public static final String TAG_FIND_PW = "findPW";
+
+    public ConfirmDialogFragment(){
 
     }
-    public static LogoutDialogFragment newInstance() {
-        LogoutDialogFragment f = new LogoutDialogFragment();
+    public static ConfirmDialogFragment newInstance() {
+        ConfirmDialogFragment f = new ConfirmDialogFragment();
         return f;
     }
     TextView textView1, textView2;
@@ -37,9 +39,6 @@ public class LogoutDialogFragment extends DialogFragment {
     String title, body;
     String choice;
 
-
-    FriendsResult mItem;
-    BoardResult bItem;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,15 +48,7 @@ public class LogoutDialogFragment extends DialogFragment {
             tag = b.getString("tag", null);
             title = b.getString("title","default title");
             body = b.getString("body","default body");
-            mItem = (FriendsResult) b.getSerializable("mItem");
             choice = b.getString("choice", null);   //디테일액티비티 callback위해
-            bItem = (BoardResult) b.getSerializable("bItem");
-            if(mItem != null){
-
-            }
-            if(bItem != null){
-//                Log.e("CustomDialogF", bItem.toString());
-            }
         }
 
     }
@@ -66,7 +57,7 @@ public class LogoutDialogFragment extends DialogFragment {
         getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT );
         getDialog().getWindow().setGravity(Gravity.CENTER_VERTICAL);
 
-        View view = inflater.inflate(R.layout.dialog_custom_layout, container, false);
+        View view = inflater.inflate(R.layout.dialog_confirm_layout, container, false);
         textView1 = (TextView)view.findViewById(R.id.textView1);
         textView2 = (TextView)view.findViewById(R.id.textView2);
         textView1.setText(title);
@@ -86,11 +77,11 @@ public class LogoutDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(tag != null){
-                    if(tag.equals(TAG_LOGOUT)) {
-                        mCallback.onDataReturned("_LOGOUT_"); //창 닫힘
+                    if(tag.equals(TAG_FIND_ID)) {
+
                     }
-                    if(tag.equals(TAG_WITHDRAW)) {
-                        mCallback.onDataReturned("_WITHDRAW_"); //탈퇴 확인. 창 닫힘
+                    if(tag.equals(TAG_FIND_PW)) {
+
                     }
                 }
                 dismiss();
@@ -119,24 +110,5 @@ public class LogoutDialogFragment extends DialogFragment {
         initData();
     }
 
-    private IDataReturned mCallback;
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try{
-            mCallback = (IDataReturned) activity;
-        } catch (ClassCastException e){
-            Log.d("MyDialog", "Activity doesn't implements 'IDataReturned interface'");
-        }
-    }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        try{
-            mCallback = null;
-        } catch (ClassCastException e){
-            Log.d("MyDialog", "Exception occurred while onDetach");
-        }
-    }
 }

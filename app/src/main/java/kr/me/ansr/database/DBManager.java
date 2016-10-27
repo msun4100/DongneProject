@@ -13,6 +13,7 @@ import java.util.List;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.gcmchat.model.ChatRoom;
+import kr.me.ansr.gcmchat.model.Message;
 
 /**
  * Created by KMS on 2016-09-22.
@@ -55,13 +56,15 @@ public class DBManager extends SQLiteOpenHelper {
                 DBConstant.ChatRoomsTable.COLUMN_BG+" INTEGER);";
 
         String sql3 = "CREATE TABLE "+ DBConstant.MessagesTable.TABLE_NAME+"(" +
-                DBConstant.MessagesTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//                DBConstant.MessagesTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//                DBConstant.MessagesTable.COLUMN_MESSAGE_ID+" INTEGER," +
+                DBConstant.MessagesTable.COLUMN_MESSAGE_ID+" INTEGER PRIMARY KEY AUTOINCREMENT," +
                 DBConstant.MessagesTable.COLUMN_IMAGE+" TEXT," +
-                DBConstant.MessagesTable.COLUMN_MESSAGE_ID+" INTEGER," +
                 DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID+" INTEGER," +
                 DBConstant.MessagesTable.COLUMN_CREATED_AT+" TEXT," +
                 DBConstant.MessagesTable.COLUMN_MESSAGE+" TEXT," +
                 DBConstant.MessagesTable.COLUMN_USER_ID+" INTEGER," +
+                DBConstant.MessagesTable.COLUMN_USER_NAME+" TEXT," +
                 DBConstant.MessagesTable.COLUMN_BG+" INTEGER);";
 
         db.execSQL(sql);
@@ -298,7 +301,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<ChatRoom> list = new ArrayList<ChatRoom>();
         while(c.moveToNext()) {
             ChatRoom cr = new ChatRoom();
-            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable._ID));
+//            cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable._ID));
             cr.name = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_NAME));
             cr.id = c.getInt(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_CHAT_ROOM_ID));
             cr.lastMessage = c.getString(c.getColumnIndex(DBConstant.ChatRoomsTable.COLUMN_LAST_MSG));
@@ -335,7 +338,7 @@ public class DBManager extends SQLiteOpenHelper {
 
         String groupBy = null;
         String having = null;
-        String orderBy = DBConstant.ChatRoomsTable.COLUMN_NAME + " COLLATE LOCALIZED ASC";
+        String orderBy = DBConstant.ChatRoomsTable.COLUMN_CREATED_AT + " COLLATE LOCALIZED DESC";
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.query(DBConstant.ChatRoomsTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);  //return c 대신 풀코드 복사
 
@@ -356,6 +359,157 @@ public class DBManager extends SQLiteOpenHelper {
         return list;
     }
 
+    // messages_table
+    public long insertMsg(Message message) {
+        values.clear();
+//        values.put(DBConstant.MessagesTable.COLUMN_MESSAGE_ID, message.id);   //auto increment
+        values.put(DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID, message.chat_room_id);
+        values.put(DBConstant.MessagesTable.COLUMN_USER_ID, message.user.id);
+        values.put(DBConstant.MessagesTable.COLUMN_USER_NAME, message.user.name);
+        values.put(DBConstant.MessagesTable.COLUMN_MESSAGE, message.message);
+        values.put(DBConstant.MessagesTable.COLUMN_CREATED_AT, message.createdAt);
+        values.put(DBConstant.MessagesTable.COLUMN_BG, message.bgColor);
+        values.put(DBConstant.MessagesTable.COLUMN_IMAGE, message.image);
+
+        SQLiteDatabase db = getWritableDatabase();
+        long num = 0;
+        try{
+            num = db.insert(DBConstant.MessagesTable.TABLE_NAME, null, values);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+    public int updateMsg(Message message) {
+        values.clear();
+        values.put(DBConstant.MessagesTable.COLUMN_MESSAGE_ID, message.id);
+        values.put(DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID, message.chat_room_id);
+        values.put(DBConstant.MessagesTable.COLUMN_USER_ID, message.user.getId());
+        values.put(DBConstant.MessagesTable.COLUMN_USER_NAME, message.user.name);
+        values.put(DBConstant.MessagesTable.COLUMN_MESSAGE, message.message);
+        values.put(DBConstant.MessagesTable.COLUMN_CREATED_AT, message.createdAt);
+        values.put(DBConstant.MessagesTable.COLUMN_BG, message.bgColor);
+        values.put(DBConstant.MessagesTable.COLUMN_IMAGE, message.image);
+
+        String where = DBConstant.MessagesTable.COLUMN_MESSAGE_ID + " = ?";
+        String[] args = {""+message.id};
+
+        SQLiteDatabase db = getWritableDatabase();
+        int num =0;
+        try{
+            num = db.update(DBConstant.MessagesTable.TABLE_NAME, values, where, args);
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+    public int deleteMsg(int messageId) {
+        String where = DBConstant.MessagesTable.COLUMN_MESSAGE_ID + " = ?";
+        String[] args = {""+messageId};
+        SQLiteDatabase db = getWritableDatabase();
+        int num = 0;
+        try {
+            num = db.delete(DBConstant.MessagesTable.TABLE_NAME, where, args);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return num;
+    }
+
+    public Cursor selectCursorMsg(int chatRoomdId, String message) {
+        String[] columns = {
+//                DBConstant.MessagesTable._ID,
+                DBConstant.MessagesTable.COLUMN_MESSAGE_ID,
+                DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID,
+                DBConstant.MessagesTable.COLUMN_USER_ID,
+                DBConstant.MessagesTable.COLUMN_USER_NAME,
+                DBConstant.MessagesTable.COLUMN_MESSAGE,
+                DBConstant.MessagesTable.COLUMN_CREATED_AT,
+                DBConstant.MessagesTable.COLUMN_BG,
+                DBConstant.MessagesTable.COLUMN_IMAGE
+        };
+        String where = null;
+        String[] whereArgs = null;
+        if (!TextUtils.isEmpty(message)) {
+            where = "";
+            where += DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID + " = ? AND"; //띄어쓰기
+            where += DBConstant.MessagesTable.COLUMN_MESSAGE + " LIKE ?";
+            whereArgs = new String[]{ (""+chatRoomdId), ("%" + message + "%") };
+        }
+        String groupBy = null;
+        String having = null;
+        String orderBy = DBConstant.MessagesTable.COLUMN_MESSAGE_ID + " COLLATE LOCALIZED ASC";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(DBConstant.MessagesTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);
+        return c;
+    }
+
+    public List<Message> searchMsg(int chatRoomId, String message) {
+        Cursor c = selectCursorMsg(chatRoomId, message);
+        List<Message> list = new ArrayList<Message>();
+
+        while(c.moveToNext()) {
+            Message m = new Message();
+            m.id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_MESSAGE_ID));
+            m.chat_room_id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID));
+            m.user.id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_USER_ID));
+            m.user.name = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_USER_NAME));
+            m.message = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_MESSAGE));
+            m.createdAt = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_CREATED_AT));
+            m.bgColor = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_BG));
+            m.image = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_IMAGE));
+            list.add(m);
+        }
+        c.close();
+        return list;
+    }
+
+    //return All of chat room's messages
+    public List<Message> searchAllMsg(int chatRoomId) {
+        String[] columns = {
+//                DBConstant.MessagesTable._ID,
+                DBConstant.MessagesTable.COLUMN_MESSAGE_ID,
+                DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID,
+                DBConstant.MessagesTable.COLUMN_USER_ID,
+                DBConstant.MessagesTable.COLUMN_USER_NAME,
+                DBConstant.MessagesTable.COLUMN_MESSAGE,
+                DBConstant.MessagesTable.COLUMN_CREATED_AT,
+                DBConstant.MessagesTable.COLUMN_BG,
+                DBConstant.MessagesTable.COLUMN_IMAGE
+        };
+        String where = null;
+        String[] whereArgs = null;
+//        if (!TextUtils.isEmpty(keyword)) {
+//            where = DBConstant.PushTable.COLUMN_NAME + " LIKE ?";
+//            whereArgs = new String[]{"%" + keyword + "%"};
+//        }
+        where = DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID + " = ?";
+        whereArgs = new String[]{""+chatRoomId};  //SELECT * FROM messages WHERE chat_room_id = ?
+
+        String groupBy = null;
+        String having = null;
+        String orderBy = DBConstant.MessagesTable.COLUMN_MESSAGE_ID + " COLLATE LOCALIZED ASC";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(DBConstant.MessagesTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);  //return c 대신 풀코드 복사
+
+        List<Message> list = new ArrayList<Message>();
+        while(c.moveToNext()) {
+            Message m = new Message();
+            m.id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_MESSAGE_ID));
+            m.chat_room_id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_CHAT_ROOM_ID));
+            m.user.id = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_USER_ID));
+            m.user.name = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_USER_NAME));
+            m.message = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_MESSAGE));
+            m.createdAt = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_CREATED_AT));
+            m.bgColor = c.getInt(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_BG));
+            m.image = c.getString(c.getColumnIndex(DBConstant.MessagesTable.COLUMN_IMAGE));
+            list.add(m);
+        }
+        c.close();
+        return list;
+    }
 
 
 

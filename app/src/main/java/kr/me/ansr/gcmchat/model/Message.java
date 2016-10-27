@@ -19,6 +19,7 @@ public class Message implements Serializable {
     public int bgColor = 0; //백그라운드 칼라
 
     public Message() {
+        this.user = new User();
     }
 
     public Message(int id, String message, String createdAt, User user) {
