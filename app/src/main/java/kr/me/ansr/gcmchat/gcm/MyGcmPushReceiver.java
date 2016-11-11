@@ -29,6 +29,8 @@ import com.google.android.gms.gcm.GcmListenerService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PropertyManager;
@@ -36,9 +38,11 @@ import kr.me.ansr.database.DBManager;
 import kr.me.ansr.database.Push;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.app.Config;
+import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
 import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.login.SplashActivity;
+import kr.me.ansr.tab.chat.GcmChatFragment;
 
 
 public class MyGcmPushReceiver extends GcmListenerService {
@@ -55,6 +59,8 @@ public class MyGcmPushReceiver extends GcmListenerService {
      *               For Set of keys use data.keySet().
      */
 
+    String tab = null;
+
     @Override
     public void onMessageReceived(String from, Bundle bundle) {
         String title = bundle.getString("title");
@@ -67,8 +73,10 @@ public class MyGcmPushReceiver extends GcmListenerService {
         Log.d(TAG, "flag: " + flag);
         Log.d(TAG, "data: " + data);
 
-        if (flag == null)
+        if (flag == null) {
+            Log.e(TAG, "flag is null");
             return;
+        }
 
         if(MyApplication.getInstance().getPrefManager().getUser() == null){
             // user is not logged in, skipping push notification
@@ -85,6 +93,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
         switch (Integer.parseInt(flag)) {
             case Config.PUSH_TYPE_CHATROOM:
                 // push notification belongs to a chat room
+                tab = "tab2";
                 processChatRoomPush(title, isBackground, data);
                 break;
             case Config.PUSH_TYPE_USER:
@@ -93,11 +102,13 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 break;
             case Config.PUSH_TYPE_NEW_ROOM:
                 // push notification belongs to a new chat room
+                tab = "tab2";
                 processChatRoomPushAndRefresh(title, isBackground, data);
                 break;
             case Config.PUSH_TYPE_NOTIFICATION:
                 // 알림설정이 off만 아니면
                 // case 4: 좋아요, 친구 요청 등은 무조건 노티 트레이에 뜨도록함.
+                tab = "tab4";
                 processNotification(title, isBackground, data);
                 break;
         }
@@ -122,7 +133,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
                 // but it might differs in your scenario
-                if (uObj.getString("user_id").equals(MyApplication.getInstance().getPrefManager().getUser().getId())) {
+                if (uObj.getString("user_id").equals(PropertyManager.getInstance().getUserId())) {
                     Log.e(TAG, "Skipping the push message as it belongs to same user");
                     return;
                 }
@@ -144,18 +155,24 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         pushNotification.putExtra("message", message);
                         pushNotification.putExtra("chat_room_id", chatRoomId);
                         LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
-                        // play notification sound
-                        NotificationUtils notificationUtils = new NotificationUtils();
-                        notificationUtils.playNotificationSound();
+                        // play notification sound  //ChatRoomActivity로 코드 이동 1104
+//                        NotificationUtils notificationUtils = new NotificationUtils();
+//                        notificationUtils.playNotificationSound();
                     } else {
-                        Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+//                        if(PropertyManager.getInstance().getIsTab2Visible().equals("inVisible")){}
+                        addRoomAndMessage(chatRoomId, message);
+                        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                         resultIntent.putExtra("chat_room_id", chatRoomId);
+                        resultIntent.putExtra("name", ""+chatRoomId);   //1103
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                     }
                 } else {
                     // app is in background. show the message in notification try
-                    Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                    //백그라운드일 경우 그냥 탭이동까지만
+                    addRoomAndMessage(chatRoomId, message);
+                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
+                    resultIntent.putExtra("name", ""+chatRoomId);
                     showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                 }
 
@@ -175,6 +192,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
             try {
                 JSONObject datObj = new JSONObject(data);
                 String chatRoomId = datObj.getString("chat_room_id");
+//                String roomname = datObj.getString("room_name");
 
                 JSONObject mObj = datObj.getJSONObject("message");
                 Message message = new Message();
@@ -187,8 +205,9 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
                 // but it might differs in your scenario
-                if (uObj.getString("user_id").equals(MyApplication.getInstance().getPrefManager().getUser().getId())) {
+                if (uObj.getString("user_id").equals(PropertyManager.getInstance().getUserId())) {
                     Log.e(TAG, "Skipping the push message as it belongs to same user");
+//                    푸쉬 건너 뛰고 ChatRoomActivity의 sendMessage에서 응답받으면 디비에 메시지 저장.
                     return;
                 }
 
@@ -197,6 +216,17 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 user.setEmail(uObj.getString("email"));
                 user.setName(uObj.getString("name"));
                 message.setUser(user);
+
+//                if(PropertyManager.getInstance().getIsTab2Visible().equals("inVisible")){ // 1028
+//                    if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
+//                        //존재하지 않으면 생성
+//                        Log.e("invisible", "newroomandrefresh");
+//                        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/);
+//                        DBManager.getInstance().insertRoom(cr);
+//                    }
+//                    DBManager.getInstance().insertMsg(message);
+//                }
+
 
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
@@ -213,16 +243,20 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         NotificationUtils notificationUtils = new NotificationUtils();
                         notificationUtils.playNotificationSound();
                     } else {
-                        Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                        //아래 3줄 기존 코드
+                        addRoomAndMessage(chatRoomId, message);
+                        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                         resultIntent.putExtra("chat_room_id", chatRoomId);
+                        resultIntent.putExtra("name", ""+chatRoomId);
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                     }
 
                 } else {
-
                     // app is in background. show the message in notification try
-                    Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                    addRoomAndMessage(chatRoomId, message);
+                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
+                    resultIntent.putExtra("name", ""+chatRoomId);
                     showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                 }
 
@@ -275,11 +309,8 @@ public class MyGcmPushReceiver extends GcmListenerService {
                     NotificationUtils notificationUtils = new NotificationUtils();
                     notificationUtils.playNotificationSound();
                 } else {
-
                     // app is in background. show the message in notification try
-                    Intent resultIntent = new Intent(getApplicationContext(), SplashActivity.class);
-//                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-
+                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     // check for push notification image attachment
                     if (TextUtils.isEmpty(imageUrl)) {
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
@@ -339,6 +370,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 //MeetFragment에 브로드캐스트
                 Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION);
                 pushNotification.putExtra("type", Config.PUSH_TYPE_NOTIFICATION);
+                pushNotification.putExtra("isFirst", true);
                 pushNotification.putExtra("message", message);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
 
@@ -356,7 +388,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         return;
                     }
 
-                    Intent resultIntent = new Intent(getApplicationContext(), SplashActivity.class);
+                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
 //                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     // check for push notification image attachment
                     if (TextUtils.isEmpty(imageUrl)) {
@@ -387,7 +419,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 //                    notificationUtils.playNotificationSound();
 //                } else {
 //                    // app is in background. show the message in notification try
-//                    Intent resultIntent = new Intent(getApplicationContext(), SplashActivity.class);
+//                    Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
 //                    // check for push notification image attachment
 //                    if (TextUtils.isEmpty(imageUrl)) {
 //                        showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
@@ -414,7 +446,11 @@ public class MyGcmPushReceiver extends GcmListenerService {
      * */
     private void showNotificationMessage(Context context, String title, String message, String timeStamp, Intent intent) {
         notificationUtils = new NotificationUtils(context);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if( tab != null) {
+            Log.d(TAG, "showNotificationMessage: " + tab);
+            intent.putExtra("tab", tab);
+        }
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent);
     }
 
@@ -423,7 +459,39 @@ public class MyGcmPushReceiver extends GcmListenerService {
      * */
     private void showNotificationMessageWithBigImage(Context context, String title, String message, String timeStamp, Intent intent, String imageUrl) {
         notificationUtils = new NotificationUtils(context);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if( tab != null) {
+            Log.d(TAG, "showNotificationMessage: " + tab);
+            intent.putExtra("tab", tab);
+        }
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent, imageUrl);
+    }
+
+    private void addRoomAndMessage(String chatRoomId, Message message){
+        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
+        ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId));
+        if(list.size() == 0){   //없으면 룸생성
+            cr.unreadCount = 0;
+            DBManager.getInstance().insertRoom(cr);
+//            MainActivity.setChatCount(cr.unreadCount); //insertMsg하고 unreadCount 증가 시키는게 맞지
+        } else {    //있으면 업데이트
+            if(list.size() == 1 && list.get(0).id == Integer.parseInt(chatRoomId)){
+                cr = list.get(0);
+                cr.unreadCount = list.get(0).unreadCount;
+                cr.lastMessage = message.message;
+                cr.timestamp = message.createdAt;
+                DBManager.getInstance().updateRoom(cr);
+//                MainActivity.setChatCount(cr.unreadCount++);
+            }
+        }
+        if(DBManager.getInstance().insertMsg(message) > 0 ){    //insertMsg 성공하면 updateRoom
+            cr.unreadCount = cr.unreadCount++;
+            if(DBManager.getInstance().updateRoom(cr) > 0 ){
+                MainActivity.setChatCount(cr.unreadCount);
+                Log.d(TAG, "addRoomAndMessage: "+cr.unreadCount);
+            }
+        }
+        Log.e("invisible", "chatroom");
+        Log.e("aaaaaaaa", ""+DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId)).get(0).toString());
     }
 }

@@ -1,6 +1,7 @@
 package kr.me.ansr.login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -11,8 +12,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,6 +64,17 @@ public class SignUpAccountActivity extends AppCompatActivity {
 
         inputPw.addTextChangedListener(new MyTextWatcher(inputPw));
         inputPwConfirm.addTextChangedListener(new MyTextWatcher(inputPwConfirm));
+        inputPwConfirm.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
         inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
 
         btnEnter.setOnClickListener(new View.OnClickListener() {

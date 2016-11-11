@@ -9,6 +9,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.gcm.QuickstartPreferences;
 import kr.me.ansr.gcm.RegistrationIntentService;
 import kr.me.ansr.gcmchat.model.User;
+import kr.me.ansr.image.upload.Config;
 import okhttp3.Request;
 
 import android.Manifest;
@@ -34,6 +35,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -139,6 +141,7 @@ public class SplashActivity extends Activity {
     protected void onStart() {
         super.onStart();
         // 3.어떤 조건을 만족하는 프로바이더를 얻어오기 - 조건을 기술하는 클래스 == criteria
+        setBoardResizePixel();
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
@@ -158,9 +161,9 @@ public class SplashActivity extends Activity {
         // 3-3현재까지는 GPS와 네트웤 두가지 밖에 없기 때문에 일반적으로getBestProvider()호출안하고
         // 지정하는 방식 == LocationManager.NETWORK_PROVIDER 사용
 
-//		Log.i("mProvider", mProvider.toString());
-//		Log.i("isProviderEn", ""+mLM.isProviderEnabled(mProvider));
-//		Log.i("Passive", ""+mProvider.equals(LocationManager.PASSIVE_PROVIDER));
+        Log.d(TAG, "onStart: mProvider " + mProvider.toString());
+        Log.d(TAG, "onStart: isProviderEnabled "+ mLM.isProviderEnabled(mProvider));
+        Log.d(TAG, "onStart: passive " + mProvider.equals(LocationManager.PASSIVE_PROVIDER));
         if (mProvider == null || mProvider.equals(LocationManager.PASSIVE_PROVIDER) || !mLM.isProviderEnabled(mProvider)) {
 //			PropertyManager.getInstance().getUsingLocation() == 0
             if (PropertyManager.getInstance().getUsingLocation() == 2) {
@@ -218,8 +221,8 @@ public class SplashActivity extends Activity {
                     return;
                 } else {
                     //낮은 API 버전에서는 무조건 else 타게 되는 듯
-//                    Toast.makeText(SplashActivity.this, "checkSelfPermission()->else", Toast.LENGTH_SHORT).show();
                     PropertyManager.getInstance().setUsingLocation(0);
+                    Log.d(TAG, "else: " + "else..");
                     return;
                 }
             }
@@ -232,7 +235,8 @@ public class SplashActivity extends Activity {
                 PropertyManager.getInstance().setLongitude(longitude);
                 mListener.onLocationChanged(location);
                 Toast.makeText(SplashActivity.this, "onStart->location != null..\nLat:"+
-                        PropertyManager.getInstance().getLatitude(), Toast.LENGTH_SHORT).show();
+                        PropertyManager.getInstance().getLatitude()+
+                        "Lon:"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
             }
@@ -298,13 +302,9 @@ public class SplashActivity extends Activity {
 
         @Override
         public void run() {
-//            PropertyManager.getInstance().setUserId("Todo..");
-//            String userId = PropertyManager.getInstance().getUserId();
             final String email = PropertyManager.getInstance().getEmail();
             if (!email.equals("")) {
                 final String password = PropertyManager.getInstance().getPassword();
-//                final String id = "user01@gmail.com";
-//                final String password = "1234";
                 NetworkManager.getInstance().postDongneLogin(SplashActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>(){
                     @Override
                     public void onSuccess(Request request, LoginInfo result) {
@@ -316,7 +316,7 @@ public class SplashActivity extends Activity {
                         //for chatting PropertyManager
                         User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
                         MyApplication.getInstance().getPrefManager().storeUser(user);
-                        Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
+//                        Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
@@ -325,6 +325,7 @@ public class SplashActivity extends Activity {
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(SplashActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onFailure: "+cause);
                     }
                 });
             } else {
@@ -368,9 +369,7 @@ public class SplashActivity extends Activity {
                         String scope = GoogleCloudMessaging.INSTANCE_ID_SCOPE;
                         // Instance ID에 해당하는 토큰을 생성하여 가져온다.
                         regId = instanceID.getToken(default_senderId, scope, null);
-
                         PropertyManager.getInstance().setRegistrationId(regId);
-                        Log.i(TAG, "GCM Registration Token: " + regId);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -528,6 +527,16 @@ public class SplashActivity extends Activity {
                     break;
             }
         }
+    }
+
+    public void setBoardResizePixel(){
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        Config.resizeValue = width;
+        Log.d(TAG, "setBoardResizePixel: "+Config.resizeValue);
     }
 
 }

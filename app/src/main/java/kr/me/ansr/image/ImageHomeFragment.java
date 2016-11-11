@@ -1,14 +1,17 @@
 package kr.me.ansr.image;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -25,8 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.StringSignature;
+import com.sangcomz.fishbun.define.Define;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -39,9 +41,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
@@ -49,10 +53,9 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CommonInfo;
 import kr.me.ansr.common.CustomEditText;
-import kr.me.ansr.common.PhotoChangeFragment;
+import kr.me.ansr.common.PhotoChangeDialogFragment;
 import kr.me.ansr.image.upload.AndroidMultiPartEntity;
 import kr.me.ansr.image.upload.Config;
-import kr.me.ansr.login.LoginActivity;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.model.Sns;
 import okhttp3.Request;
@@ -62,6 +65,9 @@ import okhttp3.Request;
  */
 public class ImageHomeFragment extends Fragment {
     private String TAG = ImageHomeFragment.class.getSimpleName();
+
+    public static final int RC_NUM_PHOTO_CHANGE = 155;
+
     AppCompatActivity activity;
     private ImageView profileView;
     TextView changeIcon;
@@ -75,7 +81,8 @@ public class ImageHomeFragment extends Fragment {
     //copied from ProfileSettingActivity
     ImageView iconPhoto;
     FriendsResult mItem;
-    TextView inputUnivName, inputUnivDesc, inputEmail;
+//    TextView inputUnivName, inputEmail;
+    TextView inputEnterYear, inputDept;
     CustomEditText inputComp, inputJob,inputFb, inputInsta, inputDesc1, inputDesc2;
     SwitchCompat sw;
 
@@ -109,13 +116,9 @@ public class ImageHomeFragment extends Fragment {
         progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         profileView = (ImageView) v.findViewById(R.id.image_image_home_profile);
         changeIcon = (TextView) v.findViewById(R.id.text_prof_set_change);
-        changeIcon.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "imageview clicked", Toast.LENGTH_SHORT).show();
-                ((MediaStoreActivity)getActivity()).startFishBunAlbum();
-            }
-        });
+        profileView.setOnClickListener(mListener);
+        changeIcon.setOnClickListener(mListener);
+
         sw = (SwitchCompat) v.findViewById(R.id.sw_prof_set_location);
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -129,9 +132,9 @@ public class ImageHomeFragment extends Fragment {
             }
         });
 
-        inputUnivName = (TextView) v.findViewById(R.id.image_home_default1);
-        inputUnivDesc = (TextView) v.findViewById(R.id.image_home_default2);
-        inputEmail = (TextView) v.findViewById(R.id.image_home_default3);
+
+        inputEnterYear = (TextView) v.findViewById(R.id.image_home_default2);
+        inputDept = (TextView) v.findViewById(R.id.image_home_dept);
 
         inputComp = (CustomEditText) v.findViewById(R.id.image_home_input1);
         inputJob = (CustomEditText) v.findViewById(R.id.image_home_input2);
@@ -145,7 +148,7 @@ public class ImageHomeFragment extends Fragment {
         filePath = getArguments().getString("filePath","");
         if(filePath == null || filePath ==""){
             if(mItem != null){
-                String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
+                String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "large");
                 Glide.with(getActivity()).load(url)
                         .placeholder(R.drawable.e__who_icon)
                         .centerCrop()
@@ -160,16 +163,32 @@ public class ImageHomeFragment extends Fragment {
 
         return v;
     }
+    public View.OnClickListener mListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                default:
+                    PhotoChangeDialogFragment mDialogFragment = PhotoChangeDialogFragment.newInstance();
+                    Bundle b = new Bundle();
+                    b.putSerializable("userInfo", mItem);
+                    b.putString("tag", PhotoChangeDialogFragment.TAG_IMAGE_HOME);
+                    mDialogFragment.setTargetFragment(ImageHomeFragment.this, RC_NUM_PHOTO_CHANGE);
+                    mDialogFragment.setArguments(b);
+                    mDialogFragment.show(getActivity().getSupportFragmentManager(), "photoChangeDialog");
+                    break;
+
+            }
+        }
+    };
 
     private void initUserInfo(){
         if (PropertyManager.getInstance().getUsingLocation() > 0){
             sw.setChecked(true);
         } else {sw.setChecked(false);}
         if(mItem != null){
-            inputUnivName.setText(PropertyManager.getInstance().getUnivName());
             String stuId = String.valueOf(mItem.univ.get(0).getEnterYear());
-            inputUnivDesc.setText(mItem.getUniv().get(0).getDeptname()+ " / " + stuId.substring(2, 4));
-            inputEmail.setText(mItem.getEmail());
+            inputEnterYear.setText(""+stuId.substring(2, 4)+" 학번");
+            inputDept.setText(mItem.getUniv().get(0).getDeptname());
             if (mItem.getJob() != null){
                 inputComp.setText(mItem.getJob().getName());
                 inputJob.setText(mItem.getJob().getTeam());
@@ -193,18 +212,24 @@ public class ImageHomeFragment extends Fragment {
     ProgressDialog dialog = null;
 
     private void editUser(){
+        final String dept = inputDept.getText().toString().trim();
         final String desc1 = inputDesc1.getText().toString();
         final String desc2 = inputDesc2.getText().toString();
         final String jobname = inputComp.getText().toString();
         final String jobteam = inputJob.getText().toString();
         final String fb = inputFb.getText().toString();
         final String insta = inputInsta.getText().toString();
+        if( dept != null && TextUtils.isEmpty(dept)){
+            Toast.makeText(getActivity(), "학과명은 필수 입력사항입니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        NetworkManager.getInstance().putDongnePutEditUser(getActivity(), desc1, desc2, jobname, jobteam, fb, insta, new NetworkManager.OnResultListener<CommonInfo>() {
+        NetworkManager.getInstance().putDongnePutEditUser(getActivity(), dept, desc1, desc2, jobname, jobteam, fb, insta, new NetworkManager.OnResultListener<CommonInfo>() {
             @Override
             public void onSuccess(Request request, CommonInfo result) {
                 if (result.error.equals(true)) {
                     Toast.makeText(getActivity(), "회원정보 수정을 실패하였습니다. 다시 요청해주세요.", Toast.LENGTH_SHORT).show();
+                    Log.e("error on edit:", result.message);
                 } else {
                     mItem.getDesc().clear();
                     mItem.getDesc().add(desc1); mItem.getDesc().add(desc2);
@@ -214,8 +239,14 @@ public class ImageHomeFragment extends Fragment {
                     mItem.getSns().clear();
                     if(fb != null) { mItem.getSns().add(new Sns("fb", fb)); }
                     if(insta != null) { mItem.getSns().add(new Sns("insta", insta)); }
-
+                    mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+                    PropertyManager.getInstance().setJobName(mItem.job.name);
+                    PropertyManager.getInstance().setJobTeam(mItem.job.team);
+                    mItem.univ.get(0).deptname = dept;
+                    PropertyManager.getInstance().setDeptName(dept);
                     MediaStoreActivity.mItem = mItem;   //액티비티 닫힐때 리턴해주기 위해
+//                    MediaStoreActivity.copyItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+
 //                    initUserInfo();   //수정이 성공하면 창이 닫힘.
                     Toast.makeText(getActivity(), "회원정보가 수정되었습니다.", Toast.LENGTH_SHORT).show();
                     ((MediaStoreActivity)getActivity()).finishAndReturnData();
@@ -275,7 +306,8 @@ public class ImageHomeFragment extends Fragment {
 //            Intent intent = new Intent(getActivity(), LoginActivity.class);
 //            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 //            startActivity(intent);
-            getActivity().finish();
+//            getActivity().finish();
+            ((MediaStoreActivity)getActivity()).finishAndCancel();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -350,8 +382,8 @@ public class ImageHomeFragment extends Fragment {
                     try {
                         JSONObject obj = new JSONObject(responseString);
                         if (obj.getBoolean("error") == false) {
-                            String objectId = obj.getString("result");
-                            PropertyManager.getInstance().setProfile(objectId);
+                            String resultUrl = obj.getString("result");
+                            PropertyManager.getInstance().setProfile(resultUrl);
                         } else { //when {"error": true, ..}
                             PropertyManager.getInstance().setProfile("");
                         }
@@ -374,20 +406,21 @@ public class ImageHomeFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             Log.e(TAG, "Response from server: " + result);
+            Toast.makeText(getActivity(), "프로필 이미지가 수정되었습니다.", Toast.LENGTH_SHORT).show();
             // showing the server response in an alert dialog
             String userId = PropertyManager.getInstance().getUserId();
-            final String url = Config.FILE_GET_URL.replace(":userId", ""+userId).replace(":size", "small");
-//                Glide.with(getActivity()).load(url).into(profileView);
+            final String url = Config.FILE_GET_URL.replace(":userId", ""+userId).replace(":size", "large");
             profileView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Glide.with(getActivity()).load(url)
                             .placeholder(R.drawable.e__who_icon)
                             .centerCrop()
-                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
+                            .signature(new StringSignature( MyApplication.getInstance().getCurrentTimeStampString() ))
+//                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (24 * 60 * 60 * 1000))))
                             .into(profileView);
                 }
-            },1000);
+            }, 500);
             super.onPostExecute(result);
         }
     }
@@ -407,5 +440,68 @@ public class ImageHomeFragment extends Fragment {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle extraBundle;
+        switch (requestCode) {
+            case RC_NUM_PHOTO_CHANGE:
+                if (resultCode == getActivity().RESULT_OK && data != null) {
+                    extraBundle = data.getExtras();
+                    String next = extraBundle.getString("next");
+                    if(next != null)
+                        nextProcess(next);
+                }
+                break;
+
+        }
+    }
+
+    private void nextProcess(String next){
+        switch (next){
+            case "_START_ALBUM_":
+                ((MediaStoreActivity)getActivity()).startFishBunAlbum();
+                break;
+            case "_DEFAULT_IMG_":
+                deletePic();
+                break;
+            default:break;
+        }
+    }
+
+    private void deletePic(){
+        final String userId = PropertyManager.getInstance().getUserId();
+        NetworkManager.getInstance().deleteDongnePicUser(getActivity(), Integer.parseInt(userId), new NetworkManager.OnResultListener<CommonInfo>() {
+            @Override
+            public void onSuccess(Request request, CommonInfo result) {
+                if (result.error.equals(true)) {
+                    Toast.makeText(getActivity(), "기본 이미지 설정에 실패하였습니다. 다시 요청해주세요.", Toast.LENGTH_SHORT).show();
+                    Log.e("error on edit:", result.message);
+                } else {
+                    mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+                    mItem.pic.small = "";
+                    mItem.pic.large = "";
+                    PropertyManager.getInstance().setProfile("");
+                    MediaStoreActivity.mItem = mItem;   //액티비티 닫힐때 리턴해주기 위해
+//                    MediaStoreActivity.copyItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+                    Toast.makeText(getActivity(), "프로필 사진이 수정되었습니다.", Toast.LENGTH_SHORT).show();
+                    filePath = "";
+                    profileView.setImageResource(R.drawable.e__who_icon);
+                }
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Request request, int code, Throwable cause) {
+                Toast.makeText(getActivity(), "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("기본 이미지 설정 중...");
+        dialog.show();
+    }
+
 
 }

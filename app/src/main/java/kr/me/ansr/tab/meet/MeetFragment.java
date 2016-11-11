@@ -132,6 +132,8 @@ public class MeetFragment extends PagerFragment {
 						intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.chat_room_id);
 						startActivity(intent);
 						getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
+//						int old = Integer.parseInt(MainActivity.pushCount.getText().toString());
+//						MainActivity.setPushCount(old - 1);
 						break;
 					case 4:	//"님이 회원님의 친구 신청을 수락하였습니다.",
 						break;
@@ -189,14 +191,23 @@ public class MeetFragment extends PagerFragment {
 
 	private BroadcastReceiver mRegistrationBroadcastReceiver;
 
+	int num = 0;
+	boolean isFirst = true;
 	private void initData(){
-		mAdapter.clear();
-		List<Push> items = DBManager.getInstance().searchAll();
-		for (Push p : items) {
-			Log.e("feed: ", p.toString());
-			mAdapter.add(p);
+		if(mAdapter != null){
+			mAdapter.clear();
+			List<Push> items = DBManager.getInstance().searchAll();
+			for (Push p : items) {
+				Log.e("feed: ", p.toString());
+				mAdapter.add(p);
+			}
+			if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
+				MainActivity.setPushCount(num);
+			} else {
+				MainActivity.setPushCount(0);
+			}
+			showLayout();
 		}
-		showLayout();
 	}
 	private void showLayout(){
 		if (mAdapter.getItemCount() > 0){
@@ -209,6 +220,12 @@ public class MeetFragment extends PagerFragment {
 	}
 	private void handlePushNotification(Intent intent) {
 		int type = intent.getIntExtra("type", -1);
+		isFirst = intent.getBooleanExtra("isFirst", false);
+		if(isFirst){
+			num++;
+		}
+//		num++;
+//		isFirst = true;
 		if (type == Config.PUSH_TYPE_NOTIFICATION){
 			initData();
 		}
@@ -246,6 +263,9 @@ public class MeetFragment extends PagerFragment {
 				activity.getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.e__titlebar_4));
 				((MainActivity)getActivity()).getToolbarTitle().setText("");
 			}
+			num = 0;
+			isFirst = false;
+			initData();
 		}
 	}
 	//하단 메인메뉴 스크롤에 따라 숨기기 할때 테스트 해본 코드

@@ -47,13 +47,61 @@
                 android:layout_height="0.5dp"
                 android:background="@color/gray_background"
                 android:orientation="horizontal"></LinearLayout><!-- tabWidget top divider-->
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:background="#ffffff"
-                android:divider="@null"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-            </TabWidget>
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:background="#ffffff"
+                    android:divider="@null"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </TabWidget>
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tab_user_count"
+                    android:layout_marginLeft="37dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:gravity="center"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white"
+                    android:text="1234"
+                    android:paddingLeft="7dp"
+                    android:paddingRight="7dp"
+                    android:background="@drawable/z_tab_count_bg"/>
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tab_chat_count"
+                    android:layout_marginLeft="110dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:gravity="center"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white"
+                    android:text="115"
+                    android:paddingLeft="7dp"
+                    android:paddingRight="7dp"
+                    android:background="@drawable/z_tab_count_bg"/>
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tab_push_count"
+                    android:layout_marginLeft="252dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:gravity="center"
+                    android:textSize="11sp"
+                    android:textColor="@android:color/white"
+                    android:text="N"
+                    android:paddingLeft="7dp"
+                    android:paddingRight="7dp"
+                    android:background="@drawable/z_tab_count_bg"/>
+                <!--android:textSize="12sp"-->
+            </FrameLayout>
+
 
             <FrameLayout
                 android:id="@android:id/tabcontent"

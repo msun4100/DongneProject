@@ -41,7 +41,7 @@
                 android:textColorHint="@color/signupHintColor"
                 android:textColor="@color/signupFontColor"
                 android:lines="1"
-                android:textSize="16sp" />
+                android:textSize="16sp"/>
         </FrameLayout>
 
         <FrameLayout
@@ -82,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*" />
-            <TextView
+            <EditText
                 android:gravity="center_vertical"
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="12dp"
@@ -92,7 +92,8 @@
                 android:textSize="16sp"
                 android:layout_width="312dp"
                 android:layout_height="36dp"
-                android:id="@+id/text_signup_dept"
+                android:id="@+id/edit_signup_dept"
+                android:singleLine="true"
                 android:hint="학과 입력" />
         </FrameLayout>
         <!--<AutoCompleteTextView-->
@@ -126,12 +127,10 @@
                 android:textColor="@color/signupFontColor"
                 android:textSize="16sp"
                 android:layout_width="312dp"
-                android:layout_height="36dp"
-                />
+                android:layout_height="36dp"/>
         </FrameLayout>
 
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_gravity="center_horizontal"
@@ -178,7 +177,8 @@
             android:textColor="@color/signupFontColor"
             android:layout_width="312dp"
             android:layout_height="36dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:imeOptions="actionDone"/>
 
     </LinearLayout>
 

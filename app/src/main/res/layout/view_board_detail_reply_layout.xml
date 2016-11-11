@@ -7,7 +7,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_marginLeft="13dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="48dp">
         <ImageView
             android:padding="1dp"
@@ -22,18 +22,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="익 명"
-                android:id="@+id/text_board_reply_reply_name"
-                android:layout_gravity="center_vertical" />
+            <FrameLayout
+                android:id="@+id/frame_board_reply_reply_report"
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="익 명"
+                    android:textSize="14sp"
+                    android:textColor="#1c3043"
+                    android:id="@+id/text_board_reply_reply_name"
+                     />
+                <ImageView
+                    android:layout_marginRight="12dp"
+                    android:layout_gravity="end"
+                    android:layout_width="4dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/e__more_1"/>
+            </FrameLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="댓글 내용..."
+                android:textColor="#807f81"
+                android:textSize="12sp"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:id="@+id/text_board_reply_reply_content"
@@ -42,6 +58,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="24dp"
         android:background="#ffffff"

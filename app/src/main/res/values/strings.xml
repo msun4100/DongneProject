@@ -77,7 +77,7 @@
     <string name="status_block_msg"><u>해제하기</u></string>
     <string name="status_send_msg"><u>요청정보 보기</u></string>
     <string name="status_receive_msg"><u>친구정보 보기</u></string>
-    <string name="status_default_msg"><u>친구정보 보기</u></string>
+    <string name="status_default_msg"><u>요청정보 보기</u></string>
     <string name="status_greeting_msg">반가워요~</string>
 
     <string name="image_home_change_thumb"><u>사진 수정</u></string>

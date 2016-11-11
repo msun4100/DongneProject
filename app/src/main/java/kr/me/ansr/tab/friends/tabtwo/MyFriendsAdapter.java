@@ -50,12 +50,13 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 if(fr.userId == child.userId){
                     int index = g.children.indexOf(fr);
                     if(index != -1){
-                        Log.e("find item:", "index:"+index +" "+fr.toString());
+                        Log.e("MyFriendsAdapter:", "index:"+index +" "+fr.toString());
                         g.children.get(index).status = child.status;
                         g.children.get(index).univ = child.univ;
                         g.children.get(index).sns = child.sns;
                         g.children.get(index).desc = child.desc;
                         g.children.get(index).job = child.job;
+                        g.children.get(index).updatedAt = child.updatedAt;
                     }
                     break;
                 }

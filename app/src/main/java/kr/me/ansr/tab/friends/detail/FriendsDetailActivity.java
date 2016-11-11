@@ -20,6 +20,7 @@ import com.bumptech.glide.signature.StringSignature;
 
 import java.util.Random;
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
@@ -31,6 +32,7 @@ import kr.me.ansr.common.ReportDialogFragment;
 
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.list.FriendsListActivity;
 import kr.me.ansr.tab.friends.model.Desc;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -96,8 +98,16 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         thirdIcon.setOnClickListener(mListener);
         backIcon.setOnClickListener(mListener);
 
-        init();
+//        init();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ");
+        init(); //프로필만 바꾸고 취소 버튼을 누른경우 프로필이미지 또한 변경하기 위해
+    }
+
     public View.OnClickListener mListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
@@ -124,6 +134,13 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                             break;
                         case 1:
                             Toast.makeText(FriendsDetailActivity.this, "1:1대화", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(FriendsDetailActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            i.putExtra("tab", "tab2");
+
+                            GcmChatFragment.withIntent = true;
+                            GcmChatFragment.item = mItem;
+                            startActivity(i);
                             break;
                         case 2:
                             break;
@@ -186,32 +203,34 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         if(mItem.userId == Integer.valueOf(PropertyManager.getInstance().getUserId()) ){
 //            status = 100;
             firstIcon.setVisibility(View.INVISIBLE);
-            secondIcon.setImageResource(R.drawable.c__icon_3);
+            secondIcon.setImageResource(R.drawable.c__icon_4);
             thirdIcon.setVisibility(View.INVISIBLE);
         } else if(mItem.status == 0 || mItem.status == -100){
 //            status = mItem.status;
             firstIcon.setImageResource(R.drawable.c__icon_5);
             secondIcon.setImageResource(R.drawable.c__icon_2);
-            thirdIcon.setImageResource(R.drawable.c__icon_3);
+            thirdIcon.setImageResource(R.drawable.c__icon_4);
         } else if(mItem.status == 1){
+//            status = mItem.status;
+            firstIcon.setImageResource(R.drawable.c__icon_3);
+            secondIcon.setImageResource(R.drawable.c__icon_2);
+            thirdIcon.setImageResource(R.drawable.c__icon_4);
+        } else if(mItem.status == -1){
 //            status = mItem.status;
             firstIcon.setImageResource(R.drawable.c__icon_1);
             secondIcon.setImageResource(R.drawable.c__icon_2);
-            thirdIcon.setImageResource(R.drawable.c__icon_3);
-        } else if(mItem.status == -1){
-//            status = mItem.status;
-            firstIcon.setImageResource(R.drawable.c__icon_4);
-            secondIcon.setImageResource(R.drawable.c__icon_2);
-            thirdIcon.setImageResource(R.drawable.c__icon_3);
+            thirdIcon.setImageResource(R.drawable.c__icon_4);
         } else { //status == 2,3
 //            status = mItem.status;
-            firstIcon.setImageResource(R.mipmap.ic_launcher);
+            firstIcon.setImageResource(R.drawable.c__icon_6);
             secondIcon.setImageResource(R.drawable.c__icon_2);
-            thirdIcon.setImageResource(R.drawable.c__icon_3);
+            thirdIcon.setImageResource(R.drawable.c__icon_4);
         }
-
-        if(mItem.isFriend){
-
+        usernameView.setText(mItem.username);
+        if(mItem.status == 1){
+            usernameView.setVisibility(View.VISIBLE);
+        } else {
+            usernameView.setVisibility(View.GONE);
         }
         mAdapter.removeAll();
         if(mItem.sns.size() != 0){
@@ -228,7 +247,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                 mAdapter.add(d);
             }
         }
-        usernameView.setText(mItem.username);
+
         String stuId = String.valueOf(mItem.univ.get(0).getEnterYear());
         stuidView.setText(stuId.substring(2,4));    //2016 --> 16
         deptnameView.setText(mItem.univ.get(0).deptname);
@@ -238,10 +257,11 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             distanceView.setText(mItem.temp);
         } else { distanceView.setText("0m");}
 
-        String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "small");
+        String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "large");
         Glide.with(getApplicationContext()).load(url)
                 .placeholder(R.drawable.e__who_icon)
                 .centerCrop()
+//                .override(348,348)
                 .signature(new StringSignature(mItem.getUpdatedAt()))
                 .into(thumbIcon);
 
@@ -251,7 +271,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             if(tag.equals(InputDialogFragment.TAG_STATUS_RECEIVE) || tag.equals(InputDialogFragment.TAG_STATUS_SEND) || tag.equals(InputDialogFragment.TAG_STATUS_BLOCK)) {
                 //이미지만 변경, 호출 프로세스는 해당 프래그먼트에서 static함수로 처리
                 //새로 고침시 리스트 갱신은 onResume때마다 리스트 불러오도록 원시적으로 처리
-                firstIcon.setImageResource(R.drawable.c__icon_4);
+                firstIcon.setImageResource(R.drawable.c__icon_1);
                 mItem.status = -1;  //이건 재차 버튼이 또 눌릴경우 그에 맞는 상태 호출을 위해
                 tag = InputDialogFragment.TAG_FRIENDS_DETAIL;   //태그가 send면 재차 눌렸을때 계속 리무브 프로세스만 진행됨. 아 코드 너무 더러워 지네
             } else {
@@ -260,7 +280,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         } else if(msg.equals("_ok_")) {
             if(tag.equals(InputDialogFragment.TAG_STATUS_RECEIVE) || tag.equals(InputDialogFragment.TAG_STATUS_SEND) || tag.equals(InputDialogFragment.TAG_STATUS_BLOCK)){
                 //단순 이미지만 변경
-                firstIcon.setImageResource(R.drawable.c__icon_1);
+                firstIcon.setImageResource(R.drawable.c__icon_3);
                 mItem.status = 1;  //이건 재차 버튼이 또 눌릴경우 그에 맞는 상태 호출을 위해
                 tag = InputDialogFragment.TAG_FRIENDS_DETAIL;
             }else {
@@ -312,10 +332,10 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                             //.. imageButton1 이미지 변경
                             switch (mItem.status){
                                 case 3:
-                                    firstIcon.setImageResource(R.mipmap.ic_launcher);
+                                    firstIcon.setImageResource(R.drawable.c__icon_6);
                                     break;
                                 case 1:
-                                    firstIcon.setImageResource(R.drawable.c__icon_1);
+                                    firstIcon.setImageResource(R.drawable.c__icon_3);
                                     break;
                                 case 0:
                                     firstIcon.setImageResource(R.drawable.c__icon_5);
@@ -347,7 +367,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                         if (result.error.equals(false)) {
 //                            Toast.makeText(FriendsDetailActivity.this, "", Toast.LENGTH_LONG).show();
                             mItem.status = -1;
-                            firstIcon.setImageResource(R.drawable.c__icon_4);
+                            firstIcon.setImageResource(R.drawable.c__icon_1);
                             //.. imageButton1 이미지 변경
                         } else {
                             Toast.makeText(FriendsDetailActivity.this, "error: true\n"+result.message, Toast.LENGTH_LONG).show();
@@ -425,6 +445,8 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         finishAndReturnData();
     }
 
+
+//    호출 순서 onActivityResult --> onResume
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -436,7 +458,16 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
                     if(result != null){
                         mItem = result;
-                        init();
+//                        init();   //onResume에서 호출
+                    }
+                }
+                if (resultCode == RESULT_CANCELED) {
+                    Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+                    if(result != null){
+                        mItem = result;
+                        mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+//                        init();
                     }
                 }
                 break;

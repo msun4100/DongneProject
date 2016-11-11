@@ -1,5 +1,6 @@
 package kr.me.ansr.tab.chat.plus;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,8 +21,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import kr.me.ansr.NetworkManager;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.gcmchat.model.Message;
@@ -30,6 +34,7 @@ import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
 import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
+import okhttp3.Request;
 
 public class ChatPlusActivity extends AppCompatActivity {
 
@@ -69,21 +74,22 @@ public class ChatPlusActivity extends AppCompatActivity {
 
                 switch (mAdapter.getMode()){
                     case ChatPlusAdapter.MODE_MULTIPLE:
-                        String roomName = "";
+                        String roomName = PropertyManager.getInstance().getUserName() + ",";
                         for(int i=0; i<mAdapter.getItemCount(); i++){
                             if(checkedItems.get(i)){
                                 list.add(mAdapter.getItem(i));
-                                roomName += mAdapter.getItem(i).getUsername()+ ", ";
+                                roomName += mAdapter.getItem(i).getUsername()+ ",";
                             }
                         }
-                        roomName = roomName.substring(0, roomName.length() -2 ); //맨 마지막 ', '제거
+                        roomName = roomName.substring(0, roomName.length() - 1 ); //맨 마지막 ','제거
                         if(list != null){
                             Toast.makeText(ChatPlusActivity.this, "checkedItems:"+mAdapter.getCheckedItemPositions(), Toast.LENGTH_SHORT).show();
                             Log.e("checkedItems", list.toString());
                             Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
-                            intent.putExtra("chat_room_id", "-1");
+                            int num = DBManager.getInstance().searchRoomName(roomName);
+                            intent.putExtra("chat_room_id", ""+num);
                             intent.putExtra("name", roomName);
-                            intent.putExtra("mItem", list.get(0));
+//                            intent.putExtra("mItem", list.get(0));
                             intent.putExtra("mList", list);
                             startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
 //                            finish();
@@ -98,9 +104,11 @@ public class ChatPlusActivity extends AppCompatActivity {
                             list.clear();
                             list.add(item);
                             Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
-                            intent.putExtra("chat_room_id", "-1");
-                            intent.putExtra("name", item.username);
-                            intent.putExtra("mItem", item);
+                            int num = DBManager.getInstance().searchRoomName(item.username);
+//                            intent.putExtra("chat_room_id", "-1");
+                            intent.putExtra("chat_room_id", num);
+                            intent.putExtra("name", item.username + ","+PropertyManager.getInstance().getUserName());
+//                            intent.putExtra("mItem", item);
                             intent.putExtra("mList", list);
                             startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
                         }
@@ -218,18 +226,42 @@ public class ChatPlusActivity extends AppCompatActivity {
         initData();
 
     }
+
+    ProgressDialog dialog = null;
     boolean isMoreData = false;
     private static final int DISPLAY_NUM = 4;
     private int start=0;
     private String reqDate = null;
 
     private void initData(){
-        mAdapter.clear();
-        mAdapter.addAllFriends(FriendsDataManager.getInstance().getList());
+        NetworkManager.getInstance().getDongneFriendsStatus(ChatPlusActivity.this, "" + 1, //status
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(Request request, FriendsInfo result) {
+                        if(result.error.equals(false)){
+                            mAdapter.clear();
+                            mAdapter.addAllFriends(result.result);
+                        } else {
+                            Toast.makeText(ChatPlusActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(ChatPlusActivity.this);
+        dialog.setTitle("Loading....");
+        dialog.show();
     }
     private void forcedFinish(){
         finish();
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

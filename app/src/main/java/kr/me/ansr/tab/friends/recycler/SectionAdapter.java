@@ -68,11 +68,13 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if(fr.userId == child.userId){
                     int index = g.children.indexOf(fr);
                     if(index != -1){
+                        Log.e("sectionAdapter:", "index:"+index +" "+fr.toString());
                         g.children.get(index).status = child.status;
                         g.children.get(index).univ = child.univ;
                         g.children.get(index).sns = child.sns;
                         g.children.get(index).desc = child.desc;
                         g.children.get(index).job = child.job;
+                        g.children.get(index).updatedAt = child.updatedAt;
                     }
                     break;
                 }
@@ -117,20 +119,26 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    public void clearAllFriends() {
+    public void clearAll() {
 //        items.clear();
 //        if(items.size() < 2){
 //            return;
 //        }
-//        items.get(GROUP_FRIENDS).children.clear();
-        for(int i=0; i<items.size(); i++){
-            items.get(i).children.clear();
-        }
+
+//        for(int i=0; i<items.size(); i++){
+//            items.get(i).children.clear();
+//        }
+        this.items.clear();
         notifyDataSetChanged();
     }
 
     public void addAllFriends(List<FriendsResult> items) {
         this.items.get(GROUP_FRIENDS).children.addAll(items);
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<GroupItem> items){
+        this.items.addAll(items);
         notifyDataSetChanged();
     }
 
@@ -229,7 +237,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return items.get(GROUP_FRIENDS).children.get(position-3); //postion 3 == 0헤더 1차일드뷰 2헤더
     }
 
-    public List getFriendsList(){
+    public List getGroupItems(){
         return this.items;
     }
 }

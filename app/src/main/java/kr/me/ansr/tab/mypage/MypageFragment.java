@@ -4,18 +4,24 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.CommonInfo;
 import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.common.event.FriendsFragmentResultEvent;
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.model.Sns;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.mypage.account.ManagementActivity;
 import kr.me.ansr.tab.mypage.setting.SettingActivity;
+import okhttp3.Request;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,7 +40,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
 
 public class MypageFragment extends PagerFragment {
-
+	private static final String TAG = MypageFragment.class.getSimpleName();
 	AppCompatActivity activity;
 
 	@Bind(R.id.image_my_0_0) ImageView menu00;
@@ -129,11 +135,13 @@ public class MypageFragment extends PagerFragment {
 					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), MediaStoreActivity.class);
 					FriendsResult item = FriendsSectionFragment.getUserInfo();
-					intent.putExtra("mItem", item);
-					intent.putExtra("tag", MediaStoreActivity.TAG_MY_PAGE);
-					startActivityForResult(intent, 125);
-//					startActivity(intent);
-//					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
+					if(item != null){
+						intent.putExtra("mItem", item);
+						intent.putExtra("tag", MediaStoreActivity.TAG_MY_PAGE);
+						startActivityForResult(intent, 125);
+					} else {
+						Log.d(TAG, "onClick: " + "item is null");
+					}
 					break;
 				default:
 					break;
@@ -147,19 +155,60 @@ public class MypageFragment extends PagerFragment {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
 			case 125:
-				if (resultCode == Activity.RESULT_OK) {
-//                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
+				if (resultCode == Activity.RESULT_OK ) {
+					Log.d("TAG", "onActivityResult: "+resultCode);
 					Bundle extraBundle = data.getExtras();
 					FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
-					EventBus.getInstance().post(result);
+					result.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();	//TimeStamp만 변경 --> 프로필 이미지 갱신
+					// 사실상 여기서 result는 사용 안함
+					EventBus.getInstance().post(result);	//post가 호출 안되네.. pause??라서 그런가?
 					if(result != null){
-//						mItem = result;
+						//OK로 오는 경우는 이미 ImageHomeFragment에서 EditUser 를 하고 넘어온 값.	//캔슬일 경우만 updatedAt 갱신함.(프로필 갱신을 위해서)
 						initData();
+					}
+				}
+				else if(resultCode == Activity.RESULT_CANCELED){
+					Log.d("TAG", "onActivityResult: "+resultCode);
+					Bundle extraBundle = data.getExtras();
+					FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+					result.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();	//TimeStamp만 변경 --> 프로필 이미지 갱신
+					// 사실상 여기서 result는 사용 안함
+					EventBus.getInstance().post(result);	//post가 호출 안되네.. pause??라서 그런가?
+					if(result != null){
+						editUser(); 	//전부다 null로 요청하고 updatedAt만 수정
+//						initData();		//editUser Success에서 처리
 					}
 				}
 				break;
 		}
 	}
+	ProgressDialog dialog = null;
+	private void editUser(){
+
+		NetworkManager.getInstance().putDongnePutEditUser(getActivity(), null, null, null, null, null, null, null, new NetworkManager.OnResultListener<CommonInfo>() {
+			@Override
+			public void onSuccess(Request request, CommonInfo result) {
+				if (result.error.equals(true)) {
+					Toast.makeText(getActivity(), "회원정보 수정에 실패하였습니다. 다시 요청해주세요.", Toast.LENGTH_SHORT).show();
+					Log.e("error on edit:", result.message);
+				} else {
+					Toast.makeText(getActivity(), "회원정보가 수정되었습니다.", Toast.LENGTH_SHORT).show();
+					initData();
+				}
+				dialog.dismiss();
+			}
+
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+				Toast.makeText(getActivity(), "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				dialog.dismiss();
+			}
+		});
+		dialog = new ProgressDialog(getActivity());
+		dialog.setTitle("Loading....");
+		dialog.show();
+	}
+
 
 	@Override
 	public void onPageCurrent() {

@@ -15,4 +15,5 @@ public class Config {
 
 	// Directory name to store captured images and videos
     public static final String IMAGE_DIRECTORY_NAME = "Dongne File Upload";
+	public static int resizeValue = 0;	// 1080px or device width
 }

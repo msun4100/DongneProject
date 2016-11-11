@@ -52,6 +52,8 @@
             android:textStyle="bold"
             android:hint="이메일 입력"
             android:imeOptions="actionSend"
+            android:lines="1"
+            android:singleLine="true"
             />
     </LinearLayout>
 

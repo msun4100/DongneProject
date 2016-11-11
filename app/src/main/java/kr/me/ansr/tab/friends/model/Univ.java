@@ -39,6 +39,17 @@ public class Univ implements Serializable{
         this.deptId = deptId;
     }
 
+    @Override
+    public String toString() {
+        return "Univ{" +
+                "univId=" + univId +
+                ", deptId=" + deptId +
+                ", deptname='" + deptname + '\'' +
+                ", isGraduate=" + isGraduate +
+                ", enterYear=" + enterYear +
+                '}';
+    }
+
     public String getDeptname() {
         return deptname;
     }

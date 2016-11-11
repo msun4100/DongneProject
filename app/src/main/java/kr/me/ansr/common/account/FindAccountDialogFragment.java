@@ -69,10 +69,10 @@ public class FindAccountDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 if (tag != null) {
                     if (tag.equals(TAG_FIND_ACCOUNT)) {
-                        String username = inputName.getText().toString();
-                        String univ = inputUniv.getText().toString();
-                        String dept = inputDept.getText().toString();
-                        String enterYear = inputEnterYear.getText().toString();
+                        String username = inputName.getText().toString().trim();
+                        String univ = inputUniv.getText().toString().trim();
+                        String dept = inputDept.getText().toString().trim();
+                        String enterYear = inputEnterYear.getText().toString().trim();
                         if(checkData(username, univ, dept, enterYear)){
                             mCallback.onDataReturned(new FindAccountModel(username, univ, dept, enterYear));
                             dismiss();
@@ -101,10 +101,10 @@ public class FindAccountDialogFragment extends DialogFragment {
                 if(actionId == EditorInfo.IME_ACTION_SEND){
                     //....
                     if (tag.equals(TAG_FIND_ACCOUNT)) {
-                        String username = inputName.getText().toString();
-                        String univ = inputUniv.getText().toString();
-                        String dept = inputDept.getText().toString();
-                        String enterYear = inputEnterYear.getText().toString();
+                        String username = inputName.getText().toString().trim();
+                        String univ = inputUniv.getText().toString().trim();
+                        String dept = inputDept.getText().toString().trim();
+                        String enterYear = inputEnterYear.getText().toString().trim();
                         if(checkData(username, univ, dept, enterYear)){
                             mCallback.onDataReturned(new FindAccountModel(username, univ, dept, enterYear));
                             dismiss();

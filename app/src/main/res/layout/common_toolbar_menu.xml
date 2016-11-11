@@ -12,6 +12,7 @@
         android:id="@+id/toolbar_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="240dp"
         android:text="학교 사람들"
         android:textColor="#1b3043"
         android:singleLine="true"

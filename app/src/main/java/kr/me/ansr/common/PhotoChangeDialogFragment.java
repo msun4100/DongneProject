@@ -1,18 +1,16 @@
 package kr.me.ansr.common;
 
 import android.app.ActionBar.LayoutParams;
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -21,15 +19,20 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
 /**
  * Created by KMS on 2016-09-01.
  */
-public class PhotoChangeFragment extends DialogFragment {
-    public PhotoChangeFragment(){
+public class PhotoChangeDialogFragment extends DialogFragment {
+
+    public static final String TAG_IMAGE_HOME = "imageHome";
+
+    public PhotoChangeDialogFragment(){
 
     }
     Button btn1, btn2, btn3;
     FriendsResult data;
+    String choice = null;
+    String tag = null;
 
-    public static PhotoChangeFragment newInstance() {
-        PhotoChangeFragment f = new PhotoChangeFragment();
+    public static PhotoChangeDialogFragment newInstance() {
+        PhotoChangeDialogFragment f = new PhotoChangeDialogFragment();
         return f;
     }
     @Override
@@ -39,6 +42,7 @@ public class PhotoChangeFragment extends DialogFragment {
         Bundle b = getArguments();
         if(b != null){
             data = (FriendsResult)b.getSerializable("userInfo");
+            tag = b.getString("tag");
         }
     }
     //0831_@nullable 어노테이션 삭제함
@@ -47,10 +51,6 @@ public class PhotoChangeFragment extends DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
         getDialog().getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
         getDialog().getWindow().setGravity(Gravity.CENTER_VERTICAL);
-//		getDialog().getWindow().setLayout(300,300);
-//		getDialog().getWindow().setGravity(Gravity.LEFT | Gravity.TOP);
-//		getDialog().getWindow().getAttributes().x = 120;
-//		getDialog().getWindow().getAttributes().y = -18;
 
         View view = inflater.inflate(R.layout.dialog_photo_change_layout, container, false);
 
@@ -58,7 +58,11 @@ public class PhotoChangeFragment extends DialogFragment {
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "1", Toast.LENGTH_SHORT).show();
+                if(tag.equals(TAG_IMAGE_HOME)) {
+                    Intent intent = new Intent();
+                    intent.putExtra("next", "_START_ALBUM_");
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                }
                 dismiss();
             }
         });
@@ -67,12 +71,11 @@ public class PhotoChangeFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-//				Toast.makeText(getActivity(), "dialog ok", Toast.LENGTH_SHORT).show();
-//                Bundle b = new Bundle();
-//                UnsignPWDialogFragment f = new UnsignPWDialogFragment();
-//                f.setArguments(b);
-//                f.show(getActivity().getSupportFragmentManager(), "unsignpwdialog");
-                Toast.makeText(getActivity(), "2", Toast.LENGTH_SHORT).show();
+                if(tag.equals(TAG_IMAGE_HOME)) {
+                    Intent intent = new Intent();
+                    intent.putExtra("next", "_DEFAULT_IMG_");
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                }
                 dismiss();
 
             }//onClick

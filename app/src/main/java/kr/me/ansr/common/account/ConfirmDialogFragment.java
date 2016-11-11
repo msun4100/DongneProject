@@ -2,6 +2,7 @@ package kr.me.ansr.common.account;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -38,6 +39,7 @@ public class ConfirmDialogFragment extends DialogFragment{
 
     String title, body;
     String choice;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,7 @@ public class ConfirmDialogFragment extends DialogFragment{
                     if(tag.equals(TAG_FIND_PW)) {
 
                     }
+
                 }
                 dismiss();
             }//onClick
@@ -109,6 +112,25 @@ public class ConfirmDialogFragment extends DialogFragment{
         super.onResume();
         initData();
     }
+    private IDataReturned mCallback;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback = (IDataReturned) activity;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Activity doesn't implements 'IDataReturned interface'");
+        }
+    }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        try{
+            mCallback = null;
+        } catch (ClassCastException e){
+            Log.d("MyDialog", "Exception occurred while onDetach");
+        }
+    }
 
 }

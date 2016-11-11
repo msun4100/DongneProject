@@ -7,6 +7,7 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
 
 /**
  * Created by KMS on 2016-07-22.
+ * 검색시 백업용
  */
 public class FriendsDataManager {
     private static FriendsDataManager instance;
@@ -17,43 +18,66 @@ public class FriendsDataManager {
         }
         return instance;
     }
-    public List<FriendsResult> items = new ArrayList<FriendsResult>();
+    public List<GroupItem> items = new ArrayList<GroupItem>();
+    public int start = 0;
+    public String reqDate = null;
+    public int lastVisibleItemPosition = 0;
+    public int totalCount = 0;
+    public int mSearchOption = 0;
+
     private FriendsDataManager() { }
 
-    public List<FriendsResult> getList(){
+    public List<GroupItem> getList(){
         return items;
     }
 
-    public void clearFriends(){
+    public void clearAll(){
         this.items.clear();
+//        for(int i=0; i<items.size(); i++){
+//            items.get(i).children.clear();
+//        }
     }
-    public void addAllFriends(List<FriendsResult> items) {
+    public void addAll(List<GroupItem> items) {
         this.items.addAll(items);
     }
-//    public void put(String groupName, FriendsResult child) {
-//        GroupItem group = null;
-//        for (GroupItem g : items) {
-//            if (g.groupName.equals(groupName)) {
-//                group = g;
-//                break;
-//            }
-//        }
-//        if (group == null) {
-//            group = new GroupItem();
-//            group.groupName = groupName;
-//            items.add(group);
-//        }
-//        if(child != null){
-//            group.children.add(child);
-//        }
-//    }
 
-//    public void clearAllFriends() {
-////        items.clear();
-//        if(items.size() < 2){
-//            return;
-//        }
-//        items.get(SectionAdapter.GROUP_FRIENDS).children.clear();
-//    }
+    public int getStart() {
+        return start;
+    }
 
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public String getReqDate() {
+        return reqDate;
+    }
+
+    public void setReqDate(String reqDate) {
+        this.reqDate = reqDate;
+    }
+
+    public int getLastVisibleItemPosition() {
+        return lastVisibleItemPosition;
+    }
+
+    public void setLastVisibleItemPosition(int lastVisibleItemPosition) {
+        this.lastVisibleItemPosition = lastVisibleItemPosition;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
+
+    public int getmSearchOption() {
+        return mSearchOption;
+    }
+
+    public void setmSearchOption(int mSearchOption) {
+        this.mSearchOption = mSearchOption;
+    }
 }

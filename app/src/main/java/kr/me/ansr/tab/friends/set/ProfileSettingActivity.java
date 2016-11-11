@@ -2,8 +2,6 @@ package kr.me.ansr.tab.friends.set;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -13,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import kr.me.ansr.R;
-import kr.me.ansr.common.PhotoChangeFragment;
+import kr.me.ansr.common.PhotoChangeDialogFragment;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class ProfileSettingActivity extends AppCompatActivity {
@@ -47,7 +45,7 @@ public class ProfileSettingActivity extends AppCompatActivity {
         iconPhoto.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                PhotoChangeFragment mDialogFragment = PhotoChangeFragment.newInstance();
+                PhotoChangeDialogFragment mDialogFragment = PhotoChangeDialogFragment.newInstance();
                 Bundle b = new Bundle();
                 b.putSerializable("userInfo", mItem);
                 mDialogFragment.setArguments(b);

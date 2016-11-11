@@ -13,6 +13,7 @@
         layout="@layout/common_search_bar_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_below="@+id/LinearLayout1"
         android:id="@+id/include" />
 

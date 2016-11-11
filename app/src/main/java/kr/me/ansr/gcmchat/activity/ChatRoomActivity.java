@@ -39,19 +39,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import kr.me.ansr.MyApplication;
-import kr.me.ansr.NetworkManager;
-import kr.me.ansr.PropertyManager;
-import kr.me.ansr.R;
+import kr.me.ansr.*;
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.adapter.ChatRoomThreadAdapter;
 import kr.me.ansr.gcmchat.app.Config;
 import kr.me.ansr.gcmchat.app.EndPoints;
+import kr.me.ansr.gcmchat.gcm.GcmIntentService;
 import kr.me.ansr.gcmchat.gcm.NotificationUtils;
 import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
 import kr.me.ansr.gcmchat.model.User;
+import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 //FragmentGcmChat 에서 여는 채팅 방
@@ -79,6 +79,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_activity_chat_room);
+        Log.d(TAG, "onCreate: "+ PropertyManager.getInstance().getIsTab2Visible());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.common_back2);
         setSupportActionBar(toolbar);
@@ -95,6 +96,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "menu click", Toast.LENGTH_SHORT).show();
+                DBManager.getInstance().deleteRoomMsg(Integer.parseInt(chatRoomId));
             }
         });
 
@@ -148,7 +150,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             chatRoomId = intent.getStringExtra("chat_room_id");
             roomName = intent.getStringExtra("name");
             if(roomName != null){
-                toolbarTitle.setText(roomName);
+                toolbarTitle.setText(GcmChatFragment.getSortedRoomName(roomName));
             } else { toolbarTitle.setText("채 팅 방"); }   //채팅방으로 만들어질 예외는 없다고 봄
             mItem = (FriendsResult) intent.getSerializableExtra("mItem");
             mList = (ArrayList<FriendsResult>)intent.getSerializableExtra("mList");
@@ -198,17 +200,36 @@ public class ChatRoomActivity extends AppCompatActivity {
     private void handlePushNotification(Intent intent) {
         Message message = (Message) intent.getSerializableExtra("message");
         String chatRoomId = intent.getStringExtra("chat_room_id");
+
         message.chat_room_id = Integer.parseInt(chatRoomId);    // 1026;아마 노티로 보내주는 message엔 chat_room_id가 없을 것임.
-        if (message != null && chatRoomId != null) {
+//        방이 열려있는 상태에서 푸시가 오는 케이스. isVisible은 visible인상태임
+//        챗룸아이디가 같으면 아답터에 추가 아니면 디비에만 추가.
+        if(this.chatRoomId.equals(""+message.chat_room_id)){
+            if (message != null && chatRoomId != null) {
+                DBManager.getInstance().insertMsg(message);
+                messageArrayList.add(message);
+                mAdapter.notifyDataSetChanged();
+                if (mAdapter.getItemCount() > 1) {
+                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() );
+                }
+                NotificationUtils notificationUtils = new NotificationUtils();
+                notificationUtils.playNotificationSound();
+            }
+        } else {
+            if (message != null && chatRoomId != null) {
+                //소리는 여기 타기전에 play~~로 해서나는거랑 showNotificationMessage함수랑 중복해서 남...
+                Intent resultIntent = new Intent(getApplicationContext(), kr.me.ansr.MainActivity.class);
+                resultIntent.putExtra("chat_room_id", chatRoomId);
+                resultIntent.putExtra("name", ""+chatRoomId);
+                intent.putExtra("tab", "tab2");
+                NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                notificationUtils.showNotificationMessage("Push msg", message.message, message.createdAt, intent);
+                addRoomAndMessage(chatRoomId, message);
 
-            DBManager.getInstance().insertMsg(message);
-
-            messageArrayList.add(message);
-            mAdapter.notifyDataSetChanged();
-            if (mAdapter.getItemCount() > 1) {
-                recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
             }
         }
+
     }
 
     /**
@@ -268,7 +289,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         mAdapter.notifyDataSetChanged();
                         if (mAdapter.getItemCount() > 1) {
                             // scrolling to bottom of the recycler view
-                            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
+                            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
                         }
 
                     } else {
@@ -332,30 +353,28 @@ public class ChatRoomActivity extends AppCompatActivity {
                 if (result.error.equals(false)) {
 //                    sendMessage 후에 오는 message 객체는 무조건 length가 1일 것임
                     if(result.messages != null){
-//                        for(int i=0; i<result.messages.size(); i++){
-//                            Log.e("msg"+i+" :", result.messages.get(i).toString());
-//                            Message message = new Message();
-//                            message.setId(result.messages.get(i).getId());
-//                            message.setMessage(result.messages.get(i).getMessage());
-//                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
-//                            message.chat_room_id = chatRoomId;
-//                            int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
-//                            String username = PropertyManager.getInstance().getUserName();
-//                            String email = PropertyManager.getInstance().getEmail();
-//                            User user = new User(userId, username, email);
-//                            //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
-//                            //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
-////                            message.setUser(result.messages.get(i).getUser());
-//                            message.setUser(user);
-//                            DBManager.getInstance().insertMsg(message);
-//                            messageArrayList.add(message);
-
-//                        }
+                        for(int i=0; i<result.messages.size(); i++){
+                            Message message = new Message();
+                            message.setId(result.messages.get(i).getId());
+                            message.setMessage(result.messages.get(i).getMessage());
+                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
+                            message.chat_room_id = chatRoomId;
+                            int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
+                            String username = PropertyManager.getInstance().getUserName();
+                            String email = PropertyManager.getInstance().getEmail();
+                            User user = new User(userId, username, email);
+                            //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
+                            //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
+//                            message.setUser(result.messages.get(i).getUser());
+                            message.setUser(user);
+                            DBManager.getInstance().insertMsg(message);
+                            messageArrayList.add(message);
+                        }
                         Log.e("sendMsg",result.messages.get(0).toString());
                     }
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
-                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
+                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
@@ -402,21 +421,23 @@ public class ChatRoomActivity extends AppCompatActivity {
                             // insert to DB
                             ChatRoom cr = new ChatRoom();
                             cr.setId(message.chat_room_id);
-                            cr.setName(mItem.username);
+                            cr.setName(roomName);   // cr.setName(mItem.username);
                             cr.setLastMessage(message.message);
                             cr.setUnreadCount(0);
                             cr.setTimestamp(message.createdAt);
                             cr.bgColor = 0; //없으면 저장 안되나?
                             cr.image ="";
+                            cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId());
                             if( DBManager.getInstance().insertRoom(cr) > 0 ){
                                 Log.e("msg.toString", message.toString());
                                 DBManager.getInstance().insertMsg(message);
                             }
                         }
                     }
+                    //subscribe..
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
-                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
+                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
@@ -449,8 +470,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
         mAdapter.notifyDataSetChanged();
         if (mAdapter.getItemCount() > 1) {
-//            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
-            recyclerView.scrollToPosition(mAdapter.getItemCount()-1);
+            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+//            recyclerView.scrollToPosition(mAdapter.getItemCount());
         }
 
 
@@ -709,7 +730,10 @@ public class ChatRoomActivity extends AppCompatActivity {
         Intent intent = new Intent();
         if(result){
             intent.putExtra("return", "success");
-            Message lastMsg = messageArrayList.get( messageArrayList.size()-1 );
+            Message lastMsg = null;
+            if(messageArrayList.size() > 0) {
+                 lastMsg = messageArrayList.get( messageArrayList.size()-1 );
+            }
             intent.putExtra("lastMsg", lastMsg);
         } else {    //result == false
             intent.putExtra("return", "failure");
@@ -728,4 +752,38 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onBackPressed();
 
     }
+
+    private  void isRoomExists(String chatRoomId, Message message){
+        if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
+            //존재하지 않으면 생성
+            ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId),
+                    message.user.name,/*네임*/
+                    message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
+            DBManager.getInstance().insertRoom(cr);
+        }
+    }
+
+    private void addRoomAndMessage(String chatRoomId, Message message){
+        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
+        ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId));
+        if(list.size() == 0){   //없으면 룸생성
+            cr.unreadCount = 0;
+            DBManager.getInstance().insertRoom(cr);
+        } else {    //있으면 업데이트
+            if(list.size() == 1 && list.get(0).id == Integer.parseInt(chatRoomId)){
+                cr = list.get(0);
+                cr.unreadCount = list.get(0).unreadCount + 1;
+                cr.lastMessage = message.message;
+                cr.timestamp = message.createdAt;
+//                DBManager.getInstance().updateRoom(cr);
+//                Log.d(TAG, "addRoomAndMessage: 111 "+cr.toString());
+            }
+        }
+        if(DBManager.getInstance().insertMsg(message) > 0 ){    //insertMsg 성공하면 updateRoom
+            if(DBManager.getInstance().updateRoom(cr) > 0 ){
+                MainActivity.setChatCount(cr.unreadCount);
+            }
+        }
+    }
+
 }

@@ -117,7 +117,6 @@ public class FriendsTwoFragment extends PagerFragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                Log.e(TAG+"onstatechanged","aaaaaaaa");
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     getMoreItem();
                 }
@@ -281,8 +280,6 @@ public class FriendsTwoFragment extends PagerFragment {
                                 mAdapter.setTotalCount(result.total);
                                 setTabTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
-                                FriendsDataManager.getInstance().clearFriends();
-                                FriendsDataManager.getInstance().getList().addAll(items);
 
                                 if(result.user != null){
                                     Log.e(TAG+" user:", result.user.toString());
@@ -303,7 +300,6 @@ public class FriendsTwoFragment extends PagerFragment {
                         } else {
 //                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             mAdapter.items.clear();
-                            FriendsDataManager.getInstance().clearFriends();
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
@@ -347,14 +343,18 @@ public class FriendsTwoFragment extends PagerFragment {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
                             Log.e(TAG+"getMore:", ""+result.message);
-                            if(!result.message.equals("has no more accepted friends")){
-                                Log.e(TAG+"getMore:", result.result.toString());
-                                mAdapter.addAllFriends(result.result);
-                                FriendsDataManager.getInstance().getList().addAll(result.result);
-                                start++;
+                            if(result.error.equals(false)){
+                                if(!result.message.equals("has no more accepted friends")){
+                                    Log.e(TAG+"getMore:", result.result.toString());
+                                    mAdapter.addAllFriends(result.result);
+                                    start++;
+                                } else {
+                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
+
                             isMoreData = false;
                             refreshLayout.setRefreshing(false);
                             Log.e(TAG+"getMoreItem() start=", ""+start);

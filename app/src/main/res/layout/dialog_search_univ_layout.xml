@@ -13,30 +13,33 @@
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/a_popup_search_school"/>
+            android:src="@drawable/a_popup_search_school_v2"/>
         <LinearLayout
             android:visibility="visible"
             android:id="@+id/layout_dialog_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
             <TextView
-                android:layout_marginTop="60dp"
+                android:id="@+id/text_dialog_empty_msg"
+                android:layout_marginTop="64dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/dialogHintColor"
                 android:layout_gravity="center_horizontal"
-                android:text="검색한 대학이 없습니다"
+                android:text="검색한 대학이 없습니다."
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <LinearLayout
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginLeft="24dp"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="@color/dialogHintColor"
                 android:orientation="horizontal">
             </LinearLayout>
             <TextView
+                android:visibility="gone"
                 android:layout_marginTop="32dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/dialogFontColor"
@@ -45,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <ImageView
+                android:visibility="gone"
                 android:id="@+id/image_dialog_direct"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
@@ -52,6 +56,15 @@
                 android:layout_height="45dp"
                 android:src="@drawable/a_popup_search_school_direct"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_dialog_mask"
+            android:visibility="gone"
+            android:background="#ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"></LinearLayout>
+
         <LinearLayout
             android:layout_marginTop="24dp"
             android:layout_width="wrap_content"
@@ -75,14 +88,14 @@
                     android:dropDownHeight="195dp"
                     android:popupBackground="#ffffff"
                     android:completionThreshold="1"
-
                     />
                 <FrameLayout
                     android:id="@+id/frame_dialog_search_icon"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_gravity="right"
-                    />
+                    android:layout_gravity="right">
+
+                </FrameLayout>
             </FrameLayout>
         </LinearLayout>
     </FrameLayout>

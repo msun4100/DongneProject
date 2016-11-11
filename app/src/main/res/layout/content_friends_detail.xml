@@ -73,8 +73,8 @@
                 android:id="@+id/text_friends_detail_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginBottom="4dp"
                 android:textColor="#ecedec"
                 android:textSize="20sp"
                 android:layout_gravity="bottom|right"
@@ -84,6 +84,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingBottom="4dp"
                 android:layout_gravity="bottom|right">
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -221,7 +222,7 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:orientation="vertical"
-            android:layout_marginLeft="65dp"
+            android:layout_marginLeft="29dp"
             android:background="@color/profile_stroke1"
             android:layout_width="0.75dp"
             android:layout_height="match_parent">

@@ -1,6 +1,7 @@
 package kr.me.ansr.login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,9 +9,12 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +48,8 @@ import okhttp3.Request;
 public class SignupActivity extends AppCompatActivity {
 	private static final String TAG = SignupActivity.class.getSimpleName();
 //	public AutoCompleteTextView textViewDept;
-	public TextView textViewUniv, textViewDept;
+	public TextView textViewUniv; //,textViewDept;
+	public EditText inputDept;
 //	ArrayAdapter<String> mUnivAdapter, mDeptAdapter;
 	public MyUnivAdapter mUnivAdapter;
 	public MyDeptAdapter mDeptAdapter;
@@ -55,7 +60,7 @@ public class SignupActivity extends AppCompatActivity {
 	public EditText inputName, inputCompany, inputJob;
 	public String email, password, mSpinnerItem;
 	public int mUnivId, mDeptId;
-	public String mDeptname, mUnivname;
+	public String mUnivname, mDeptname;
 
 	public Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -97,23 +102,24 @@ public class SignupActivity extends AppCompatActivity {
 			}
 		});
 
-		textViewDept = (TextView)findViewById(R.id.text_signup_dept);
-		mDeptAdapter = new MyDeptAdapter();
-		textViewDept.setOnClickListener(new View.OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				if(textViewUniv == null || textViewUniv.getText().toString().equals("")){
-					Toast.makeText(getApplicationContext(), "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				SearchDeptDialogFragment mDialogFragment = new SearchDeptDialogFragment();
-				Bundle b = new Bundle();
-				b.putString("tag", SearchDeptDialogFragment.TAG_SIGN_UP);
-//				b.putSerializable("item", mItem);
-				mDialogFragment.setArguments(b);
-				mDialogFragment.show(getSupportFragmentManager(), "customDialog");
-			}
-		});
+		inputDept = (EditText)findViewById(R.id.edit_signup_dept);
+//		textViewDept = (TextView)findViewById(R.id.text_signup_dept);
+//		mDeptAdapter = new MyDeptAdapter();
+//		textViewDept.setOnClickListener(new View.OnClickListener(){
+//			@Override
+//			public void onClick(View v) {
+//				if(textViewUniv == null || textViewUniv.getText().toString().equals("")){
+//					Toast.makeText(getApplicationContext(), "대학교명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+//					return;
+//				}
+//				SearchDeptDialogFragment mDialogFragment = new SearchDeptDialogFragment();
+//				Bundle b = new Bundle();
+//				b.putString("tag", SearchDeptDialogFragment.TAG_SIGN_UP);
+////				b.putSerializable("item", mItem);
+//				mDialogFragment.setArguments(b);
+//				mDialogFragment.show(getSupportFragmentManager(), "customDialog");
+//			}
+//		});
 //		mDeptAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
 //		textViewDept.setAdapter(mDeptAdapter);
 //		textViewDept.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -150,11 +156,23 @@ public class SignupActivity extends AppCompatActivity {
 		inputName = (EditText)findViewById(R.id.edit_signup_name);
 		inputCompany = (EditText)findViewById(R.id.edit_signup_company);
 		inputJob = (EditText)findViewById(R.id.edit_signup_job);
+		inputJob.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if(actionId == EditorInfo.IME_ACTION_DONE){
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+					return true;
+				}
+				return false;
+			}
+		});
 		Button btn = (Button)findViewById(R.id.btn_signup_send);
 		btn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+				mDeptname = inputDept.getText().toString().trim();
 				doSignUp();
 			}
 		});
@@ -263,9 +281,10 @@ public class SignupActivity extends AppCompatActivity {
 			Toast.makeText(SignupActivity.this, "직무를 입력해주세요.", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		final String username = inputName.getText().toString();
-		String jobname = inputCompany.getText().toString();
-		String jobteam = inputJob.getText().toString();
+		final String username = inputName.getText().toString().trim();
+		String jobname = inputCompany.getText().toString().trim();
+		String jobteam = inputJob.getText().toString().trim();
+
 		final int isGraduate = 1;
 		NetworkManager.getInstance().postDongneRegister(SignupActivity.this,
 				email, password, username, mUnivId, mDeptId, mDeptname, mSpinnerItem, isGraduate, jobname, jobteam,
@@ -391,13 +410,21 @@ public class SignupActivity extends AppCompatActivity {
 		return true;
 	}
 	private boolean validateDept() {
-		if (textViewDept.getText().toString().trim().isEmpty()) {
-			textViewDept.setText("");
-			requestFocus(textViewDept);
+		if (inputDept.getText().toString().trim().isEmpty()) {
+			inputDept.setText("");
+			requestFocus(inputDept);
 			return false;
 		}
 		return true;
 	}
+//	private boolean validateDept() {
+//		if (textViewDept.getText().toString().trim().isEmpty()) {
+//			textViewDept.setText("");
+//			requestFocus(textViewDept);
+//			return false;
+//		}
+//		return true;
+//	}
 	private boolean validateEnterYear() {
 		if (mSpinnerItem == null || mSpinnerItem == "") {
 //			textViewDept.setText("");
@@ -424,6 +451,7 @@ public class SignupActivity extends AppCompatActivity {
 		}
 		return true;
 	}
+
 	private boolean validateDeptName() {
 		if (mDeptname == null || mDeptname == "") {
 			return false;

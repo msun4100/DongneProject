@@ -147,6 +147,7 @@ public class FriendsFragment extends PagerFragment {
 					getUnivItem();
 				}
 			}
+			MainActivity.setUserCount(0);
 		}
 	}
 

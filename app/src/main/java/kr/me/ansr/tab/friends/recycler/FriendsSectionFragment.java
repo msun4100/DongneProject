@@ -2,6 +2,7 @@ package kr.me.ansr.tab.friends.recycler;
 
 import android.app.ProgressDialog;
 import android.app.usage.UsageEvents;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -14,11 +15,16 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -33,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
@@ -83,15 +90,15 @@ public class FriendsSectionFragment extends PagerFragment
     public int mSearchOption = 0;
     ImageView searchIcon;
     FrameLayout frameSearch;
-
+    InputMethodManager imm;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_friends_section, container, false);
         activity = (AppCompatActivity) getActivity();
 //        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
+        imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -107,7 +114,7 @@ public class FriendsSectionFragment extends PagerFragment
                             refreshLayout.setRefreshing(false);
                         }
                     }
-                }, 2000);
+                }, 1000);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -117,24 +124,29 @@ public class FriendsSectionFragment extends PagerFragment
                 super.onScrollStateChanged(recyclerView, newState);
 //                Log.e(TAG+"onstatechanged","aaaaaaaa");
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    getMoreItem();
+                    Log.d(TAG, "onScrollStateChanged: isSearching" + isSearching);
+                    if(isSearching == true){
+                        getMoreSearchUsers(username, enterYear, deptname, job);
+                    } else {
+                        getMoreItem();
+                    }
                 }
-
             }
+
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-//                Log.e("111",""+lastVisibleItemPosition);
-//                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-//                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
+                Log.e("lastVisibleItemPosition",""+lastVisibleItemPosition);
+                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
+                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-//                Log.e(TAG+"onscrolled","");
+                Log.e("444", ""+isLast);
             }
         });
         mAdapter = new SectionAdapter();
@@ -230,7 +242,16 @@ public class FriendsSectionFragment extends PagerFragment
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                setContainerVisibility();
+                if(isSearching == true){
+                    frameSearch.setVisibility(View.GONE);
+                    searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+//                    initUnivUsers();
+                    restoreList();
+                    isSearching = false;
+                    clearSearchInput();
+                } else if(isSearching == false){
+                    setContainerVisibility();
+                }
             }
         });
 
@@ -238,47 +259,41 @@ public class FriendsSectionFragment extends PagerFragment
         inputYear = (EditText)view.findViewById(R.id.edit_search_enteryear);
         inputDept = (EditText)view.findViewById(R.id.edit_search_dept);
         inputJob = (EditText)view.findViewById(R.id.edit_search_job);
+        inputJob.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                    searchProcess();
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
         confirmView = (TextView)view.findViewById(R.id.text_search_confirm);
         confirmView.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
-                final String username = inputName.getText().toString();
-                final String enterYear = inputYear.getText().toString();
-                final String deptname = inputDept.getText().toString();
-                final String job = inputJob.getText().toString();
-                if(username == null && enterYear == null && deptname == null && job == null){
-                    Toast.makeText(getActivity(), "검색 조건을 입력해주세요", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.e("s_username", username);
-                Log.e("s_enterYear", enterYear);
-                Log.e("s_deptname", deptname);
-                Log.e("s_job", job);
-                mSearchOption = 0; //이름정렬
-                start = 0;
-                if(true){
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            initSearchUsers(username, enterYear, deptname, job);
-                        }
-                    }, 500);
-                }
+            public void onClick(final View v) {
+                searchProcess();
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
         cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
         cancelView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                clearSearchInput();
-                setContainerVisibility();
+                clearSearchInput(); //또는 아래 코드처럼 검색값 입력창 닫히면서 기본값 정렬되게?
                 mSearchOption = spinner.getSelectedItemPosition();
                 start = 0;
                 if(true){
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            initUnivUsers();
+                            isSearching = false;
+                            searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                            setContainerVisibility();
+                            restoreList();
+//                            initUnivUsers();
                         }
                     }, 500);
                 }
@@ -288,10 +303,65 @@ public class FriendsSectionFragment extends PagerFragment
         return view;
     }
 
+    public boolean isSearching = false;
+    public String username = null;
+    public String enterYear = null;
+    public String deptname = null;
+    public String job = null;
+
     EditText inputName, inputYear, inputDept, inputJob;
     TextView confirmView, cancelView;
+    public String headerString = null;
+    public void searchProcess(){
+        username = inputName.getText().toString();
+        enterYear = inputYear.getText().toString();
+        deptname = inputDept.getText().toString();
+        job = inputJob.getText().toString();
+        if(username.equals("") && enterYear.equals("") && deptname.equals("") && job.equals("")){
+            Toast.makeText(getActivity(), "검색 조건을 하나 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        headerString = "";
+        if(!TextUtils.isEmpty(username)){
+            headerString += "이름:" + username +", ";
+        }
+        if(!TextUtils.isEmpty(enterYear)){
+            headerString += "학번:" + enterYear +", ";
+        }
+        if(!TextUtils.isEmpty(deptname)){
+            headerString += "학과:" + deptname +", ";
+        }
+        if(!TextUtils.isEmpty(job)){
+            headerString += "회사/직무:" + job +", ";
+        }
+        if(!TextUtils.isEmpty(headerString)){
+            headerString = headerString.substring(0, headerString.length() - 2);
+        }
+
+        Log.e("s_username", username);
+        Log.e("s_enterYear", enterYear);
+        Log.e("s_deptname", deptname);
+        Log.e("s_job", job);
+
+        storeList();    //기존 데이타 백업
+        mSearchOption = 0; //이름정렬
+        start = 0;
+        if(true){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    isSearching = true;
+                    searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                    setContainerVisibility();
+                    initSearchUsers(username, enterYear, deptname, job);
+                }
+            }, 500);
+        }
+    }
+
     public void clearSearchInput(){
         inputName.setText(""); inputYear.setText(""); inputDept.setText(""); inputJob.setText("");
+        username = null; enterYear = null; deptname = null; job = null;
     }
     public void setContainerVisibility(){
         if(frameSearch == null){
@@ -306,6 +376,7 @@ public class FriendsSectionFragment extends PagerFragment
 //            }
             frameSearch.setVisibility(View.GONE);
         } else {
+//            searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
 //            Bundle bundle = new Bundle();
 //            bundle.putString("filePath", "");
 //            Fragment f = getActivity().getSupportFragmentManager().findFragmentByTag(F1_TAG);
@@ -330,10 +401,10 @@ public class FriendsSectionFragment extends PagerFragment
     }
     private void initUnivUsers(){
         String mUnivId = PropertyManager.getInstance().getUnivId();
-        if(mUnivId == ""){
+        if(mUnivId.equals("")){
             Toast.makeText(getActivity(),"대학교를 등록해주세요.", Toast.LENGTH_SHORT).show();
 //            return;
-            mUnivId = ""+ (0); //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
+            mUnivId = ""+1; //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
         }
 //        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
@@ -355,12 +426,27 @@ public class FriendsSectionFragment extends PagerFragment
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
                                 setTabTotalCount(result.total);
-//                                FriendsDataManager.getInstance().clearFriends();
-//                                FriendsDataManager.getInstance().getList().addAll(result.result);
                                 ArrayList<FriendsResult> items = result.result;
+
+                                if(PropertyManager.getInstance().getNewCount() < result.total){
+                                    PropertyManager.getInstance().setNewCount(result.total);
+                                    MainActivity.setUserCount(result.total - PropertyManager.getInstance().getNewCount());
+                                }
                                 if(result.user != null){
                                     Log.e(TAG+" user:", result.user.toString());
-                                    result.user.status = 1;
+                                    result.user.status = 1; //내프로필 이름 표시되게
+                                    //last update 값이 다르면 프로퍼티매니저에 새로 저장.
+                                    if(!PropertyManager.getInstance().getLastUpdate().equals(result.user.updatedAt)){
+                                        PropertyManager.getInstance().storeUser(result.user);
+                                    }
+                                    if(result.user.job != null){
+                                        if(result.user.job.name != null) {
+                                            PropertyManager.getInstance().setJobName(result.user.job.name);
+                                        }
+                                        if(result.user.job.team != null) {
+                                            PropertyManager.getInstance().setJobTeam(result.user.job.team);
+                                        }
+                                    }
                                     mAdapter.put("내 프로필", result.user);
                                 }
                                 for(int i=0; i < items.size(); i++){
@@ -382,7 +468,6 @@ public class FriendsSectionFragment extends PagerFragment
                             }
                         } else {
                             mAdapter.items.clear();
-//                            FriendsDataManager.getInstance().items.clear();
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
@@ -413,6 +498,8 @@ public class FriendsSectionFragment extends PagerFragment
     @Override
     public void onResume() {
         super.onResume();
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 //        if(mAdapter.getItemCount() > 0){
 //            start = mAdapter.getItemCount() / DISPLAY_NUM;
 //            isLast = false;
@@ -427,9 +514,8 @@ public class FriendsSectionFragment extends PagerFragment
     private void getMoreItem() {
         if (isMoreData) return;
         isMoreData = true;
-        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount() + mAdapter.blockCount) {
-//            int start = mAdapter.getItemCount() + 1;
-//            int display = 50;
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() + mAdapter.blockCount ) {
+//        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > (mAdapter.getItemCount() + mAdapter.blockCount) ) {
             NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                     0, //mode
                     null,   //친구리스트 보기에서만 userId를 지정
@@ -454,7 +540,6 @@ public class FriendsSectionFragment extends PagerFragment
                                 }
                                 mAdapter.put("학교 사람들", child);
                             }
-
                             isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -502,17 +587,18 @@ public class FriendsSectionFragment extends PagerFragment
 
             @Override
             public void run() {
-                mAdapter.clearAllFriends();
+                mAdapter.clearAll();
                 start = 0;
                 reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                 initUnivUsers();
             }
-        }, 1000);
+        }, 500);
     }
     static public FriendsResult getUserInfo(){
         //mypage에서 mItem가져오기 위해
-        if(mAdapter != null){
+        if(mAdapter != null && mAdapter.getItemCount() >= 2){
             FriendsResult item = mAdapter.getItem(1);
+//            Log.d(TAG, "getUserInfo: cnt"+ mAdapter.getItemCount());
             return item;
         }
         return null;
@@ -625,7 +711,7 @@ public class FriendsSectionFragment extends PagerFragment
                 mUnivId,
                 ""+start,
                 ""+DISPLAY_NUM,
-                ""+reqDate,
+                ""+searchReqDate,
                 username,
                 enterYear,
                 deptname,
@@ -634,18 +720,17 @@ public class FriendsSectionFragment extends PagerFragment
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
                         if (result.error.equals(false)) {
-                            if(result.result != null){
+                            if(!result.message.equals("has no more friends")){
                                 mAdapter.blockCount = 0;
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
+                                Log.d(TAG, "onSuccess: total"+result.total);
                                 ArrayList<FriendsResult> items = result.result;
-
                                 if(result.user != null){
                                     Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
-
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
                                     Log.e(TAG, ""+child);
@@ -653,9 +738,20 @@ public class FriendsSectionFragment extends PagerFragment
                                         mAdapter.blockCount++;
                                         continue;
                                     }
-                                    mAdapter.put("학교 사람들", child);
+//                                    mAdapter.put("검색 결과", child);
+                                    mAdapter.put(headerString, child);
                                 }
                                 start++;
+                            } else {    //has no more friends
+                                mAdapter.blockCount = 0;
+                                mAdapter.items.clear();
+                                mAdapter.setTotalCount(0);
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    result.user.status = 1;
+                                    mAdapter.put("내 프로필", result.user);
+                                }
+                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_LONG).show();
                             }
                         } else {
                             mAdapter.items.clear();
@@ -676,6 +772,68 @@ public class FriendsSectionFragment extends PagerFragment
         dialog.setTitle("Loading....");
         dialog.show();
     }
+
+    private void getMoreSearchUsers(String username, String enterYear, String deptname, String job){
+        String mUnivId = PropertyManager.getInstance().getUnivId();
+        if (isMoreData) return;
+        isMoreData = true;
+
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() + mAdapter.blockCount ) {
+//        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > (mAdapter.getItemCount() + mAdapter.blockCount) ) {
+            NetworkManager.getInstance().postDongneUnivUsersSearch(getActivity(),
+                    0,//mode
+                    mSearchOption,//req.body.sort
+                    mUnivId,
+                    ""+start,
+                    ""+DISPLAY_NUM,
+                    ""+searchReqDate,
+                    username,
+                    enterYear,
+                    deptname,
+                    job,
+                    new NetworkManager.OnResultListener<FriendsInfo>() {
+                        @Override
+                        public void onSuccess(Request request, FriendsInfo result) {
+                            if (result.error.equals(false)) {
+                                Log.e(TAG, "onSuccess: " + result.message);
+                                if(!result.message.equals("has no more friends")){
+                                    ArrayList<FriendsResult> items = result.result;
+                                    for(int i=0; i < items.size(); i++){
+                                        FriendsResult child = items.get(i);
+                                        Log.e(TAG, ""+child);
+                                        if(child.status == 3){
+                                            mAdapter.blockCount++;
+                                            continue;
+                                        }
+                                        mAdapter.put(headerString, child);
+                                    }
+                                    start++;
+                                } else {
+                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.e(TAG, "onSuccess: "+result.message);
+                                Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            }
+                            Log.e(TAG+"getMoreItem() start=", ""+start);
+                            dialog.dismiss();
+                            isMoreData = false;
+                            refreshLayout.setRefreshing(false);
+                        }
+
+                        @Override
+                        public void onFailure(Request request, int code, Throwable cause) {
+                            dialog.dismiss();
+                            isMoreData =false;
+                            refreshLayout.setRefreshing(false);
+                        }
+                    });
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("get more items...");
+            dialog.show();
+        }
+    }
+
 
     private void findOneAndModify(FriendsResult fr){
         if(mAdapter == null || mAdapter.getItemCount() < 1) return;
@@ -778,4 +936,38 @@ public class FriendsSectionFragment extends PagerFragment
         super.setUserVisibleHint(isVisibleToUser);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+            dialog = null;
+        }
+    }
+
+    private void restoreList(){
+        start = FriendsDataManager.getInstance().getStart();
+        reqDate = FriendsDataManager.getInstance().getReqDate();
+        mSearchOption = FriendsDataManager.getInstance().getmSearchOption();
+        spinner.setSelection(mSearchOption);
+        mAdapter.clearAll();
+        mAdapter.setTotalCount(FriendsDataManager.getInstance().getTotalCount());
+        mAdapter.addAll(FriendsDataManager.getInstance().getList());
+        int lastVisibleItemPosition = FriendsDataManager.getInstance().getLastVisibleItemPosition();
+//        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, lastVisibleItemPosition );
+        recyclerView.scrollToPosition(lastVisibleItemPosition);
+        FriendsDataManager.getInstance().clearAll();
+    }
+
+    private void storeList() {
+        //기존 데이타 백업
+        FriendsDataManager.getInstance().setmSearchOption(mSearchOption);
+        //+3해주는건 검색필터 입력창이 열릴때 lastVisiblePosition이 3~4정도 줄어듬
+        FriendsDataManager.getInstance().setLastVisibleItemPosition(layoutManager.findLastCompletelyVisibleItemPosition() + 3);
+        FriendsDataManager.getInstance().setTotalCount(mAdapter.getTotalCount());
+        FriendsDataManager.getInstance().setStart(start);
+        FriendsDataManager.getInstance().setReqDate(reqDate);
+        FriendsDataManager.getInstance().clearAll();
+        FriendsDataManager.getInstance().addAll(mAdapter.getGroupItems());
+    }
 }

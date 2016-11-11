@@ -78,12 +78,8 @@
         <activity
             android:name=".gcmchat.activity.ChatRoomActivity"
             android:label="@string/title_activity_chat_room_discussion"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:parentActivityName=".gcmchat.activity.MainActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".gcmchat.activity.MainActivity" />
         </activity>
         <!-- ==================================== -->
         <!-- [START gcm_receiver] -->
@@ -173,16 +169,18 @@
         <activity
             android:name=".image.MediaStoreActivity"
             android:label="@string/title_activity_media_store"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.board.detail.BoardDetailActivity"
             android:label="@string/title_activity_board_detail"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.board.BoardWriteActivity"
             android:label="@string/title_activity_board_write"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustPan"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
         <activity
             android:name=".tab.friends.detail.FriendsDetailActivity"
             android:label="@string/title_activity_friends_detail"

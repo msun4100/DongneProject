@@ -31,7 +31,10 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
                 android:hint="@string/hint_email"
-                android:textSize="@dimen/sign_up_account_text_size"/>
+                android:textSize="@dimen/sign_up_account_text_size"
+                android:nextFocusDown="@+id/input_pw"
+                android:singleLine="true"
+                />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -46,7 +49,9 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:textSize="@dimen/sign_up_account_text_size"
-                android:hint="@string/hint_pw" />
+                android:hint="@string/hint_pw"
+                android:nextFocusDown="@+id/input_pw_confirm"
+                android:singleLine="true"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -59,7 +64,10 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:textSize="@dimen/sign_up_account_text_size"
-                android:hint="@string/hint_pw_confirm" />
+                android:hint="@string/hint_pw_confirm"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                />
         </android.support.design.widget.TextInputLayout>
         <TextView
             android:id="@+id/text_signup_account_confirm"

@@ -73,56 +73,54 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/LinearLayout1"
-            android:layout_marginBottom="@dimen/board_write_layout_margin"
+            android:paddingTop="@dimen/board_padding_size"
             android:layout_weight="1"
             android:orientation="vertical">
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fillViewport="true"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
                 android:id="@+id/scrollView">
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:orientation="vertical">
-                    <FrameLayout
+                    android:layout_height="1200dp">
+                    <EditText
+                        android:layout_below="@+id/frame_write_body"
+                        android:id="@+id/edit_write_input"
                         android:layout_width="match_parent"
+                        android:layout_height="750dp"
+                        android:background="@null"
+                        android:padding="16dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/list_search_colorHint"
+                        android:textColorHint="#cbc8c6"
+                        android:gravity="top"
+                        android:hint="내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요."
+                        android:inputType="textMultiLine"
+                        android:singleLine="false"
+                        android:maxLines="10"/>
+                    <FrameLayout
+                        android:id="@+id/frame_write_body"
+                        android:layout_centerHorizontal="true"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
                         <ImageView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:minHeight="220dp"
-                            android:maxHeight="348dp"
-                            android:scaleType="centerCrop"
+                            android:layout_gravity="center_horizontal"
+                            android:adjustViewBounds="true"
                             android:id="@+id/image_write_body"
                             android:src="@drawable/z_profile_bg_1"/>
                         <ImageView
-                            android:layout_marginTop="8dp"
-                            android:layout_marginRight="8dp"
                             android:layout_gravity="end|right"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:id="@+id/image_write_remove"
                             android:src="@drawable/abc_ic_clear_mtrl_alpha"/>
                     </FrameLayout>
-                    <EditText
-                        android:id="@+id/edit_write_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="200dp"
-                        android:background="@null"
-                        android:padding="10dp"
-                        android:textSize="14sp"
-                        android:textColor="@color/list_search_colorHint"
-                        android:textColorHint="#cbc8c6"
-                        android:hint="내용을 입력하세요."
-                        android:inputType="textMultiLine"
-                        android:singleLine="false"
-                        android:overScrollMode="always"
-                        android:scrollbarStyle="insideInset"
-                        android:scrollbars="vertical"/>
-                </LinearLayout>
+
+                </RelativeLayout>
             </ScrollView>
         </LinearLayout>
     </LinearLayout>

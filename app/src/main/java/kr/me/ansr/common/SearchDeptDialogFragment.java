@@ -67,9 +67,9 @@ public class SearchDeptDialogFragment extends DialogFragment{
 
                 String str = ((SignupActivity)getActivity()).mDeptAdapter.getDeptName(position);
                 if (str != null){
-                    ((SignupActivity)getActivity()).textViewDept.setText(str);
+//                    ((SignupActivity)getActivity()).textViewDept.setText(str);
                 } else {
-                    ((SignupActivity)getActivity()).textViewDept.setText("");
+//                    ((SignupActivity)getActivity()).textViewDept.setText("");
                 }
                 dismiss();
             }
@@ -89,9 +89,9 @@ public class SearchDeptDialogFragment extends DialogFragment{
                 String str = inputView.getText().toString();
                 ((SignupActivity)getActivity()).mDeptname = str;
                 if (str != null){
-                    ((SignupActivity)getActivity()).textViewDept.setText(str);
+//                    ((SignupActivity)getActivity()).textViewDept.setText(str);
                 } else {
-                    ((SignupActivity)getActivity()).textViewDept.setText("");
+//                    ((SignupActivity)getActivity()).textViewDept.setText("");
                 }
                 dismiss();
             }

@@ -1565,13 +1565,14 @@ public class NetworkManager {
     }
 
     private static final String URL_PUT_USER_EDIT = SERVER_URL + "/users";
-    public Request putDongnePutEditUser(Context context, String desc1, String desc2, String jobname, String jobteam, String fb, String insta, final OnResultListener<CommonInfo> listener) {
+    public Request putDongnePutEditUser(Context context, String deptname, String desc1, String desc2, String jobname, String jobteam, String fb, String insta, final OnResultListener<CommonInfo> listener) {
         try {
             String url = URL_PUT_USER_EDIT;
 
             final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
             JsonObject json = new JsonObject();
             json.addProperty("email", PropertyManager.getInstance().getEmail());
+            json.addProperty("deptname", deptname);
             json.addProperty("desc1", desc1);
             json.addProperty("desc2", desc2);
             json.addProperty("jobname", jobname);
@@ -1869,6 +1870,49 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_DELETE_PIC_USER = SERVER_URL + "/deletePic/user/:userId";
+    public Request deleteDongnePicUser(Context context, int userId, final OnResultListener<CommonInfo> listener) {
+        try {
+            String url = URL_DELETE_PIC_USER.replace(":userId", ""+userId);
+
+            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+            JsonObject json = new JsonObject();
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+//            json.addProperty("to", ""+to);
+
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").delete(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
 }

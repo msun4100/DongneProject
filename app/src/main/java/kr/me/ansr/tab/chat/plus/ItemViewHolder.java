@@ -111,19 +111,13 @@ public class ItemViewHolder extends RecyclerView.ViewHolder implements Checkable
         }
         jobView.setText(job);
 
-//        distanceView.setText(item.temp);
-//        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-//        Glide.with(mContext).load(url).into(iconThumbView);
-        if (!TextUtils.isEmpty(item.pic.small)) {
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-            Glide.with(mContext).load(url)
-                    .placeholder(R.drawable.e__who_icon)
-                    .centerCrop()
-                    .signature(new StringSignature(item.getUpdatedAt()))
-                    .into(iconThumbView);
-        } else {
-            iconThumbView.setImageResource(R.drawable.e__who_icon);
-        }
+        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+        Glide.with(mContext).load(url)
+                .placeholder(R.drawable.e__who_icon)
+                .centerCrop()
+                .signature(new StringSignature(item.getUpdatedAt()))
+                .into(iconThumbView);
+
 
     }
 

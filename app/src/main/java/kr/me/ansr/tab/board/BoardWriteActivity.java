@@ -37,10 +37,14 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.StringSignature;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.define.Define;
@@ -100,6 +104,8 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     ImageView bodyImage, removeImage;
     View rootView;
 
+    ScrollView mScrollView;
+    LinearLayout inputLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +136,7 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
 
         txtPercentage = (TextView) findViewById(R.id.txtPercentage);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mScrollView = (ScrollView)  findViewById(R.id.scrollView) ;
         bodyImage = (ImageView) findViewById(R.id.image_write_body);
         bodyImage.setVisibility(View.GONE);
         removeImage = (ImageView) findViewById(R.id.image_write_remove);
@@ -147,6 +154,15 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                 }
             }
         });
+        inputLayout = (LinearLayout) findViewById(R.id.LinearLayout2);
+//        inputLayout.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+//                imm.showSoftInputFromInputMethod(inputBody.getApplicationWindowToken(),InputMethodManager.SHOW_FORCED);
+//                Log.d(TAG, "onClick: ");
+//            }
+//        });
         // Checking camera availability
         if (!isDeviceSupportCamera()) {
             Toast.makeText(getApplicationContext(), "Sorry! Your device doesn't support camera", Toast.LENGTH_LONG).show();
@@ -166,12 +182,35 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     protected void setupParent(View view) {
         //Set up touch listener for non-text box views to hide keyboard.
         if(!(view instanceof EditText)) {
-            view.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideSoftKeyboard();
-                    return false;
-                }
-            });
+            if(view.getId() == R.id.scrollView){ //예외 처리
+                Log.d(TAG, "view.getId: ");
+                view.setOnTouchListener(new View.OnTouchListener(){
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        hideSoftKeyboard();
+//                        Log.d(TAG, "tttt: " + v.getId());
+                        return false;
+                    }
+                });
+                view.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(inputBody, InputMethodManager.SHOW_FORCED);
+//                        imm.showSoftInputFromInputMethod(inputBody.getApplicationWindowToken(),InputMethodManager.SHOW_FORCED);
+//                        Log.d(TAG, "cccc: " + v.getId());
+                    }
+                });
+            } else {
+                Log.d(TAG, "else: ");
+                view.setOnTouchListener(new View.OnTouchListener() {
+                    public boolean onTouch(View v, MotionEvent event) {
+                        Log.d(TAG, "onTouch: "+ v.getId());
+                        hideSoftKeyboard();
+                        return false;
+                    }
+                });
+            }
         }
         //If a layout container, iterate over children
         if (view instanceof ViewGroup) {
@@ -199,7 +238,24 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         if(mItem.pic.size() > 0){
             bodyImage.setVisibility(View.VISIBLE);
             String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+mItem.pic.get(0));
-            Glide.with(this).load(url).centerCrop().signature(new StringSignature(mItem.updatedAt)).into(bodyImage);
+            Glide.with(this).load(url)
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+                        @Override
+                        public boolean onResourceReady(final GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mScrollView.post(new Runnable() {
+                                public void run() {
+                                    mScrollView.scrollTo(0, Config.resizeValue / 2);
+                                }
+                            });
+                            return false;
+                        }
+                    })
+                    .override(Config.resizeValue, Config.resizeValue)
+                    .signature(new StringSignature(mItem.updatedAt)).into(bodyImage);
             removeImage.setVisibility(View.VISIBLE);
         } else {
             bodyImage.setVisibility(View.GONE);
@@ -432,7 +488,31 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                     filePath = path.get(0); //실제론 이 변수 사용
                     bodyImage.setVisibility(View.VISIBLE);
                     removeImage.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(filePath).centerCrop().into(bodyImage);
+                    Glide.with(this).load(filePath)
+                            .listener(new RequestListener<String, GlideDrawable>() {
+                                @Override
+                                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
+                                @Override
+                                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    mScrollView.post(new Runnable() {
+                                        public void run() {
+//                                            mScrollView.scrollTo(0, mScrollView.getBottom());
+                                            Log.d(TAG, "run: "+mScrollView.getBottom());
+                                            mScrollView.scrollTo(0, Config.resizeValue / 2);
+                                        }
+                                    });
+                                    return false;
+                                }
+                            })
+                            .override(Config.resizeValue, Config.resizeValue)
+                            .into(bodyImage);
+//                    mScrollView.post(new Runnable() {
+//                        public void run() {
+//                            mScrollView.scrollTo(0, mScrollView.getBottom());
+//                        }
+//                    });
                     if(mItem != null){
                         if(mItem.pic.size() == 0){
                             mItem.pic.add("board_"+mItem.boardId);

@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,7 @@ import kr.me.ansr.tab.meet.MeetFragment;
 import kr.me.ansr.tab.mypage.MypageFragment;
 
 public class MainActivity extends AppCompatActivity {
+	private static final String TAG = MainActivity.class.getSimpleName();
 
 	TabHost tabHost;
 	ViewPager pager;
@@ -42,6 +45,55 @@ public class MainActivity extends AppCompatActivity {
 	private static final int PAGER_OFFSET_LIMIT = 3;
 	public ImageView toolbarIcon;
 	public TextView toolbarTitle;
+
+	public static TextView userCount;
+	public static TextView chatCount;
+	public static TextView pushCount;
+
+	public static void setUserCount(final int count) {
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if(count == 0){
+					userCount.setVisibility(View.GONE);
+					userCount.setText(""+count);
+				} else {
+					userCount.setVisibility(View.VISIBLE);
+					userCount.setText(""+count);
+				}
+			}
+		}, 100);
+	}
+
+	public static void setChatCount(final int count) {
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if(count == 0){
+					chatCount.setVisibility(View.GONE);
+					chatCount.setText("N");
+				} else {
+					chatCount.setVisibility(View.VISIBLE);
+					chatCount.setText("N");
+				}
+			}
+		}, 100);
+	}
+
+	public static void setPushCount(final int count) {
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if(count == 0){
+					pushCount.setVisibility(View.GONE);
+					pushCount.setText("N");
+				} else {
+					pushCount.setVisibility(View.VISIBLE);
+					pushCount.setText("N");
+				}
+			}
+		}, 100);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
 				// TODO Auto-generated method stub
 			}
 		});
+
+		userCount = (TextView) findViewById(R.id.tab_user_count);
+		chatCount = (TextView) findViewById(R.id.tab_chat_count);
+		pushCount = (TextView) findViewById(R.id.tab_push_count);
 
 		if (savedInstanceState != null) {
 			mAdapter.onRestoreInstanceState(savedInstanceState);
@@ -141,7 +197,13 @@ public class MainActivity extends AppCompatActivity {
 					+"\nunivId "+PropertyManager.getInstance().getUnivId()
 					+"\nunivName "+PropertyManager.getInstance().getUnivName()
 					+"\nprofile "+PropertyManager.getInstance().getProfile()
+							+"\nisTab2visible "+PropertyManager.getInstance().getIsTab2Visible()
+							+"\nlastUpdate "+PropertyManager.getInstance().getLastUpdate()
+							+"\njobname "+PropertyManager.getInstance().getJobName()
+							+"\njobteam "+PropertyManager.getInstance().getJobTeam()
+							+"\nnewCount "+PropertyManager.getInstance().getNewCount()
 					, Toast.LENGTH_LONG).show();
+			PropertyManager.getInstance().setNewCount(0);
 			return true;
 		}
         if (id == R.id.logout) {
@@ -173,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	static Handler mHandler = new Handler(Looper.getMainLooper());
 	//	========BackPress======
 	public static final int MESSAGE_TIME_OUT_BACK_KEY = 0;
 	public static final int TIME_BACK_KEY = 2000;
@@ -208,4 +271,53 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		Log.d(TAG, "onNewIntent: ");	//invoke newIntent -> onResume. (onCreate -> onStart -> onResume X)
+		Log.d(TAG, "tab: " + intent.getStringExtra("tab"));
+		String tab = intent.getStringExtra("tab");
+		if( tab != null){
+			switch (tab){
+				case "tab1":
+					break;
+				case "tab2":
+					tabHost.setCurrentTab(1);	//chat
+//					tabHost.setCurrentTabByTag(tab);
+					break;
+				case "tab3":
+				case "tab4":
+					tabHost.setCurrentTab(3);	//push
+					break;
+				default:
+					break;
+			}
+		}
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+//		Log.d(TAG, "onResume: ");
+//		Intent intent = getIntent();
+//		Log.d(TAG, "tab: " + intent.getStringExtra("tab"));
+//		String tab = intent.getStringExtra("tab");
+//		if( tab != null){
+//			switch (tab){
+//				case "tab1":
+//					break;
+//				case "tab2":
+//					tabHost.setCurrentTab(1);	//chat
+////					tabHost.setCurrentTabByTag(tab);
+//					break;
+//				case "tab3":
+//				case "tab4":
+//					tabHost.setCurrentTab(3);	//push
+//					break;
+//				default:
+//					break;
+//			}
+//		}
+	}
 }

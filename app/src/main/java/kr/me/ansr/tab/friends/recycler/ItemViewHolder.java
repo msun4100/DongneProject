@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
 
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -89,8 +90,24 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         String stuId = String.valueOf(item.univ.get(0).getEnterYear());
         stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
         deptView.setText(item.univ.get(0).getDeptname());
-        jobView.setText(""+item.job.getName() + " " + item.job.getTeam());
-        distanceView.setText(item.temp);
+
+        String job = "";
+        if (!TextUtils.isEmpty(PropertyManager.getInstance().getJobName())){
+            job += item.job.getName() + " ";
+        }
+        if (!TextUtils.isEmpty(PropertyManager.getInstance().getJobTeam())){
+            job += item.job.getTeam();
+        }
+        if(job.equals("") && item.userId == Integer.parseInt(PropertyManager.getInstance().getUserId()) ){
+            job += "회사명/직무를 입력하시면 동문들의 회사를 볼 수 있습니다."; //내프로필 자리에
+        }
+        jobView.setText(job);
+        if(PropertyManager.getInstance().getUsingLocation() > 0){
+            distanceView.setText(item.temp);
+        } else {
+            distanceView.setText("어딘가");
+        }
+
 
         String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
         Glide.with(mContext).load(url)

@@ -96,35 +96,30 @@ public class MyApplication extends Application {
 		String today = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
 		String year = String.valueOf(calendar.get(Calendar.YEAR));
 //		Log.e("My year: ", ""+year);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
-//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		String timestamp = "";
-
 		today = today.length() < 2 ? "0" + today : today;
-
 		try {
 			Date date = format.parse(dateStr);
-
-			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.KOREAN);
+//			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.KOREAN);
+			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
 			String dateYear = yearFormat.format(date);
 			if(year.equals(dateYear)){
 //				Log.e("year check", "true"); Log.e("dateYear", ""+dateYear);
-				SimpleDateFormat todayFormat = new SimpleDateFormat("dd", Locale.KOREAN);
+				SimpleDateFormat todayFormat = new SimpleDateFormat("dd");
 				String dateToday = todayFormat.format(date);
 //				format = dateToday.equals(today) ? new SimpleDateFormat("hh:mm a") : new SimpleDateFormat("MMM dd, hh:mm a");	//MMM이랑 LLL 이랑 같은 듯 MMM == "x월"
 //				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm", Locale.KOREAN) : new SimpleDateFormat("MM.dd E ahh:mm", Locale.KOREAN);
-				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm", Locale.KOREAN) : new SimpleDateFormat("MM.dd ahh:mm", Locale.KOREAN);
+				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm") : new SimpleDateFormat("MM.dd ahh:mm");
 				String date1 = format.format(date);
 				timestamp = date1.toString();
 			} else {
 //				Log.e("year check", "false");
 				SimpleDateFormat todayFormat = new SimpleDateFormat("dd");
-				format = new SimpleDateFormat("yyyy.MM.dd a hh:mm", Locale.KOREAN);
+				format = new SimpleDateFormat("yyyy.MM.dd a hh:mm");
 				String date1 = format.format(date);
 				timestamp = date1.toString();
 			}
-
-
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

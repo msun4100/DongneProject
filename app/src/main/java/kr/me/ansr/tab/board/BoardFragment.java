@@ -6,6 +6,7 @@ import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,6 +47,7 @@ public class BoardFragment extends PagerFragment {
 		
 		View v = inflater.inflate(R.layout.fragment_board, container, false);
 		setHasOptionsMenu(true);
+		checkBoardSize();
 		activity = (AppCompatActivity) getActivity();
 		tabs = (TabWidget)v.findViewById(android.R.id.tabs);
 		tabHost = (TabHost)v.findViewById(android.R.id.tabhost);
@@ -212,5 +215,18 @@ public class BoardFragment extends PagerFragment {
 
 	}
 
+	private void setBoardResizePixel(){
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
+		int width = displayMetrics.widthPixels;
+		int height = displayMetrics.heightPixels;
+		Config.resizeValue = width;
+		Log.d("BoardFragment", "setBoardResizePixel: "+Config.resizeValue);
+	}
+	private void checkBoardSize(){
+		if(Config.resizeValue == 0 || Config.resizeValue == -1){
+			setBoardResizePixel();
+		}
+	}
 }

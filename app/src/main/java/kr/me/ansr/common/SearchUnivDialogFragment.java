@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.view.Gravity;
 import android.app.ActionBar.LayoutParams;
+import android.widget.TextView;
+
 import kr.me.ansr.R;
 import kr.me.ansr.login.SignupActivity;
 
@@ -36,6 +38,7 @@ public class SearchUnivDialogFragment extends DialogFragment {
     LinearLayout backgroundLayout;
     String tag = null;
 //    FriendsResult mItem=null;
+    LinearLayout maskView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,7 @@ public class SearchUnivDialogFragment extends DialogFragment {
         getDialog().getWindow().setGravity(Gravity.CENTER_VERTICAL);
 
         View view = inflater.inflate(R.layout.dialog_search_univ_layout, container, false);
+        maskView = (LinearLayout) view.findViewById(R.id.layout_dialog_mask);
         inputView = (AutoCompleteTextView)view.findViewById(R.id.auto_text_signup_univ);
         inputView.setAdapter(((SignupActivity)getActivity()).mUnivAdapter);
         inputView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -68,13 +72,15 @@ public class SearchUnivDialogFragment extends DialogFragment {
                 }
                 ((SignupActivity)getActivity()).mUnivId = ((SignupActivity)getActivity()).mUnivAdapter.getUnivId(position);
                 ((SignupActivity)getActivity()).mUnivname = ((SignupActivity)getActivity()).mUnivAdapter.getUnivName(position);
+                maskView.setVisibility(View.VISIBLE);
+                backgroundLayout.setVisibility(View.GONE);
                 ((SignupActivity)getActivity()).mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ((SignupActivity)getActivity()).getDept(Integer.valueOf(((SignupActivity)getActivity()).mUnivId));
+//                        ((SignupActivity)getActivity()).getDept(Integer.valueOf(((SignupActivity)getActivity()).mUnivId));
                         dismiss();
                     }
-                }, 1000);
+                }, 200);
 
             }
         });
@@ -152,8 +158,8 @@ public class SearchUnivDialogFragment extends DialogFragment {
                         backgroundLayout.setVisibility(View.GONE);
 //                        dialogLayout.setBackgroundResource(R.drawable.a_popup_search_school);
                     } else if(str.length() > 0 && cnt == 0){
-                        backgroundLayout.setVisibility(View.VISIBLE);
                         backGroundImage.setVisibility(View.GONE);
+                        backgroundLayout.setVisibility(View.VISIBLE);
 //                        dialogLayout.setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.white));
                     }
                     break;

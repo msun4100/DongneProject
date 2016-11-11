@@ -53,7 +53,7 @@
     <color name="empty_msg_color">#403f41</color>
 
     <color name="total_selected">#606a72</color>
-
+    <color name="tab_count">#d20e0a</color>
 
 
 </resources>

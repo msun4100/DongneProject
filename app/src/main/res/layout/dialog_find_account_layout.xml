@@ -50,6 +50,7 @@
             android:textSize="15sp"
             android:textColor="#9c9c9d"
             android:textStyle="bold"
+            android:singleLine="true"
             android:nextFocusDown="@+id/edit_find_univ"
             android:hint="이름 입력"
             />
@@ -72,6 +73,7 @@
             android:textColor="#9c9c9d"
             android:textStyle="bold"
             android:hint="학교명 입력"
+            android:singleLine="true"
             android:nextFocusDown="@+id/edit_find_dept"
             />
     </LinearLayout>
@@ -94,6 +96,7 @@
             android:textColor="#9c9c9d"
             android:textStyle="bold"
             android:hint="학과 입력"
+            android:singleLine="true"
             android:nextFocusDown="@+id/edit_find_enterYear"
             />
     </LinearLayout>
@@ -115,6 +118,8 @@
             android:textStyle="bold"
             android:hint="입학년도(ex: 2016, 2015)"
             android:imeOptions="actionSend"
+            android:lines="1"
+            android:singleLine="true"
             />
     </LinearLayout>
 

@@ -22,9 +22,8 @@ import com.sangcomz.fishbun.define.Define;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
-import kr.me.ansr.common.PhotoChangeFragment;
-import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class MediaStoreActivity extends AppCompatActivity{
@@ -47,8 +46,8 @@ public class MediaStoreActivity extends AppCompatActivity{
         setContentView(R.layout.activity_media_store);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.c_artboard_final_title_cancel);
-        toolbar.setBackgroundResource(R.drawable.c_artboard_final_setting_title1);
+        toolbar.setNavigationIcon(R.drawable.c__cancel);
+        toolbar.setBackgroundResource(R.drawable.c__title1);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -59,6 +58,7 @@ public class MediaStoreActivity extends AppCompatActivity{
         Intent intent = getIntent();
         if (intent != null) {
             mItem = (FriendsResult)intent.getSerializableExtra("mItem");
+            copyItem = mItem;   //취소할 경우를 위해 기존 아이템 카피해둠.
             tag = intent.getStringExtra("tag");
             if(mItem == null) forcedFinish();
         } else {
@@ -229,6 +229,16 @@ public class MediaStoreActivity extends AppCompatActivity{
         Intent intent = new Intent();
         intent.putExtra("mItem", mItem);
         setResult(RESULT_OK, intent);
+        finish();
+    }
+
+
+    public static FriendsResult copyItem;
+    public void finishAndCancel(){
+        Intent intent = new Intent();
+        copyItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+        intent.putExtra("mItem", copyItem);
+        setResult(RESULT_CANCELED, intent);
         finish();
     }
 

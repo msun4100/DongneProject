@@ -20,7 +20,7 @@ public class SnsView extends FrameLayout {
     private void init() {
 //        LayoutInflater.from(getContext()).inflate(R.layout.view_profile_sns_layout, this);
         inflate(getContext(), R.layout.view_profile_sns_layout, this);
-        iconView = (ImageView)findViewById(R.id.image_profile_sns_icon);
+//        iconView = (ImageView)findViewById(R.id.image_profile_sns_icon);
         urlView = (TextView)findViewById(R.id.text_profile_sns);
     }
 
@@ -32,11 +32,11 @@ public class SnsView extends FrameLayout {
         }
 
         if(data.sns!= null && data.sns.equals("fb")){
-            iconView.setImageResource(R.mipmap.ic_album);
+//            iconView.setImageResource(R.mipmap.ic_album);
         } else if(data.sns!= null && data.sns.equals("insta")){
-            iconView.setImageResource(R.mipmap.ic_album);
+//            iconView.setImageResource(R.mipmap.ic_album);
         } else if(data.sns!= null && data.sns.equals("kakao")){
-            iconView.setImageResource(R.mipmap.ic_album);
+//            iconView.setImageResource(R.mipmap.ic_album);
         }
 
     }

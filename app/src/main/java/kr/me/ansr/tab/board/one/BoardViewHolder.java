@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -47,17 +48,18 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     TextView timeStampView;
     TextView bodyView;
     TextView bodyAddView;
-    ImageView iconReply;
+
     TextView replyCountView;
-    ImageView iconLike;
     TextView likeCountView;
 
     ListView listView;
     PreReplyAdapter mAdapter;
     LinearLayout listViewLayout;
-    LinearLayout likeLayout;
 
     ImageView bodyImage;
+    LinearLayout myView;
+
+    RelativeLayout likeLayout, replyLayout;
 
     public OnItemClickListener itemClickListener;
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -95,15 +97,15 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         timeStampView = (TextView)itemView.findViewById(R.id.text_board_timestamp);
         bodyView = (TextView)itemView.findViewById(R.id.text_board_body);
         bodyAddView = (TextView)itemView.findViewById(R.id.text_board_body_add);
-        iconReply = (ImageView)itemView.findViewById(R.id.image_board_reply);
         replyCountView = (TextView)itemView.findViewById(R.id.text_board_reply_count);
-        iconLike = (ImageView)itemView.findViewById(R.id.image_board_like);
         likeCountView = (TextView)itemView.findViewById(R.id.text_board_like_count);
 
         //for adapter item click
-        likeLayout = (LinearLayout)itemView.findViewById(R.id.linear_like_layout);
+        likeLayout = (RelativeLayout) itemView.findViewById(R.id.relative_board_like_layout);
+        replyLayout = (RelativeLayout)itemView.findViewById(R.id.relative_board_reply_layout);
 
         bodyImage = (ImageView)itemView.findViewById(R.id.image_board_body);
+        myView = (LinearLayout)itemView.findViewById(R.id.linear_board_my_view);
 
         listView = (ListView)itemView.findViewById(R.id.listView_board);
 		mAdapter = new PreReplyAdapter(context);
@@ -131,13 +133,15 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         iconThumb.setOnClickListener(viewListener);
         nameView.setOnClickListener(viewListener);
         likeLayout.setOnClickListener(viewListener);
+        replyLayout.setOnClickListener(viewListener);
+
 
     }
 
-    public void setBoardItem(BoardResult item) {
+    public void setBoardItem(final BoardResult item) {
 //        titleView.setTextSize(item.fontSize);
         listView.setVisibility(View.GONE);
-        bodyAddView.setVisibility(View.GONE);
+//        bodyAddView.setVisibility(View.GONE);
         this.mItem = item;
         if(item.type.equals("10") || item.type.equals("00")){
             nameView.setText(R.string.board_anonymous_name);
@@ -150,14 +154,24 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         if (item.pic.size() > 0){
             bodyImage.setVisibility(View.VISIBLE);
             String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+item.pic.get(0));
-            Glide.with(mContext).load(url).centerCrop().signature(new StringSignature(item.updatedAt)).into(bodyImage);
+            Glide.with(mContext).load(url)
+//                    .signature(new StringSignature(item.updatedAt))
+                    .override(Config.resizeValue, Config.resizeValue)
+                    .into(bodyImage);
         } else {
             bodyImage.setVisibility(View.GONE);
         }
         bodyView.setText(item.body);
-        if(bodyView.getText().toString().length() > 80){
-            bodyAddView.setVisibility(View.VISIBLE);
-        }
+        bodyView.post(new Runnable() {
+            @Override
+            public void run() {
+                if(bodyView.getLineCount() > 3 ){
+                    bodyAddView.setVisibility(View.VISIBLE);
+                } else {
+                    bodyAddView.setVisibility(View.GONE);
+                }
+            }
+        });
 
         String stuId = String.valueOf(item.user.enterYear);
         if(stuId.length()==4){
@@ -165,9 +179,9 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         } else { stuIdView.setText("17"); }
         deptView.setText(item.user.deptname);
         timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
-        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
-            iconLike.setImageResource(R.drawable.e__like_2);
-        } else {iconLike.setImageResource(R.drawable.e__like);}
+//        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
+//            iconLike.setImageResource(R.drawable.e__like_2);
+//        } else {iconLike.setImageResource(R.drawable.e__like);}
         likeCountView.setText(""+item.likeCount);
         if(item.repCount != 0){
             replyCountView.setText(""+item.repCount);
@@ -182,6 +196,12 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             }
             mAdapter.notifyDataSetChanged();
             setListViewHeightBasedOnItems(listView);    //listAdapter가 null이 아니면 true 리턴
+        }
+
+        if(item.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+            myView.setVisibility(View.VISIBLE);
+        } else {
+            myView.setVisibility(View.GONE);
         }
 
     }
@@ -205,9 +225,14 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
                         mListener.onLikeClick(v, getAdapterPosition(), mItem, 300);
                     }
                     break;
-                case R.id.linear_like_layout:
+                case R.id.relative_board_like_layout:
                     if (mListener != null) {
                         mListener.onLikeClick(v, getAdapterPosition(), mItem, 400);
+                    }
+                    break;
+                case R.id.relative_board_reply_layout:
+                    if (mListener != null) {
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 500);
                     }
                     break;
                 default:
@@ -245,7 +270,12 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             // Set list height.
             ViewGroup.LayoutParams params = listView.getLayoutParams();
 //            params.height = totalItemsHeight + totalDividersHeight;
-            params.height = totalItemsHeight + totalDividersHeight + 32; //32 == bottom padding
+//            Log.e("height", ""+totalItemsHeight+"   "+totalDividersHeight +" ");
+            int defaultNum = 32;    //32 == bottom padding, preReply marginBottom value
+            if( (totalItemsHeight + totalDividersHeight) == 0){
+                defaultNum = 0;
+            }
+            params.height = totalItemsHeight + totalDividersHeight + defaultNum;
             listView.setLayoutParams(params);
             listView.requestLayout();
             return true;

@@ -48,7 +48,7 @@
                     <TextView
                         android:background="@drawable/z_btn_white_selector"
                         android:id="@+id/text_prof_set_change"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="6dp"
                         android:layout_marginBottom="22dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
@@ -138,23 +138,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="기본 항목"
-                    android:textSize="14sp"
-                    android:textColor="#595757"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/image_home_menu_height_white"
-                android:background="@drawable/z_prof_menu_background"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/image_home_default1"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginRight="24dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:hint="대학교명"
+                    android:textStyle="bold"
                     android:textSize="14sp"
                     android:textColor="#595757"/>
             </LinearLayout>
@@ -170,7 +154,7 @@
                     android:layout_marginRight="24dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="학과/학번"
+                    android:hint="학번"
                     android:background="@null"
                     android:textSize="14sp"
                     android:textColor="#595757" />
@@ -180,35 +164,19 @@
                 android:layout_height="@dimen/image_home_menu_height_white"
                 android:background="@drawable/z_prof_menu_background"
                 android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/image_home_default3"
+                <kr.me.ansr.common.CustomEditText
+                    android:id="@+id/image_home_dept"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="24dp"
                     android:layout_marginRight="24dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="이메일"
+                    android:hint="학과명"
                     android:background="@null"
-                    android:textSize="14sp"
-                    android:textColor="#595757"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/image_home_menu_height_gray"
-                android:background="#ecedec"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="24dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="자기 소개"
                     android:textSize="14sp"
                     android:textColor="#595757"
                     android:textColorHint="#99999a"/>
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -223,7 +191,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:hint="회사명/직무를 입력하시면 동문들의 회사를 볼 수 있습니다."
+                    android:hint="회사명을 입력하시면 동문들의 회사를 볼 수 있습니다."
                     android:textSize="14sp"
                     android:textColor="#595757"
                     android:textColorHint="#99999a"/>
@@ -241,47 +209,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:hint="회사명/직무를 입력하시면 동문들의 회사를 볼 수 있습니다."
+                    android:hint="직무를 입력하시면 동문들의 회사를 볼 수 있습니다."
                     android:textSize="14sp"
                     android:textColor="#595757"
                     android:textColorHint="#99999a"/>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/image_home_menu_height_white"
-                android:background="@drawable/z_prof_menu_background"
+                android:layout_height="@dimen/image_home_menu_height_gray"
+                android:background="#ecedec"
                 android:orientation="horizontal">
-                <kr.me.ansr.common.CustomEditText
-                    android:id="@+id/image_home_input3"
+                <TextView
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="24dp"
-                    android:layout_marginRight="24dp"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:hint="SNS1"
+                    android:text="추가 항목"
+                    android:textStyle="bold"
                     android:textSize="14sp"
                     android:textColor="#595757"
                     android:textColorHint="#99999a"/>
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/image_home_menu_height_white"
-                android:background="@drawable/z_prof_menu_background"
-                android:orientation="horizontal">
-                <kr.me.ansr.common.CustomEditText
-                    android:id="@+id/image_home_input4"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginRight="24dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:hint="SNS2"
-                    android:textSize="14sp"
-                    android:textColor="#595757"
-                    android:textColorHint="#99999a"/>
-            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/image_home_menu_height_white"
@@ -314,6 +264,43 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:hint="자기소개2"
+                    android:textSize="14sp"
+                    android:textColor="#595757"
+                    android:textColorHint="#99999a"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/image_home_menu_height_white"
+                android:background="@drawable/z_prof_menu_background"
+                android:orientation="horizontal">
+                <kr.me.ansr.common.CustomEditText
+                    android:id="@+id/image_home_input3"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="24dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="SNS1"
+                    android:textSize="14sp"
+                    android:textColor="#595757"
+                    android:textColorHint="#99999a"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/image_home_menu_height_white"
+                android:background="@drawable/z_prof_menu_background"
+                android:orientation="horizontal">
+                <kr.me.ansr.common.CustomEditText
+                    android:id="@+id/image_home_input4"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="24dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="SNS2"
                     android:textSize="14sp"
                     android:textColor="#595757"
                     android:textColorHint="#99999a"/>

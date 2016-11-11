@@ -14,9 +14,12 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +39,7 @@ import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.board.one.BoardResult;
+import kr.me.ansr.tab.board.one.BoardViewHolder;
 import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 import okhttp3.Request;
@@ -66,11 +70,12 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
     ListView listView;
     DetailReplyAdapter mAdapter;
-    LinearLayout likeLayout;
+    RelativeLayout likeLayout;
     //reply input Views
     EditText inputReply;
     CheckBox checkBox;
     String currentTab = null;
+    ScrollView mScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +118,10 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                         mAdapter.setLike(item, Integer.valueOf(PropertyManager.getInstance().getUserId()));
                         Toast.makeText(BoardDetailActivity.this, ""+item._id, Toast.LENGTH_SHORT).show();
                         break;
+                    case 400:
+//                        mAdapter.setLike(item, Integer.valueOf(PropertyManager.getInstance().getUserId()));
+                        Toast.makeText(BoardDetailActivity.this, "신고하기"+item._id, Toast.LENGTH_SHORT).show();
+                        break;
                     default:
                         break;
                 }
@@ -141,6 +150,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                 sendReply();
             }
         });
+        mScrollView = (ScrollView)findViewById(R.id.scrollView);
 
         initData();
     }
@@ -167,9 +177,14 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                         mItem.repCount = mAdapter.getCount();   //디테일 빠져나갔을 때 갱신위해
                         int cnt = Integer.valueOf(replyCountView.getText().toString());
                         replyCountView.setText(""+(cnt+1));
-
+                        BoardViewHolder.setListViewHeightBasedOnItems(listView);
                         if (mAdapter.getCount() > 1) {
-                            listView.smoothScrollToPosition(mAdapter.getCount() - 1);
+//                            listView.smoothScrollToPosition(mAdapter.getCount() - 1);
+                            mScrollView.post(new Runnable() {
+                                public void run() {
+                                    mScrollView.scrollTo(0, mScrollView.getBottom() - 60);
+                                }
+                            });
                         }
                     }
                 } else {
@@ -204,9 +219,14 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                             listView.setVisibility(View.GONE);
                             mAdapter.clear();
                         }
-
+                        BoardViewHolder.setListViewHeightBasedOnItems(listView);    //listView 크기 조정
                         if (mAdapter.getCount() > 1) {
                             listView.setSelection(mAdapter.getCount() - 1);
+//                            mScrollView.post(new Runnable() {
+//                                public void run() {
+//                                    mScrollView.scrollTo(0, mScrollView.getBottom() - 60);
+//                                }
+//                            });
                         }
                         mItem = result.result.get(0);
                         mItem.repCount = mAdapter.getCount();   //client용 repCount 초기화
@@ -246,7 +266,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         if (item.pic.size() > 0){
             bodyImage.setVisibility(View.VISIBLE);
             String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+item.pic.get(0));
-            Glide.with(this).load(url).centerCrop().signature(new StringSignature(item.updatedAt)).into(bodyImage);
+            Glide.with(this).load(url)
+                    .override(Config.resizeValue, Config.resizeValue)
+                    .signature(new StringSignature(item.updatedAt)).into(bodyImage);
         } else {
             bodyImage.setVisibility(View.GONE);
         }
@@ -270,7 +292,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         public void onClick(View v) {
             switch (v.getId()) {
 //                BoardResult data = mAdapter.getItem(position);
-                case R.id.linear_like_layout:
+                case R.id.relative_board_like_layout:
                     int likeMode =2;    //likeMode가 2면 요청 안하고 리턴
                     int mUserId = Integer.valueOf(PropertyManager.getInstance().getUserId());
                     if(mItem.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
@@ -371,7 +393,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 //        iconLike = (ImageView)findViewById(R.id.image_board_like);
         likeCountView = (TextView)findViewById(R.id.text_board_like_count);
 
-        likeLayout = (LinearLayout)findViewById(R.id.linear_like_layout);
+        likeLayout = (RelativeLayout) findViewById(R.id.relative_board_like_layout);
         bodyImage = (ImageView)findViewById(R.id.image_board_body);
 
         listView = (ListView)findViewById(R.id.listView_board);

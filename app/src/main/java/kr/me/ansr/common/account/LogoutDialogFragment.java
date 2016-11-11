@@ -2,6 +2,7 @@ package kr.me.ansr.common.account;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -24,6 +25,8 @@ import kr.me.ansr.tab.friends.model.FriendsResult;
 public class LogoutDialogFragment extends DialogFragment {
     public static final String TAG_LOGOUT = "logout";
     public static final String TAG_WITHDRAW = "withdraw";
+    public static final String TAG_ROOM_DELETE = "roomDelete";
+
     public LogoutDialogFragment(){
 
     }
@@ -40,6 +43,7 @@ public class LogoutDialogFragment extends DialogFragment {
 
     FriendsResult mItem;
     BoardResult bItem;
+    int chatRoomId; //chat room delete
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +62,7 @@ public class LogoutDialogFragment extends DialogFragment {
             if(bItem != null){
 //                Log.e("CustomDialogF", bItem.toString());
             }
+            chatRoomId = b.getInt("chatRoomId",-1); //remove chat room
         }
 
     }
@@ -77,6 +82,11 @@ public class LogoutDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
+                if(tag.equals(TAG_ROOM_DELETE)) {
+                    Intent intent = new Intent();
+                    intent.putExtra("chatRoomId", chatRoomId);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                }
                 dismiss();
             }
         });
@@ -91,6 +101,11 @@ public class LogoutDialogFragment extends DialogFragment {
                     }
                     if(tag.equals(TAG_WITHDRAW)) {
                         mCallback.onDataReturned("_WITHDRAW_"); //탈퇴 확인. 창 닫힘
+                    }
+                    if(tag.equals(TAG_ROOM_DELETE)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("chatRoomId", chatRoomId);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                     }
                 }
                 dismiss();

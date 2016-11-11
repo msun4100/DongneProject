@@ -56,6 +56,8 @@ public class GcmIntentService extends IntentService {
                 subscribeToTopic(topic);
                 break;
             case UNSUBSCRIBE:
+                String mTopic = intent.getStringExtra(TOPIC);
+                unsubscribeFromTopic(mTopic);
                 break;
             default:
                 // if key is specified, register with GCM
@@ -97,7 +99,6 @@ public class GcmIntentService extends IntentService {
         // checking for valid login session
         User user = MyApplication.getInstance().getPrefManager().getUser();
         if (user == null) {
-            // TODO
             // user not found, redirecting him to login screen
             return;
         }
@@ -158,7 +159,6 @@ public class GcmIntentService extends IntentService {
         // checking for valid login session
         User user = MyApplication.getInstance().getPrefManager().getUser();
         if (user == null) {
-            // TODO
             // user not found, redirecting him to login screen
             return;
         }

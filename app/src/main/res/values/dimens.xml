@@ -21,8 +21,8 @@
     <dimen name="sign_up_account_text_size">14sp</dimen>
     <dimen name="search_text_size">12sp</dimen>
     <!--ImageHomeFragment item height-->
-    <dimen name="image_home_menu_height_white">36sp</dimen>
-    <dimen name="image_home_menu_height_gray">32sp</dimen>
+    <dimen name="image_home_menu_height_white">36dp</dimen>
+    <dimen name="image_home_menu_height_gray">36dp</dimen>
 
     <!--empty message's style-->
     <dimen name="empty_msg_size">23sp</dimen>

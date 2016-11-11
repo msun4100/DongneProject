@@ -31,7 +31,7 @@ public void clearProperties() {
 	setPassword("");
 	setLatitude("");
 	setLongitude("");
-	setUsingLocation(0);
+//	setUsingLocation(0);
 	setUnivId("");
 	setUserId("");
 	setUserName("");
@@ -186,6 +186,24 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 	// for Location info
+
+	private static final String FIELD_JOB_PUBLIC = "jobPublic";
+	private int mJobPublic; // 0 null 1잡네임만공개 2잡팀만 공개 3잡네임잡팀 공개
+
+	public int getJobPublic() {
+		if (mJobPublic == 0) {
+			mJobPublic = mPrefs.getInt(FIELD_JOB_PUBLIC, 0);
+		}
+		return mJobPublic;
+	}
+
+	public void setJobPublic(int jobPublic) {
+		mJobPublic = jobPublic;
+		mEditor.putInt(FIELD_JOB_PUBLIC, jobPublic);
+		mEditor.commit();
+	}
+	// is job public
+
 
 	//프로필 이미지
 	private static final String FIELD_PROFILE = "profile";
@@ -385,19 +403,81 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 
+	//user's jobname
+	private static final String FIELD_JOB_NAME = "jobName";
+	private String mJobName;
+
+	public String getJobName(){
+		if (mJobName == null) {
+			mJobName = mPrefs.getString(FIELD_JOB_NAME, "");
+		}
+		return mJobName;
+	}
+	public void setJobName(String jobName) {
+		mJobName = jobName;
+		mEditor.putString(FIELD_JOB_NAME, jobName);
+		mEditor.commit();
+	}
+
+	//user's jobteam
+	private static final String FIELD_JOB_TEAM = "jobTeam";
+	private String mJobTeam;
+
+	public String getJobTeam(){
+		if (mJobTeam == null) {
+			mJobTeam = mPrefs.getString(FIELD_JOB_TEAM, "");
+		}
+		return mJobTeam;
+	}
+	public void setJobTeam(String jobTeam) {
+		mJobTeam = jobTeam;
+		mEditor.putString(FIELD_JOB_NAME, jobTeam);
+		mEditor.commit();
+	}
+
+	//new Count
+	private static final String FIELD_NEW_COUNT = "newCount";
+	private int mNewCount;
+
+	public int getNewCount(){
+		if (mNewCount == 0) {
+			mNewCount = mPrefs.getInt(FIELD_NEW_COUNT, 0);
+		}
+		return mNewCount;
+	}
+	public void setNewCount(int count) {
+		mNewCount = count;
+		mEditor.putInt(FIELD_NEW_COUNT, count);
+		mEditor.commit();
+	}
+
+
+	//user's last update
+	private static final String FIELD_LAST_UPDATE = "lastUpdate";
+	private String mLastUpdate;
+
+	public String getLastUpdate(){
+		if (mLastUpdate == null) {
+			mLastUpdate = mPrefs.getString(FIELD_LAST_UPDATE, "");
+		}
+		return mLastUpdate;
+	}
+	public void setLastUpdate(String timestamp) {
+		mLastUpdate = timestamp;
+		mEditor.putString(FIELD_LAST_UPDATE, timestamp);
+		mEditor.commit();
+	}
+
+
 
 	//==============================
 	public void storeUser(FriendsResult user) {
-		setUnivId(""+user.univ.get(0).univId);
-		setUserId(""+user.userId);
-		setUserName(user.username);
-		setEmail(user.email);
 		setProfile(user.pic.small);
-//		setPassword();
-//		setLatitude(""+user.location.lat);
-//		setLongitude(""+user.location.lon);
-//		setUsingLocation(0);
-		Log.e("PropertyManager", "(FriendsResult)User is stored in shared preferences. " + user.getUsername() + ", " + user.getEmail());
+		setLastUpdate(user.updatedAt);
+		setJobName(user.job.name);
+		setJobTeam(user.job.team);
+		setDeptName(user.univ.get(0).deptname);
+		Log.e("PropertyManager", "(FriendsResult)User is stored in shared preferences. " + user.job.name + ", " + user.job.team);
 	}
 
 	public FriendsResult getUser() {

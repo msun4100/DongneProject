@@ -75,7 +75,7 @@ public class ChildOneFragment extends PagerFragment {
                         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                         initBoard();
                     }
-                }, 2000);
+                }, 1000);
             }
         });
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -145,6 +145,9 @@ public class ChildOneFragment extends PagerFragment {
                         if(data.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
                         String to = ""+data.writer;
                         postLike(likeMode, String.valueOf(data.boardId), PropertyManager.getInstance().getUserId(), to, position);
+                        break;
+                    case 500:
+                        Toast.makeText(getActivity(), "reply view click:\n", Toast.LENGTH_SHORT).show();
                         break;
                 }
             }

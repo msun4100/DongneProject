@@ -178,7 +178,7 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, TakePhotoActivity.class);
+				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
 //				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 //				finish();

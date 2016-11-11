@@ -17,6 +17,7 @@ public class ChatRoom implements Serializable {
     public int unreadCount;
     public String image;
     public int bgColor = 0; //백그라운드 칼라
+    public int activeUser;
     public ChatRoom() {
     }
 
@@ -26,6 +27,17 @@ public class ChatRoom implements Serializable {
         this.lastMessage = lastMessage;
         this.timestamp = timestamp;
         this.unreadCount = unreadCount;
+    }
+
+    public ChatRoom(int id, String name, String lastMessage, String timestamp, int unreadCount, String image, int bgColor, int activeUser) {
+        this.id = id;
+        this.name = name;
+        this.lastMessage = lastMessage;
+        this.timestamp = timestamp;
+        this.unreadCount = unreadCount;
+        this.image = image;
+        this.bgColor = bgColor;
+        this.activeUser = activeUser;
     }
 
     public int getId() {
@@ -73,6 +85,7 @@ public class ChatRoom implements Serializable {
         return "ChatRoom{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", activeUser=" + activeUser +
                 ", lastMessage='" + lastMessage + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", unreadCount=" + unreadCount +

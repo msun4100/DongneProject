@@ -41,6 +41,9 @@ public class DetailReplyItemView extends FrameLayout{
 
     LinearLayout likeLayout;
 
+
+    FrameLayout reportLayout;
+
     public interface OnLikeClickListener {
         public void onLikeClick(View v, ReplyResult item, int type);
     }
@@ -68,6 +71,11 @@ public class DetailReplyItemView extends FrameLayout{
                         mListener.onLikeClick(DetailReplyItemView.this, mItem, 300);
                     }
                     break;
+                case R.id.frame_board_reply_reply_report:
+                    if (mListener != null) {
+                        mListener.onLikeClick(DetailReplyItemView.this, mItem, 400);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -91,6 +99,9 @@ public class DetailReplyItemView extends FrameLayout{
         likeLayout = (LinearLayout)findViewById(R.id.linear_board_reply_like_layout);
         likeLayout.setOnClickListener(viewListener);
 
+        reportLayout = (FrameLayout)findViewById(R.id.frame_board_reply_reply_report);
+        reportLayout.setOnClickListener(viewListener);
+
     }
 
     public void setItemData(ReplyResult item) {
@@ -99,11 +110,13 @@ public class DetailReplyItemView extends FrameLayout{
         switch (item.type){
             case "10":
             case "00":
-                usernameView.setText(Html.fromHtml("<B>"+getResources().getString(R.string.board_anonymous_name)+"</B>"));
+//                usernameView.setText(Html.fromHtml("<B>"+getResources().getString(R.string.board_anonymous_name)+"</B>"));
+                usernameView.setText("익 명");
                 iconThumb.setImageResource(R.drawable.e__who_icon);
                 break;
             default:
-                usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+//                usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
+                usernameView.setText(item.username);
                 String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
                 Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
                 break;

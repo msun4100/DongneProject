@@ -118,30 +118,35 @@
             android:layout_height="16dp"
             android:paddingBottom="2dp"/>
     </LinearLayout>
-    <LinearLayout
-        android:layout_marginTop="112dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
-        <TextView
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="아직 회원이 아니신가요?"
-            android:textColor="#8F9193"
-            android:textSize="13sp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            />
-        <TextView
-            android:id="@+id/text_login_signup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:textColor="#77A7BB"
-            android:textSize="13sp"
-            android:background="@drawable/z_btn_white_selector"
-            android:text="회원가입"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </LinearLayout>
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="32dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="아직 회원이 아니신가요?"
+                android:textColor="#8F9193"
+                android:textSize="13sp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                />
+            <TextView
+                android:id="@+id/text_login_signup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="#77A7BB"
+                android:textSize="13sp"
+                android:background="@drawable/z_btn_white_selector"
+                android:text="회원가입"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+    </FrameLayout>
+
 
 </LinearLayout>
