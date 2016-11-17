@@ -13,8 +13,7 @@
         android:id="@+id/linear_set_lock"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -41,8 +40,7 @@
         android:id="@+id/linear_set_version"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -70,8 +68,7 @@
         android:id="@+id/linear_set_ask"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -99,8 +96,7 @@
         android:id="@+id/linear_set_help"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -129,8 +125,7 @@
         android:id="@+id/linear_set_support"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -158,8 +153,7 @@
         android:id="@+id/linear_set_cache"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"

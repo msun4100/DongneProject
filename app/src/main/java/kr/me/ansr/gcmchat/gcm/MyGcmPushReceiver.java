@@ -130,6 +130,35 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 message.setCreatedAt(mObj.getString("created_at"));
                 message.chat_room_id = Integer.parseInt(chatRoomId);    //added on 1026
                 JSONObject uObj = datObj.getJSONObject("user");
+
+                User user = new User();
+                user.setId(uObj.getInt("user_id"));
+                user.setEmail(uObj.getString("email"));
+                user.setName(uObj.getString("name"));
+                message.setUser(user);
+
+                if(DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId)) == false){
+                    ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()), message.getCreatedAt()/*lastJoin*/);
+                    long num = DBManager.getInstance().insertRoom(cr);
+                    Log.e(TAG, "processChatRoomPush: 1 insertRoom "+num);
+                } else {
+//                    있는데 lastJoin == "" 인 케이스
+                    ChatRoom cr = DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId)).get(0);
+                    if(cr.lastJoin.equals("") || cr.lastJoin == null){
+                        cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId() );
+                        cr.lastJoin = message.getCreatedAt();
+                        cr.timestamp = message.getCreatedAt();
+                        int num = DBManager.getInstance().updateRoom(cr);
+                        if(num > 0){
+                            Log.e(TAG, "processChatRoomPush: 2 updateRoom "+num);
+                        }
+                        Intent intent = new Intent(MyApplication.getContext(), GcmIntentService.class);
+                        intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE);
+                        intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.id);
+                        MyApplication.getContext().startService(intent);
+                    }
+                }
+
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
                 // but it might differs in your scenario
@@ -137,12 +166,6 @@ public class MyGcmPushReceiver extends GcmListenerService {
                     Log.e(TAG, "Skipping the push message as it belongs to same user");
                     return;
                 }
-
-                User user = new User();
-                user.setId(uObj.getInt("user_id"));
-                user.setEmail(uObj.getString("email"));
-                user.setName(uObj.getString("name"));
-                message.setUser(user);
 
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
@@ -152,6 +175,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         // app is in foreground, broadcast the push message
                         Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION);
                         pushNotification.putExtra("type", Config.PUSH_TYPE_CHATROOM);
+                        pushNotification.putExtra("isFirst", true); //1115
                         pushNotification.putExtra("message", message);
                         pushNotification.putExtra("chat_room_id", chatRoomId);
                         LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
@@ -159,17 +183,15 @@ public class MyGcmPushReceiver extends GcmListenerService {
 //                        NotificationUtils notificationUtils = new NotificationUtils();
 //                        notificationUtils.playNotificationSound();
                     } else {
-//                        if(PropertyManager.getInstance().getIsTab2Visible().equals("inVisible")){}
-                        addRoomAndMessage(chatRoomId, message);
                         Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                         resultIntent.putExtra("chat_room_id", chatRoomId);
                         resultIntent.putExtra("name", ""+chatRoomId);   //1103
+                        MainActivity.setChatCount(1);   //다른탭에 있을 경우 'N' 띄움
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                     }
                 } else {
                     // app is in background. show the message in notification try
                     //백그라운드일 경우 그냥 탭이동까지만
-                    addRoomAndMessage(chatRoomId, message);
                     Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
                     resultIntent.putExtra("name", ""+chatRoomId);
@@ -180,7 +202,6 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 Log.e(TAG, "json parsing error: " + e.getMessage());
                 Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
-
         } else {
             // the push notification is silent, may be other operations needed
             // like inserting it in to SQLite
@@ -193,7 +214,6 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 JSONObject datObj = new JSONObject(data);
                 String chatRoomId = datObj.getString("chat_room_id");
 //                String roomname = datObj.getString("room_name");
-
                 JSONObject mObj = datObj.getJSONObject("message");
                 Message message = new Message();
                 message.setMessage(mObj.getString("message"));
@@ -202,6 +222,35 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 message.chat_room_id = Integer.parseInt(chatRoomId);    //added on 1026
                 JSONObject uObj = datObj.getJSONObject("user");
 
+                //원래 userId같으면 리턴하는 코드를 여기에 두는게 맞지만 디비저장하려면 유저정보가 필요하므로 아래로 내림
+                User user = new User();
+                user.setId(uObj.getInt("user_id"));
+                user.setEmail(uObj.getString("email"));
+                user.setName(uObj.getString("name"));
+                message.setUser(user);
+
+
+                if(DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId)) == false){
+                    ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()), message.getCreatedAt()/*lastJoin*/);
+                    long num = DBManager.getInstance().insertRoom(cr);
+                    Log.e(TAG, "processChatRoomPushAndRefresh: 1 insertRoom "+num);
+                } else {
+//                    있는데 lastJoin == "" 인 케이스
+                    ChatRoom cr = DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId)).get(0);
+                    if(cr.lastJoin.equals("") || cr.lastJoin == null){
+                        cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId() );
+                        cr.lastJoin = message.getCreatedAt();
+                        cr.timestamp = message.getCreatedAt();
+                        int num = DBManager.getInstance().updateRoom(cr);
+                        if(num > 0){
+                            Log.e(TAG, "processChatRoomPushAndRefresh: 2 updateRoom "+num);
+                        }
+                        Intent intent = new Intent(MyApplication.getContext(), GcmIntentService.class);
+                        intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE);
+                        intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.id);
+                        MyApplication.getContext().startService(intent);
+                    }
+                }
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
                 // but it might differs in your scenario
@@ -211,23 +260,6 @@ public class MyGcmPushReceiver extends GcmListenerService {
                     return;
                 }
 
-                User user = new User();
-                user.setId(uObj.getInt("user_id"));
-                user.setEmail(uObj.getString("email"));
-                user.setName(uObj.getString("name"));
-                message.setUser(user);
-
-//                if(PropertyManager.getInstance().getIsTab2Visible().equals("inVisible")){ // 1028
-//                    if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
-//                        //존재하지 않으면 생성
-//                        Log.e("invisible", "newroomandrefresh");
-//                        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/);
-//                        DBManager.getInstance().insertRoom(cr);
-//                    }
-//                    DBManager.getInstance().insertMsg(message);
-//                }
-
-
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
                     //백그라운드가 아니면 켜져 있는 거고
@@ -236,6 +268,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         // app is in foreground, broadcast the push message
                         Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION);
                         pushNotification.putExtra("type", Config.PUSH_TYPE_NEW_ROOM);
+                        pushNotification.putExtra("isFirst", true); //1115
                         pushNotification.putExtra("message", message);
                         pushNotification.putExtra("chat_room_id", chatRoomId);
                         LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
@@ -244,16 +277,17 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         notificationUtils.playNotificationSound();
                     } else {
                         //아래 3줄 기존 코드
-                        addRoomAndMessage(chatRoomId, message);
+//                        addRoomAndMessage(chatRoomId, message);
                         Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                         resultIntent.putExtra("chat_room_id", chatRoomId);
                         resultIntent.putExtra("name", ""+chatRoomId);
+                        MainActivity.setChatCount(1);   //다른탭에 있을 경우 'N' 띄움
                         showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getCreatedAt(), resultIntent);
                     }
 
                 } else {
                     // app is in background. show the message in notification try
-                    addRoomAndMessage(chatRoomId, message);
+//                    addRoomAndMessage(chatRoomId, message);
                     Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
                     resultIntent.putExtra("name", ""+chatRoomId);
@@ -467,8 +501,13 @@ public class MyGcmPushReceiver extends GcmListenerService {
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent, imageUrl);
     }
 
+    private void addMessageToDB(String chatRoomId, Message message){
+        long num = DBManager.getInstance().insertMsg(message);
+        Log.d(TAG, "addMessageToDB: " + num);
+    }
+
     private void addRoomAndMessage(String chatRoomId, Message message){
-        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
+        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()), message.getCreatedAt());
         ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId));
         if(list.size() == 0){   //없으면 룸생성
             cr.unreadCount = 0;

@@ -149,7 +149,10 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemViewType(int position) {
         for (int i = 0; i < items.size(); i++) {
             GroupItem group = items.get(i);
-            if (position < 1) return VIEW_TYPE_SECTION_HEADER;
+            if (position < 1) {
+//                Log.d("sectionAdpater", " getItemViewType: group"); //2번씩 호출되는게 맞구나..
+                return VIEW_TYPE_SECTION_HEADER;
+            }
             position--;
             int childCount = group.children.size();
             if (position < childCount) return VIEW_TYPE_ITEM;

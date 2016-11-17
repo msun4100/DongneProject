@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import kr.me.ansr.MainActivity;
@@ -30,8 +31,12 @@ import kr.me.ansr.common.IDataReturned;
 import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.ReportDialogFragment;
 
+import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
+import kr.me.ansr.gcmchat.model.ChatInfo;
+import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.image.MediaStoreActivity;
 import kr.me.ansr.image.upload.Config;
+import kr.me.ansr.tab.chat.ChatRoomInfo;
 import kr.me.ansr.tab.chat.GcmChatFragment;
 import kr.me.ansr.tab.friends.list.FriendsListActivity;
 import kr.me.ansr.tab.friends.model.Desc;
@@ -67,10 +72,13 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             mItem = (FriendsResult)intent.getSerializableExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
             //각 status프래그먼트에서 열었는지 대학교리스트에서 열었는지 등을 알기위해
             // tag별로 InputDialog가 열렸을때 넥스트 프로세스를 수행함.
+//            Log.e("mPosition: ", ""+mPosition);
+//            Log.e("mItem:", mItem.toString());
             tag = intent.getStringExtra("tag");
-            Log.e("mPosition: ", ""+mPosition);
-            Log.e("mItem:", mItem.toString());
-            if(reqUserId == -1 || mPosition == -1 || mItem == null) forcedFinish();
+            if(reqUserId == -1 || mPosition == -1 || mItem == null) {
+                forcedFinish();
+            }
+
         } else {
             forcedFinish();
         }
@@ -134,13 +142,9 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                             break;
                         case 1:
                             Toast.makeText(FriendsDetailActivity.this, "1:1대화", Toast.LENGTH_SHORT).show();
-                            Intent i = new Intent(FriendsDetailActivity.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            i.putExtra("tab", "tab2");
-
-                            GcmChatFragment.withIntent = true;
-                            GcmChatFragment.item = mItem;
-                            startActivity(i);
+                            ArrayList<FriendsResult> cList = new ArrayList<>();
+                            cList.add(mItem);
+                            searchRoom(cList);
                             break;
                         case 2:
                             break;
@@ -230,7 +234,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         if(mItem.status == 1){
             usernameView.setVisibility(View.VISIBLE);
         } else {
-            usernameView.setVisibility(View.GONE);
+            usernameView.setVisibility(View.INVISIBLE);
         }
         mAdapter.removeAll();
         if(mItem.sns.size() != 0){
@@ -499,4 +503,64 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             }
         }
     }
+    private void searchRoom(ArrayList<FriendsResult> mList){
+        final String roomName = mList.get(0).getUsername()+","+PropertyManager.getInstance().getUserName();
+        final ArrayList<String> list = new ArrayList<>();
+        for(FriendsResult fr : mList){
+            list.add(""+fr.getUserId());
+        }
+        list.add(""+PropertyManager.getInstance().getUserId());
+        Log.d("TAG", "searchRoom: "+ list.toString());
+        NetworkManager.getInstance().postDongneCheckChatRooms(FriendsDetailActivity.this, list,
+                new NetworkManager.OnResultListener<ChatRoomInfo>() {
+                    @Override
+                    public void onSuccess(Request request, ChatRoomInfo result) {
+                        if(result.error.equals(false)){
+                            Intent i = new Intent(FriendsDetailActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            i.putExtra("tab", "tab2");
+                            if(result.chat_rooms.size() == 1 ){
+//                                i.putExtra("mItem", mItem);
+//                                i.putExtra("chat_room_id", ""+result.chat_rooms.get(0).id);
+//                                i.putExtra("name", result.chat_rooms.get(0).name);
+//                                i.putExtra("rc_num", ChatInfo.CHAT_RC_NUM);
+                                GcmChatFragment.item = mItem;
+                                GcmChatFragment.c_id = result.chat_rooms.get(0).id;
+                                GcmChatFragment.roomName = result.chat_rooms.get(0).name;
+                                GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM;
+                                GcmChatFragment.withIntent = true;
+                                dialog.dismiss();
+                                startActivity(i);
+                            } else {
+//                                -1로 넘어감
+//                                i.putExtra("mItem", mItem);
+//                                i.putExtra("chat_room_id", "-1");
+//                                i.putExtra("name", roomName);
+//                                i.putExtra("rc_num", ChatInfo.CHAT_RC_NUM_PLUS);
+                                GcmChatFragment.item = mItem;
+                                GcmChatFragment.c_id = -1;
+                                GcmChatFragment.roomName = roomName;
+                                GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM_PLUS;
+                                GcmChatFragment.withIntent = true;
+                                dialog.dismiss();
+                                startActivity(i);
+                            }
+                        } else {
+                            Toast.makeText(FriendsDetailActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            finish();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Log.d(TAG, "onFailure: ");
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+        dialog = new ProgressDialog(FriendsDetailActivity.this);
+        dialog.setTitle("채팅방을 불러 오는 중...");
+        dialog.show();
+    }
+
 }

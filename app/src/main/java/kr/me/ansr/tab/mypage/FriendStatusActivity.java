@@ -174,7 +174,7 @@ public class FriendStatusActivity extends AppCompatActivity implements View.OnCl
 //					sectionFragment말고 모든 FriendsResult를 사용하는 아답터들이 알아야 하니까 굳이 위처럼하지말고 여기 스텝에서 포스트 이벤트를 뿌림.
                     Bundle extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
-                    if(result != null) Log.e("FriendsStatusActivity",result.toString());
+                    if(result != null) Log.e("FriendsStatusActivity", result.toString());
                     EventBus.getInstance().post(result);
                 }
                 break;

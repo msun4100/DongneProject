@@ -79,7 +79,19 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
     public void setChildItem(Push item) {
 
         mItem = item;
-        nameView.setText(item.name);
+        if (item.name.equals("익 명")){
+            nameView.setText(item.name);
+            iconThumbView.setImageResource(R.drawable.e__who_icon);
+        } else {
+            nameView.setText(item.name);
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.user_id).replace(":size", "small");
+            Glide.with(mContext).load(url)
+                    .placeholder(R.drawable.e__who_icon)
+                    .centerCrop()
+                    .signature(new StringSignature(item.created_at))
+                    .into(iconThumbView);
+        }
+
         msgView.setText(item.message);
         timeStampView.setText(MyApplication.getTimeStamp(item.created_at));
         switch (item.bgColor){
@@ -92,12 +104,6 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
                 break;
         }
 
-        String url = Config.FILE_GET_URL.replace(":userId", ""+item.user_id).replace(":size", "small");
-        Glide.with(mContext).load(url)
-                .placeholder(R.drawable.e__who_icon)
-                .centerCrop()
-                .signature(new StringSignature(item.created_at))
-                .into(iconThumbView);
     }
 
     public View.OnClickListener viewListener = new View.OnClickListener() {

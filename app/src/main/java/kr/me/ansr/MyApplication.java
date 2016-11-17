@@ -87,35 +87,42 @@ public class MyApplication extends Application {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.KOREAN);
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currentDateandTime = sdf.format(new Date());
-		return currentDateandTime;
+		return currentDateandTime;	//서버 시간으로 리턴
 	}
 
-	public static String getTimeStamp(String dateStr) {
+	public static String getTimeStamp(String dateStr) {	//dateStr == Server's timeStamp.(UTC)
 //        2016-07-06T05:47:19.000Z
+//		Log.d(TAG, "getTimeStamp: 0 "+dateStr);
 		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getDefault());	// == TimeZone.getTimeZone("Asia/Seoul")
 		String today = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
 		String year = String.valueOf(calendar.get(Calendar.YEAR));
-//		Log.e("My year: ", ""+year);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");	//UTC 포맷
+		format.setTimeZone(TimeZone.getTimeZone("UTC"));
+//		Log.d(TAG, "getTimeStamp: 1 "+format.getTimeZone());
 		String timestamp = "";
 		today = today.length() < 2 ? "0" + today : today;
 		try {
-			Date date = format.parse(dateStr);
+			Date date = format.parse(dateStr);	//UTC기준 dateStr을 parsing.
+//			Log.d(TAG, "getTimeStamp: 2 "+date);
 //			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.KOREAN);
 			SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+			yearFormat.setTimeZone(TimeZone.getDefault());
 			String dateYear = yearFormat.format(date);
 			if(year.equals(dateYear)){
 //				Log.e("year check", "true"); Log.e("dateYear", ""+dateYear);
 				SimpleDateFormat todayFormat = new SimpleDateFormat("dd");
+				todayFormat.setTimeZone(TimeZone.getDefault());
 				String dateToday = todayFormat.format(date);
 //				format = dateToday.equals(today) ? new SimpleDateFormat("hh:mm a") : new SimpleDateFormat("MMM dd, hh:mm a");	//MMM이랑 LLL 이랑 같은 듯 MMM == "x월"
 //				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm", Locale.KOREAN) : new SimpleDateFormat("MM.dd E ahh:mm", Locale.KOREAN);
-				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm") : new SimpleDateFormat("MM.dd ahh:mm");
+				format = dateToday.equals(today) ? new SimpleDateFormat("a hh:mm") : new SimpleDateFormat("MM.dd a hh:mm");
 				String date1 = format.format(date);
 				timestamp = date1.toString();
 			} else {
 //				Log.e("year check", "false");
 				SimpleDateFormat todayFormat = new SimpleDateFormat("dd");
+				todayFormat.setTimeZone(TimeZone.getDefault());
 				format = new SimpleDateFormat("yyyy.MM.dd a hh:mm");
 				String date1 = format.format(date);
 				timestamp = date1.toString();

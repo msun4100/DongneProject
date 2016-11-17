@@ -34,6 +34,8 @@ import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.common.IDataReturned;
+import kr.me.ansr.common.InputDialogFragment;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
@@ -42,6 +44,10 @@ import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.board.one.BoardViewHolder;
 import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import okhttp3.Request;
 
 public class BoardDetailActivity extends AppCompatActivity implements IDataReturned
@@ -151,9 +157,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             }
         });
         mScrollView = (ScrollView)findViewById(R.id.scrollView);
-
         initData();
     }
+
     private void sendReply(){
         final String content = inputReply.getText().toString();
         if(content.equals("") || content == null){
@@ -337,6 +343,47 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         });
     }
 
+    private void getUserInfo(int writer) {
+        NetworkManager.getInstance().getDongneUserInfo(BoardDetailActivity.this, writer,
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(Request request, FriendsInfo result) {
+                        if (result.error.equals(false)) {
+                            FriendsResult data;
+                            if(result.result != null && result.result.size() == 1){
+                                data = result.result.get(0);
+//                                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+                                Log.e(TAG, "onSuccess: "+data.toString() );
+                                Intent intent = new Intent(BoardDetailActivity.this, FriendsDetailActivity.class);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, 0);   //position은 이제 필요 없는데..
+                                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                                startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                            } else {
+                                Log.e(TAG, result.message);
+                                Toast.makeText(BoardDetailActivity.this, "result.error: false" + result.message, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Log.e(TAG, result.message);
+                            Toast.makeText(BoardDetailActivity.this, "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(BoardDetailActivity.this, TAG + " getUser onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(BoardDetailActivity.this);
+        dialog.setTitle("유저 정보를 가져오는 중...");
+        dialog.show();
+    }
+
+
     public void setLike(int position, int userId){
         if(mItem.likes.contains(userId)){
             if(mItem.likeCount == 0) return;
@@ -383,6 +430,14 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     }
     private void fetchViews(){
         iconThumb = (ImageView)findViewById(R.id.image_board_thumb);
+        iconThumb.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(mItem != null){
+                    getUserInfo(mItem.writer);
+                }
+            }
+        });
         nameView = (TextView)findViewById(R.id.text_board_name);
         stuIdView = (TextView)findViewById(R.id.text_board_stuid);
         deptView = (TextView)findViewById(R.id.text_board_dept);
@@ -415,6 +470,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
 
     }
+
     private void forcedFinish(){
         Toast.makeText(getApplicationContext(), "게시글을 찾을 수 없습니다.",Toast.LENGTH_SHORT).show();
         finish();
@@ -424,6 +480,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     public static final String TYPE_PUBLIC = ""+1;
     private String getBoardType(){
         String type = currentTab;
+        if(currentTab == null && mItem != null){ //MeetFragment에서 요청한 경우 처리
+            type = mItem.type.substring(0, 1);
+        }
         if(checkBox.isChecked()){
             type += TYPE_ANONYMOUS; //체크했으면 비공개 type == "0"
         } else {
@@ -450,4 +509,23 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             }
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case FriendsSectionFragment.FRIENDS_RC_NUM:
+                if (resultCode == RESULT_OK) {
+                    Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+                    if (result != null) {
+//                        Log.e(TAG, "onActivityResult: " + result );
+                        EventBus.getInstance().post(result);
+                    }
+                }
+                break;
+        }
+    }
+
+
 }

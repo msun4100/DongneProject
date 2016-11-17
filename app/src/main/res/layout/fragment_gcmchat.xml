@@ -5,8 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:context="kr.me.ansr.tab.chat.GcmChatFragment">
+    <!--android:fitsSystemWindows="true" 로하면 툴바와 인클루드 레이아웃사이가 떠버림-->
     <include
         layout="@layout/a_content_main"/>
 

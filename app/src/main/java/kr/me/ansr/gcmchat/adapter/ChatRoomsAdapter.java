@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,9 +18,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.model.ChatRoom;
+import kr.me.ansr.image.CustomBitmapPool;
+import kr.me.ansr.image.upload.Config;
 
 public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.ViewHolder> {
 
@@ -27,13 +34,14 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView name, message, timestamp, count;
-
+        public ImageView thumbIcon;
         public ViewHolder(View view) {
             super(view);
             name = (TextView) view.findViewById(R.id.name);
             message = (TextView) view.findViewById(R.id.message);
             timestamp = (TextView) view.findViewById(R.id.timestamp);
             count = (TextView) view.findViewById(R.id.count);
+            thumbIcon = (ImageView) view.findViewById(R.id.thumb);
         }
     }
 
@@ -60,7 +68,8 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
         holder.name.setText(chatRoom.getName());
         holder.message.setText(chatRoom.getLastMessage());
         if (chatRoom.getUnreadCount() > 0) {
-            holder.count.setText(String.valueOf(chatRoom.getUnreadCount()));
+//            holder.count.setText(String.valueOf(chatRoom.getUnreadCount()));
+            holder.count.setText("N");
             holder.count.setVisibility(View.VISIBLE);
         } else {
             holder.count.setVisibility(View.INVISIBLE);
@@ -68,6 +77,21 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
 
 //        holder.timestamp.setText(getTimeStamp(chatRoom.getTimestamp()));
         holder.timestamp.setText(MyApplication.getTimeStamp(chatRoom.getTimestamp()));
+        if(chatRoom.users.size() <= 2){
+            String selfUserId = PropertyManager.getInstance().getUserId();
+            String targetId = "";
+            for(int userId : chatRoom.users){
+                if(!selfUserId.equals(""+userId)){
+                    targetId = ""+userId;
+                    String url = Config.FILE_GET_URL.replace(":userId", ""+targetId).replace(":size", "small");
+                    Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop()
+                            .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+                            .into(holder.thumbIcon);
+                    break;
+                }
+            }
+        }
+
     }
 
     @Override

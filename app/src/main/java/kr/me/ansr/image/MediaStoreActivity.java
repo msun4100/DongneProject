@@ -242,4 +242,9 @@ public class MediaStoreActivity extends AppCompatActivity{
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        finishAndCancel();
+        super.onBackPressed();
+    }
 }

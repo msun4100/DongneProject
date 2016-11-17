@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:background="#ffffff"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <ImageView
             android:layout_width="48dp"
@@ -60,8 +60,7 @@
         android:id="@+id/linear_manage_pw"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -89,8 +88,7 @@
         android:id="@+id/linear_manage_logout"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"
@@ -118,8 +116,7 @@
         android:id="@+id/linear_manage_withdraw"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ffffff"
-        android:layout_marginBottom="@dimen/mypage_padding_size"
+        android:background="@drawable/e_popup_mid_selector"
         android:orientation="horizontal">
         <TextView
             android:layout_marginLeft="30dp"

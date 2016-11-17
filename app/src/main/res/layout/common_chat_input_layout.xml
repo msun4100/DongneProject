@@ -31,6 +31,7 @@
 
             </LinearLayout>
             <kr.me.ansr.common.CustomEditText
+
                 android:layout_gravity="center_vertical"
                 android:id="@+id/edit_detail_input"
                 android:layout_width="0dp"

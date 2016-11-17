@@ -10,6 +10,9 @@ import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
+import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +35,7 @@ import android.widget.Toast;
 
 public class BoardFragment extends PagerFragment {
 
+	private static final String TAG = BoardFragment.class.getSimpleName();
 //	Fragment[] list = { new ChildOneFragment(), new ChildTwoFragment()};
 	AppCompatActivity activity;
 	TabHost tabHost;
@@ -177,8 +181,19 @@ public class BoardFragment extends PagerFragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
+			case FriendsSectionFragment.FRIENDS_RC_NUM:	//프로필 이미지클릭
+				if (resultCode == getActivity().RESULT_OK) {
+					Bundle extraBundle = data.getExtras();
+					FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+					if (result != null) {
+						EventBus.getInstance().post(result);
+//						Log.e(TAG, "onActivityResult: "+ result);
+					}
+				}
+				break;
 			case BoardInfo.BOARD_RC_NUM:
 				if (resultCode == getActivity().RESULT_OK) {
+
 					EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
 				}
 				break;

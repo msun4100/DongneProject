@@ -18,11 +18,13 @@ import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.tab.board.BoardWriteActivity;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.mypage.mywriting.tabone.OneFragment;
 import kr.me.ansr.tab.mypage.mywriting.tabtwo.TwoFragment;
 
 public class MyWritingActivity extends AppCompatActivity {
 
+    private static final String TAG = MyWritingActivity.class.getSimpleName();
     TabHost tabHost;
     ViewPager pager;
     kr.me.ansr.TabsAdapter mAdapter;
@@ -116,8 +118,15 @@ public class MyWritingActivity extends AppCompatActivity {
         switch (requestCode) {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == RESULT_OK) {
-                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
-//                    EventBus.getInstance().post(data.getExtras().getSerializable());
+//                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+                    Bundle extraBundle = data.getExtras();
+                    BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+                    if(result != null){
+                        Log.e(TAG, "onActivityResult: "+ result.toString() );
+                        EventBus.getInstance().post(result);
+                    }
+
+//                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                 }
                 break;
             case BoardWriteActivity.BOARD_WRITE_RC_NEW:

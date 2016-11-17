@@ -180,7 +180,7 @@
             android:name=".tab.board.BoardWriteActivity"
             android:label="@string/title_activity_board_write"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".tab.friends.detail.FriendsDetailActivity"
             android:label="@string/title_activity_friends_detail"

@@ -405,6 +405,8 @@ public class FriendsSectionFragment extends PagerFragment
             Toast.makeText(getActivity(),"대학교를 등록해주세요.", Toast.LENGTH_SHORT).show();
 //            return;
             mUnivId = ""+1; //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
+            Log.d(TAG, "initUnivUsers: "+ "대학교를 등록해주세요.");
+            return;
         }
 //        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
@@ -429,8 +431,8 @@ public class FriendsSectionFragment extends PagerFragment
                                 ArrayList<FriendsResult> items = result.result;
 
                                 if(PropertyManager.getInstance().getNewCount() < result.total){
-                                    PropertyManager.getInstance().setNewCount(result.total);
                                     MainActivity.setUserCount(result.total - PropertyManager.getInstance().getNewCount());
+                                    PropertyManager.getInstance().setNewCount(result.total);
                                 }
                                 if(result.user != null){
                                     Log.e(TAG+" user:", result.user.toString());

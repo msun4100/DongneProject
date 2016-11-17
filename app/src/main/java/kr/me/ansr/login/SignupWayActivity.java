@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import kr.me.ansr.R;
@@ -20,7 +21,7 @@ public class SignupWayActivity extends AppCompatActivity {
     private String TAG = SignupWayActivity.class.getSimpleName();
     Toolbar toolbar;
 
-    ImageView localIcon, fbIcon, kakaoIcon;
+    LinearLayout localIcon, fbIcon, kakaoIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +34,7 @@ public class SignupWayActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        localIcon = (ImageView)findViewById(R.id.image_way_email);
+        localIcon = (LinearLayout) findViewById(R.id.LinearLayout1);
         localIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -42,7 +43,7 @@ public class SignupWayActivity extends AppCompatActivity {
             }
         });
 
-        fbIcon = (ImageView)findViewById(R.id.image_way_fb);
+        fbIcon = (LinearLayout)findViewById(R.id.LinearLayout2);
         fbIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -51,7 +52,7 @@ public class SignupWayActivity extends AppCompatActivity {
             }
         });
 
-        kakaoIcon = (ImageView) findViewById(R.id.image_way_kakao);
+        kakaoIcon = (LinearLayout) findViewById(R.id.LinearLayout3);
         kakaoIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

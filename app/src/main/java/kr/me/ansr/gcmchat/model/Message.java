@@ -16,7 +16,8 @@ public class Message implements Serializable {
     public int chat_room_id; //Config.PUSH_TYPE_NEW_ROOM notification
     public User user;
     public String image;
-    public int bgColor = 0; //백그라운드 칼라
+    public int bgColor = 0; //백그라운드 칼라, isLog 변수로 대체해 사용
+//    public int isLog = 0;
 
     public Message() {
         this.user = new User();

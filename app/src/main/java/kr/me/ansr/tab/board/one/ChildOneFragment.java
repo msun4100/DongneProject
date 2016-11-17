@@ -28,6 +28,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.common.CustomDialogFragment;
 import kr.me.ansr.common.CustomEditText;
+import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.ReportDialogFragment;
 import kr.me.ansr.common.ReportFormDialogFragment;
 import kr.me.ansr.common.event.ActivityResultEvent;
@@ -37,8 +38,11 @@ import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.reply.CommentThread;
 import kr.me.ansr.tab.board.reply.ReplyResult;
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.detail.StatusInfo;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import okhttp3.Request;
 
 /**
@@ -108,13 +112,7 @@ public class ChildOneFragment extends PagerFragment {
             @Override
             public void onItemClick(View view, int position) {
                 BoardResult data = mAdapter.getItem(position);
-                selectedItem = data;
-                Intent intent = new Intent(getActivity(), BoardDetailActivity.class);
-//                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
-                intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
-                intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("currentTab", "0"); //재학생 탭 == 0
-                getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
+                showBoardDetail(data, position);
             }
         });
         mAdapter.setOnAdapterItemClickListener(new BoardAdapter.OnAdapterItemClickListener() {
@@ -127,6 +125,9 @@ public class ChildOneFragment extends PagerFragment {
                         break;
                     case 200:
                         Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        //friends Detail열라면 mItem을 넘겨줘야 하는데 보드에서는 넘겨줄수가 없음.
+                        //보드에서 호출하기 전에 FriendsResult mItem을 서버 호출로 받아온후 디테일 호출함.
+                        getUserInfo(data.writer);
                         break;
                     case 300:
                         selectedItem = data;
@@ -147,7 +148,8 @@ public class ChildOneFragment extends PagerFragment {
                         postLike(likeMode, String.valueOf(data.boardId), PropertyManager.getInstance().getUserId(), to, position);
                         break;
                     case 500:
-                        Toast.makeText(getActivity(), "reply view click:\n", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(), "reply view click:\n", Toast.LENGTH_SHORT).show();
+                        showBoardDetail(data, position);
                         break;
                 }
             }
@@ -202,6 +204,57 @@ public class ChildOneFragment extends PagerFragment {
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initBoard();
         return view;
+    }
+
+    private void showBoardDetail(BoardResult data, int position){
+        selectedItem = data;
+        Intent intent = new Intent(getActivity(), BoardDetailActivity.class);
+//                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
+        intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
+        intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
+        intent.putExtra("currentTab", "0"); //재학생 탭 == 0
+        getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
+    }
+    private void getUserInfo(int writer) {
+        NetworkManager.getInstance().getDongneUserInfo(getActivity(), writer,
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(Request request, FriendsInfo result) {
+                        if (result.error.equals(false)) {
+                            FriendsResult data;
+                            if(result.result != null && result.result.size() == 1){
+                                data = result.result.get(0);
+//                                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+                                Log.e(TAG, "onSuccess: "+data.toString() );
+                                Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, 0);   //position은 이제 필요 없는데..
+                                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                                getParentFragment().startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                            } else {
+                                Log.e(TAG, result.message);
+                                Toast.makeText(getActivity(), "result.error: false" + result.message, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Log.e(TAG, result.message);
+                            Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), TAG + " getUser onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("유저 정보를 가져오는 중...");
+        dialog.show();
     }
 
     private void initBoard(){
@@ -553,8 +606,10 @@ public class ChildOneFragment extends PagerFragment {
     }
 
     private void findOneAndModify(BoardResult br){
+        Log.e(TAG, "findOneAndModify: before "+br.toString() );
         if(mAdapter == null || mAdapter.getItemCount() < 1) return;
         mAdapter.findOneAndModify(br);
+
     }
 
 
@@ -567,7 +622,6 @@ public class ChildOneFragment extends PagerFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Bundle extraBundle;
-//        Toast.makeText(getActivity(),"fragment reqCode:"+requestCode+"\nresultCode:"+resultCode, Toast.LENGTH_SHORT).show();
         switch (requestCode) {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == getActivity().RESULT_OK) {
@@ -657,6 +711,12 @@ public class ChildOneFragment extends PagerFragment {
     public void onEvent(ActivityResultEvent activityResultEvent){
         Log.e("onEvent:", "ChildOne");
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
+    }
+
+    @Subscribe
+    public void onEvent(BoardResult br){
+        Log.e("onEvent:", "ChildOne br");
+        findOneAndModify(br);
     }
 
 

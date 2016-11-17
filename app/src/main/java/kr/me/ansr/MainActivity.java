@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
 					+"\nusername "+PropertyManager.getInstance().getUserName()
 					+"\nunivId "+PropertyManager.getInstance().getUnivId()
 					+"\nunivName "+PropertyManager.getInstance().getUnivName()
+					+"\ndeptName "+PropertyManager.getInstance().getDeptName()
 					+"\nprofile "+PropertyManager.getInstance().getProfile()
 							+"\nisTab2visible "+PropertyManager.getInstance().getIsTab2Visible()
 							+"\nlastUpdate "+PropertyManager.getInstance().getLastUpdate()
@@ -203,10 +204,10 @@ public class MainActivity extends AppCompatActivity {
 							+"\njobteam "+PropertyManager.getInstance().getJobTeam()
 							+"\nnewCount "+PropertyManager.getInstance().getNewCount()
 					, Toast.LENGTH_LONG).show();
-			PropertyManager.getInstance().setNewCount(0);
 			return true;
 		}
         if (id == R.id.logout) {
+			PropertyManager.getInstance().setNewCount(0);
             PropertyManager.getInstance().clearProperties();
             Intent intent = new Intent(MainActivity.this, SplashActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);

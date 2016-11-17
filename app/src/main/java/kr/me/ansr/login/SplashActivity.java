@@ -87,7 +87,7 @@ public class SplashActivity extends Activity {
 
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //        mProvider = mLM.getBestProvider(criteria, true);
-//        mProvider = LocationManager.NETWORK_PROVIDER;
+        mProvider = LocationManager.NETWORK_PROVIDER;   //1116 수정
 
 
     }// onCreate
@@ -117,13 +117,13 @@ public class SplashActivity extends Activity {
         @Override
         public void onProviderEnabled(String provider) {
             // 위치정보 기능 온오프 리스너
-//            Toast.makeText(getApplicationContext(), "ONNNNNNNNNN====", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "onProvider Enabled: ");
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             // 위치정보 기능 온오프 리스너
-//            Toast.makeText(getApplicationContext(), "OFFFFFFFFFFF====", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "onProvider Disabled: ");
         }
 
         @Override
@@ -133,6 +133,7 @@ public class SplashActivity extends Activity {
             longitude = String.valueOf(location.getLongitude());
             PropertyManager.getInstance().setLatitude(latitude);
             PropertyManager.getInstance().setLongitude(longitude);
+            Log.e(TAG, "onLocationChanged: " +location );
         }
     };
     private boolean isFirstLogin = true;
@@ -143,7 +144,7 @@ public class SplashActivity extends Activity {
         // 3.어떤 조건을 만족하는 프로바이더를 얻어오기 - 조건을 기술하는 클래스 == criteria
         setBoardResizePixel();
         Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE); //1116 fine에서 수정
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setCostAllowed(true);
         //type 1 for genymotion device
@@ -162,8 +163,8 @@ public class SplashActivity extends Activity {
         // 지정하는 방식 == LocationManager.NETWORK_PROVIDER 사용
 
         Log.d(TAG, "onStart: mProvider " + mProvider.toString());
-        Log.d(TAG, "onStart: isProviderEnabled "+ mLM.isProviderEnabled(mProvider));
         Log.d(TAG, "onStart: passive " + mProvider.equals(LocationManager.PASSIVE_PROVIDER));
+        Log.d(TAG, "onStart: isProviderEnabled "+ mLM.isProviderEnabled(mProvider));
         if (mProvider == null || mProvider.equals(LocationManager.PASSIVE_PROVIDER) || !mLM.isProviderEnabled(mProvider)) {
 //			PropertyManager.getInstance().getUsingLocation() == 0
             if (PropertyManager.getInstance().getUsingLocation() == 2) {
@@ -222,21 +223,20 @@ public class SplashActivity extends Activity {
                 } else {
                     //낮은 API 버전에서는 무조건 else 타게 되는 듯
                     PropertyManager.getInstance().setUsingLocation(0);
-                    Log.d(TAG, "else: " + "else..");
+                    Log.d(TAG, "onStart: else " + mProvider.toString());
                     return;
                 }
             }
 //            Toast.makeText(SplashActivity.this, "After checkSelfPermission()", Toast.LENGTH_SHORT).show();
             Location location = mLM.getLastKnownLocation(mProvider);
             if (location != null) {
-                latitude=String.valueOf(location.getLatitude());
-                longitude=String.valueOf(location.getLongitude());
-                PropertyManager.getInstance().setLatitude(latitude);
-                PropertyManager.getInstance().setLongitude(longitude);
+//                latitude=String.valueOf(location.getLatitude());
+//                longitude=String.valueOf(location.getLongitude());
+//                PropertyManager.getInstance().setLatitude(latitude);
+//                PropertyManager.getInstance().setLongitude(longitude);    //1116 주석
                 mListener.onLocationChanged(location);
-                Toast.makeText(SplashActivity.this, "onStart->location != null..\nLat:"+
-                        PropertyManager.getInstance().getLatitude()+
-                        "Lon:"+PropertyManager.getInstance().getLongitude(), Toast.LENGTH_SHORT).show();
+                PropertyManager.getInstance().setUsingLocation(1);  //1116 추가
+
             } else {
                 Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
             }
@@ -253,6 +253,7 @@ public class SplashActivity extends Activity {
             return;
         }
         mLM.removeUpdates(mListener);
+        Log.e(TAG, "onStop: "+"==========removeUpdates===========" );
 
     }
     //=========위치정보 세팅===========
@@ -458,7 +459,6 @@ public class SplashActivity extends Activity {
         if (!mLM.isProviderEnabled(mProvider)) {
             return;
         }
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -507,8 +507,8 @@ public class SplashActivity extends Activity {
             if (permissions != null && permissions.length > 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(),"onRequestPermissionsResult", Toast.LENGTH_SHORT).show();
-                    PropertyManager.getInstance().setUsingLocation(1);
                     isPermissionOK = true;
+                    PropertyManager.getInstance().setUsingLocation(1);
                     updateLocation();
                 }
             }
@@ -522,6 +522,7 @@ public class SplashActivity extends Activity {
         if (resultCode == RC_FINE_LOCATION_ON_ACTIVITY_RESULT) {
             switch (requestCode) {
                 case RC_FINE_LOCATION_ON_ACTIVITY_RESULT:
+                    isPermissionOK = true;
                     PropertyManager.getInstance().setUsingLocation(1);
 //                    Toast.makeText(getApplicationContext(), "onActivityResult: "+ PropertyManager.getInstance().getUsingLocation(), Toast.LENGTH_LONG).show();
                     break;

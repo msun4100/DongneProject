@@ -2,10 +2,10 @@ package kr.me.ansr.gcmchat.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,27 +17,73 @@ import java.util.Locale;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.gcmchat.model.Message;
+import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
+import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 
 
-public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+implements OnItemClickListener, OnItemLongClickListener, OtherViewHolder.OnLikeClickListener{
+
+    public interface OnAdapterItemClickListener {
+        public void onAdapterItemClick(ChatRoomThreadAdapter adapter, View view, Message item, int type);
+    }
+    OnAdapterItemClickListener mListener;
+    public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
+        mListener = listener;
+    }
+
+    @Override
+    public void onLikeClick(View v, Message item, int type) {
+        if (mListener != null) {
+            mListener.onAdapterItemClick(this, v, item, type);
+        }
+    }
+
+
+    //start recyclerView.OnItemClick implements
+    OnItemClickListener itemClickListener;
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        itemClickListener = listener;
+    }
+    @Override
+    public void onItemClick(View view, int position) {
+        if (itemClickListener != null) {
+            itemClickListener.onItemClick(view, position);
+        }
+    }
+
+    OnItemLongClickListener itemLongClickListener;
+    public void setOnItemLongClickListener(OnItemLongClickListener listener){
+        itemLongClickListener = listener;
+    }
+    @Override
+    public void onItemLongClick(View view, int position) {
+        if (itemLongClickListener != null) {
+            itemLongClickListener.onItemLongClick(view, position);
+        }
+    }
 
     private static String TAG = ChatRoomThreadAdapter.class.getSimpleName();
 
     private String userId;
-    private int SELF = 100;
+    private final static int SELF = 100;
+    private final static int OTHER = 200;
+    private final static int LOG = 300;
     private static String today;
 
     private Context mContext;
     private ArrayList<Message> messageArrayList;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView message, timestamp;
-        public ViewHolder(View view) {
-            super(view);
-            message = (TextView) itemView.findViewById(R.id.message);
-            timestamp = (TextView) itemView.findViewById(R.id.timestamp);
-        }
-    }
+//    public class ViewHolder extends RecyclerView.ViewHolder {
+//        TextView message, timestamp;
+//        ImageView thumb;
+//        public ViewHolder(View view) {
+//            super(view);
+//            message = (TextView) itemView.findViewById(R.id.message);
+//            timestamp = (TextView) itemView.findViewById(R.id.timestamp);
+//            thumb = (ImageView) itemView.findViewById(R.id.thumb);
+//        }
+//    }
 
 
     public ChatRoomThreadAdapter(Context mContext, ArrayList<Message> messageArrayList, String userId) {
@@ -49,54 +95,88 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         today = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
+//    @Override
+//    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        View itemView;
+//        // view type is to identify where to render the chat message
+//        // left or right
+//        if (viewType == SELF) {
+//            // self message
+//            itemView = LayoutInflater.from(parent.getContext())
+//                    .inflate(R.layout.a_chat_item_self, parent, false);
+//        } else {
+//            // others message
+//            itemView = LayoutInflater.from(parent.getContext())
+//                    .inflate(R.layout.a_chat_item_other, parent, false);
+//        }
+//        return new ViewHolder(itemView);
+//    }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView;
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view;
+        switch (viewType) {
+            case SELF :
+                view = inflater.inflate(R.layout.a_chat_item_self, parent, false);
+                ItemViewHolder selfHolder = new ItemViewHolder(view, parent.getContext());
+//                selfHolder.setOnItemClickListener(this);
+                selfHolder.setOnItemLongClickListener(this);
+//                selfHolder.setOnLikeClickListener(this);
+                return selfHolder;
+            case OTHER:
+                view = inflater.inflate(R.layout.a_chat_item_other, parent, false);
+                OtherViewHolder holder = new OtherViewHolder(view, parent.getContext());
+                holder.setOnItemClickListener(this);
+                holder.setOnItemLongClickListener(this);
+                holder.setOnLikeClickListener(this);
+                return holder;
+            case LOG:
+                view = inflater.inflate(R.layout.a_chat_item_log, parent, false);
+                LogViewHolder logHolder = new LogViewHolder(view, parent.getContext());
+                return logHolder;
+            default:
+                break;
 
-        // view type is to identify where to render the chat message
-        // left or right
-        if (viewType == SELF) {
-            // self message
-            itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.a_chat_item_self, parent, false);
-        } else {
-            // others message
-            itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.a_chat_item_other, parent, false);
         }
-
-        return new ViewHolder(itemView);
+        return null;
     }
-
 
     @Override
     public int getItemViewType(int position) {
         Message message = messageArrayList.get(position);
         String id = ""+message.getUser().getId();
-        if (id.equals(userId)) {
-            return SELF;
+        int isLog = message.bgColor;
+        if(isLog == 1){
+//            Log.d(TAG, "getItemViewType: "+"isLog "+message.toString());
+            return LOG;
+        } else {
+            if(id.equals(userId)){
+                return SELF;
+            } else {
+                return OTHER;
+            }
         }
-
-        return position;
+//        return position;
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         Message message = messageArrayList.get(position);
-        ((ViewHolder) holder).message.setText(message.getMessage());
-        String timestamp;
-        if(message.getCreatedAt() != null){
-            timestamp = MyApplication.getTimeStamp(message.getCreatedAt());
-        } else {
-            timestamp = "timeStamp "+MyApplication.getInstance().getCurrentTimeStampString();
+        int type = getItemViewType(position);
+        switch (type){
+            case SELF:
+                ((ItemViewHolder)holder).setChildItem(message);
+                break;
+            case OTHER:
+                ((OtherViewHolder)holder).setChildItem(message);
+                break;
+            case LOG:
+                ((LogViewHolder)holder).setChildItem(message);
+                break;
+            default:
+                break;
         }
-
-//        String timestamp = getTimeStamp(message.getCreatedAt());
-        //edited at PM 12:12 today
-//        if (message.getUser().getName() != null){
-//            timestamp = message.getUser().getName() + ", " + timestamp;
-//        }
-        ((ViewHolder) holder).timestamp.setText(timestamp);
+        return;
     }
 
     @Override
@@ -125,5 +205,6 @@ public class ChatRoomThreadAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         return timestamp;
     }
+
 }
 

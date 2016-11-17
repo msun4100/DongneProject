@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -1522,6 +1523,47 @@ public class NetworkManager {
         return null;
     }
 
+//    private static final String URL_CHAT_THREAD = SERVER_URL + "/chat_rooms/:id";
+    public Request postDongneFetchChatThread(Context context, int chatRoomId, String joined_at, final OnResultListener<ChatInfo> listener) {
+        try {
+            String url = URL_CHAT_THREAD.replace(":id", ""+chatRoomId);
+            final CallbackObject<ChatInfo> callbackObject = new CallbackObject<ChatInfo>();
+
+            JsonObject json = new JsonObject();
+            json.addProperty("joined_at", joined_at);
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatInfo result = gson.fromJson(response.body().charStream(), ChatInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private static final String URL_SEND_MESSAGE = SERVER_URL + "/chat_rooms/:id/message";
     public Request postDongneSendMessage(Context context, int chatRoomId, String userId, String msg, final OnResultListener<ChatInfo> listener) {
         try {
@@ -1827,17 +1869,13 @@ public class NetworkManager {
 
 
     private static final String URL_CHAT_ROOMS = SERVER_URL + "/chat_rooms";
-    public Request postDongneChatRooms(Context context, ArrayList<String> roomList, final OnResultListener<ChatRoomInfo> listener) {
+    public Request postDongneChatRooms(Context context, String userId, final OnResultListener<ChatRoomInfo> listener) {
         try {
             String url = URL_CHAT_ROOMS;
             final CallbackObject<ChatRoomInfo> callbackObject = new CallbackObject<ChatRoomInfo>();
 
-
             JsonObject json = new JsonObject();
-            for (int i=0; i< roomList.size(); i++){
-                json.addProperty("roomList[" + i + "]", ""+roomList.get(i));
-//                json.addProperty("roomList", ""+roomList.indexOf(i));
-            }
+            json.addProperty("userId", userId);
 
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
@@ -1870,6 +1908,51 @@ public class NetworkManager {
         }
         return null;
     }
+
+    private static final String URL_CHAT_ROOMS_CHK = SERVER_URL + "/chat_rooms/chk";
+    public Request postDongneCheckChatRooms(Context context, ArrayList<String> users, final OnResultListener<ChatRoomInfo> listener) {
+        try {
+            String url = URL_CHAT_ROOMS_CHK;
+            final CallbackObject<ChatRoomInfo> callbackObject = new CallbackObject<ChatRoomInfo>();
+
+            JsonObject json = new JsonObject();
+
+            for (int j=0; j< users.size(); j++){
+                json.addProperty("users[" + j + "]", ""+users.get(j));
+            }
+            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            String jsonString = json.toString();
+            RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json").post(body).tag(context).build();
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    ChatRoomInfo result = gson.fromJson(response.body().charStream(), ChatRoomInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     private static final String URL_DELETE_PIC_USER = SERVER_URL + "/deletePic/user/:userId";
     public Request deleteDongnePicUser(Context context, int userId, final OnResultListener<CommonInfo> listener) {
@@ -1913,7 +1996,44 @@ public class NetworkManager {
         return null;
     }
 
+    private static final String URL_GET_USER = SERVER_URL + "/users/:userId";
+    public Request getDongneUserInfo(Context context, int userId, final OnResultListener<FriendsInfo> listener) {
+        try {
+            String url = URL_GET_USER.replace(":userId", ""+userId);
+            final CallbackObject<FriendsInfo> callbackObject = new CallbackObject<FriendsInfo>();
 
+            Request request = new Request.Builder().url(url)
+                    .header("Accept", "application/json")
+                    .tag(context)
+                    .build();
+
+            callbackObject.request = request;
+            callbackObject.listener = listener;
+            mClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callbackObject.exception = e;
+                    Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new Gson();
+                    FriendsInfo result = gson.fromJson(response.body().charStream(), FriendsInfo.class);
+                    callbackObject.result = result;
+                    Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+                    mHandler.sendMessage(msg);
+                }
+            });
+            return request;
+        } catch (JsonParseException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }
 

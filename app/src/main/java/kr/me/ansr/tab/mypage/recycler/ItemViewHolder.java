@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,6 +34,9 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
     TextView stuIdView;
     TextView jobView;
     TextView statusView;
+
+    ImageView statusIcon;
+    FrameLayout statusFrame;
 //    TextView distanceView;
 
     public OnItemClickListener itemClickListener;
@@ -72,10 +76,13 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         stuIdView = (TextView)itemView.findViewById(R.id.text_friedns_stuid);
         jobView = (TextView)itemView.findViewById(R.id.text_friends_job);
         statusView = (TextView)itemView.findViewById(R.id.text_friends_status_msg);
+        statusFrame = (FrameLayout) itemView.findViewById(R.id.frame_msg_layout);
+        statusIcon = (ImageView) itemView.findViewById(R.id.image_friends_status_msg);
 
         iconThumbView.setOnClickListener(viewListener);
         nameView.setOnClickListener(viewListener);
-        statusView.setOnClickListener(viewListener);
+//        statusView.setOnClickListener(viewListener);
+        statusFrame.setOnClickListener(viewListener);
 
     }
 
@@ -86,18 +93,24 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
 
         switch (mItem.status){
             case -100:
-                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_receive_msg) + "</u>"));;
+//                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_receive_msg) + "</u>"));;
+                statusView.setVisibility(View.GONE);
+                statusIcon.setVisibility(View.VISIBLE);
+                statusIcon.setImageResource(R.drawable.f_new_icon_receive);
                 break;
             case 0:
-//                termText.setText(Html.fromHtml("<u>" + str + "</u>"));
-                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_send_msg) + "</u>"));;
+//                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_send_msg) + "</u>"));;
+                statusView.setVisibility(View.GONE);
+                statusIcon.setVisibility(View.VISIBLE);
+                statusIcon.setImageResource(R.drawable.f_new_icon_send);
                 break;
             case 2:
             case 3:
+                statusView.setVisibility(View.VISIBLE);
+                statusIcon.setVisibility(View.GONE);
                 statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_block_msg) + "</u>"));;
                 break;
             default:
-                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_default_msg) + "</u>"));;
                 break;
 
         }
@@ -158,6 +171,8 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
                     }
                     break;
                 case R.id.text_friends_status_msg:
+                case R.id.image_friends_status_msg:
+                case R.id.frame_msg_layout:
                     if (mListener != null) {
                         mListener.onLikeClick(v, mItem, 300);
                     }

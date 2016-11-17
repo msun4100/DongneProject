@@ -20,6 +20,7 @@ import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.tab.board.BoardWriteActivity;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.mypage.myinterest.tabone.OneFragment;
 import kr.me.ansr.tab.mypage.myinterest.tabtwo.TwoFragment;
 
@@ -118,7 +119,10 @@ public class MyInterestActivity extends AppCompatActivity {
         switch (requestCode) {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == RESULT_OK) {
-                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+                    Bundle extraBundle = data.getExtras();
+                    BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+                    EventBus.getInstance().post(result);
+//                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                 }
                 break;
             case BoardWriteActivity.BOARD_WRITE_RC_NEW:

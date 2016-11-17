@@ -4,6 +4,7 @@ import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.database.DBConstant;
 import kr.me.ansr.database.DBManager;
 import kr.me.ansr.database.Push;
@@ -122,18 +123,12 @@ public class MeetFragment extends PagerFragment {
 					case 3:	//"누군가 회원님의 게시글에 댓글을 남겼습니다.",
 //						boardId랑 position을 같이 넘겨야 하는데, boardId는 푸시의 chat_room_id와 같음.
 //							포지션이 안정해져있을때 처리를해야함. 여기서나 보드디테일에서나
-//						BoardResult data = mAdapter.getItem(position);
-//						Intent intent = new Intent(getActivity(), BoardDetailActivity.class);
-//						intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
-//						intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
-//						intent.putExtra("currentTab", "0"); //재학생 탭 == 0
-//						getParentFragment().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
 						intent = new Intent(getActivity(), BoardDetailActivity.class);
-						intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.chat_room_id);
-						startActivity(intent);
+						intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.chat_room_id);	//boardId == chat_room_id
+						intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);	//여기서 요청할때는 position은 사실 큰의미가 없음 -1만 아니면 됨. 푸시리스트의 포지션이 -1이 아닌게 보장되니까
+//						intent.putExtra("currentTab", "0"); //재학생 탭 == 0		//푸시탭에선 커런트탭을 알수 없음. 디테일에서 처리.
+						startActivityForResult(intent, BoardInfo.BOARD_RC_NUM);
 						getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
-//						int old = Integer.parseInt(MainActivity.pushCount.getText().toString());
-//						MainActivity.setPushCount(old - 1);
 						break;
 					case 4:	//"님이 회원님의 친구 신청을 수락하였습니다.",
 						break;
@@ -224,8 +219,6 @@ public class MeetFragment extends PagerFragment {
 		if(isFirst){
 			num++;
 		}
-//		num++;
-//		isFirst = true;
 		if (type == Config.PUSH_TYPE_NOTIFICATION){
 			initData();
 		}
@@ -268,6 +261,26 @@ public class MeetFragment extends PagerFragment {
 			initData();
 		}
 	}
+
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+			case BoardInfo.BOARD_RC_NUM:
+				if (resultCode == getActivity().RESULT_OK) {
+					Bundle extraBundle = data.getExtras();
+					int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+					BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+					Log.e(TAG, "onActivityResult: "+result.toString() );
+					if (result != null) {
+						EventBus.getInstance().post(result);
+					}
+				}
+				break;
+		}
+	}
+
 	//하단 메인메뉴 스크롤에 따라 숨기기 할때 테스트 해본 코드
 //	Button btn = (Button)view.findViewById(R.id.button1);
 //	btn.setOnClickListener(new View.OnClickListener() {

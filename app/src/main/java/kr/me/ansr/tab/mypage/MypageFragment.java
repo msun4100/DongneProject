@@ -32,7 +32,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,16 +44,15 @@ import com.bumptech.glide.signature.StringSignature;
 public class MypageFragment extends PagerFragment {
 	private static final String TAG = MypageFragment.class.getSimpleName();
 	AppCompatActivity activity;
-
-	@Bind(R.id.image_my_0_0) ImageView menu00;
-	@Bind(R.id.image_my_0_1) ImageView menu01;
-	@Bind(R.id.image_my_0_2) ImageView menu02;
-	@Bind(R.id.image_my_1_0) ImageView menu10;
-	@Bind(R.id.image_my_1_1) ImageView menu11;
-//	@Bind(R.id.image_my_1_2) ImageView menu12;
+//	@Bind(R.id.image_my_0_0) ImageButton menu00;
+	@Bind(R.id.frame_my_0_0) FrameLayout menu00;
+	@Bind(R.id.frame_my_0_1) FrameLayout menu01;
+	@Bind(R.id.frame_my_0_2) FrameLayout menu02;
+	@Bind(R.id.frame_my_1_0) FrameLayout menu10;
+	@Bind(R.id.frame_my_1_1) FrameLayout menu11;
 	@Bind(R.id.frame_my_1_2) FrameLayout menu12;
 
-	@Bind(R.id.image_my_next) ImageView nextIcon;
+	@Bind(R.id.LinearLayout1) LinearLayout nextLayout;
 	@Bind(R.id.image_my_thumb) ImageView thumbIcon;
 	@Bind(R.id.text_my_username) TextView usernameView;
 
@@ -60,8 +61,8 @@ public class MypageFragment extends PagerFragment {
 		View view = inflater.inflate(R.layout.fragment_mypage, container, false);
 		ButterKnife.bind(this, view);
 		activity = (AppCompatActivity) getActivity();
-		nextIcon.setOnClickListener(mListener);
-		nextIcon.setImageResource(R.drawable.f_icon_next_1);
+		nextLayout.setOnClickListener(mListener);
+
 		thumbIcon.setOnClickListener(mListener);
 		menu00.setOnClickListener(mListener);
 		menu01.setOnClickListener(mListener);
@@ -96,28 +97,31 @@ public class MypageFragment extends PagerFragment {
 			Intent intent;
 			switch (v.getId()){
 				case R.id.image_my_0_0:
-					Toast.makeText(getActivity(), "00", Toast.LENGTH_SHORT).show();
+				case R.id.frame_my_0_0:
 					intent = new Intent(getActivity(), MyWritingActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_0_1:
+				case R.id.frame_my_0_1:
 					intent = new Intent(getActivity(), MyInterestActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_0_2:
-					Toast.makeText(getActivity(), "02", Toast.LENGTH_SHORT).show();
+				case R.id.frame_my_0_2:
 					intent = new Intent(getActivity(), AlarmActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_1_0:
+				case R.id.frame_my_1_0:
 					intent = new Intent(getActivity(), FriendStatusActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_1_1:
+				case R.id.frame_my_1_1:
 					intent = new Intent(getActivity(), ManagementActivity.class);
 					startActivity(intent);
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
@@ -132,6 +136,7 @@ public class MypageFragment extends PagerFragment {
 					Toast.makeText(getActivity(), "thumb", Toast.LENGTH_SHORT).show();
 					break;
 				case R.id.image_my_next:
+				case R.id.LinearLayout1:
 					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), MediaStoreActivity.class);
 					FriendsResult item = FriendsSectionFragment.getUserInfo();
@@ -184,8 +189,7 @@ public class MypageFragment extends PagerFragment {
 	}
 	ProgressDialog dialog = null;
 	private void editUser(){
-
-		NetworkManager.getInstance().putDongnePutEditUser(getActivity(), null, null, null, null, null, null, null, new NetworkManager.OnResultListener<CommonInfo>() {
+		NetworkManager.getInstance().putDongnePutEditUser(getActivity(), PropertyManager.getInstance().getDeptName(), null, null, null, null, null, null, new NetworkManager.OnResultListener<CommonInfo>() {
 			@Override
 			public void onSuccess(Request request, CommonInfo result) {
 				if (result.error.equals(true)) {

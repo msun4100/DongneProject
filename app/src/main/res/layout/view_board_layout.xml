@@ -63,6 +63,7 @@
                             android:text="16"/>
 
                         <TextView
+                            android:layout_marginLeft="4dp"
                             android:id="@+id/text_board_dept"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -121,7 +122,7 @@
                 android:layout_gravity="center_horizontal"
                 android:adjustViewBounds="true"
                 android:id="@+id/image_board_body"
-                android:src="@drawable/ic_launcher"/>
+                android:src="@null"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -138,7 +139,7 @@
                         android:maxLines="4"
                         android:ellipsize="none"
                         android:layout_marginBottom="3dp"
-                        android:text="교양 수업 스포츠 문화 책 구합니다.\n교양 수업 스포츠 문화 책 구합니다.\n교양 수업 스포츠 문화 책 구합니다.\n교양 수업 스포츠 문화 책 구합니다.\n교양 수업 스포츠 문화 책 구합니다.\n교양 수업 스포츠 문화 책 구합니다."/>
+                        android:text=""/>
                     <!--위의 마진바텀과 아래의 패딩탑을 똑같이 줄여야 글자 가리면서 간격이 벌어짐-->
                     <TextView
                         android:paddingTop="3dp"

@@ -182,35 +182,12 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     protected void setupParent(View view) {
         //Set up touch listener for non-text box views to hide keyboard.
         if(!(view instanceof EditText)) {
-            if(view.getId() == R.id.scrollView){ //예외 처리
-                Log.d(TAG, "view.getId: ");
-                view.setOnTouchListener(new View.OnTouchListener(){
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        hideSoftKeyboard();
-//                        Log.d(TAG, "tttt: " + v.getId());
-                        return false;
-                    }
-                });
-                view.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(inputBody, InputMethodManager.SHOW_FORCED);
-//                        imm.showSoftInputFromInputMethod(inputBody.getApplicationWindowToken(),InputMethodManager.SHOW_FORCED);
-//                        Log.d(TAG, "cccc: " + v.getId());
-                    }
-                });
-            } else {
-                Log.d(TAG, "else: ");
-                view.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent event) {
-                        Log.d(TAG, "onTouch: "+ v.getId());
-                        hideSoftKeyboard();
-                        return false;
-                    }
-                });
-            }
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard();
+                    return false;
+                }
+            });
         }
         //If a layout container, iterate over children
         if (view instanceof ViewGroup) {
@@ -291,10 +268,14 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         }
     };
     private void putWrite(){
-        if (!validateBody()) {
+        if (!validateBody() && !validateFilePath() ) {
             Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
+//        if (!validateBody()) {
+//            Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         String type = getBoardType();
         Log.e("putWriteType:", type);
         //임시 pageId == univId
@@ -333,10 +314,14 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     }
 
     private void postWrite(){
-        if (!validateBody()) {
+        if (!validateBody() && !validateFilePath() ) {
             Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
+//        if (!validateBody()) {
+//            Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         String type = getBoardType();
         Log.e("postWriteType:", type);
         int pageId = Integer.valueOf(PropertyManager.getInstance().getUserId()); //임시 pageId == univId
@@ -383,7 +368,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         }
     }
 
-    // Validating name
     private boolean validateBody() {
         if (inputBody.getText().toString().trim().isEmpty()) {
 //				inputLayoutPw.setError(getString(R.string.err_msg_pw));
@@ -394,6 +378,13 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         return true;
     }
 
+    private boolean validateFilePath() {
+        if (filePath == null || filePath.equals("")) {
+            requestFocus(inputBody);
+            return false;
+        }
+        return true;
+    }
 
 
 	@Override

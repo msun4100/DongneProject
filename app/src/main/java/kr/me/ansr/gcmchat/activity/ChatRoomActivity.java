@@ -1,10 +1,13 @@
 package kr.me.ansr.gcmchat.activity;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,6 +47,9 @@ import java.util.Map;
 
 import kr.me.ansr.*;
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.common.InputDialogFragment;
+import kr.me.ansr.common.ReportDialogFragment;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.adapter.ChatRoomThreadAdapter;
 import kr.me.ansr.gcmchat.app.Config;
@@ -52,7 +61,11 @@ import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
 import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.tab.chat.GcmChatFragment;
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
+import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
+import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 
 //FragmentGcmChat 에서 여는 채팅 방
 
@@ -62,6 +75,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private String chatRoomId;
     private RecyclerView recyclerView;
+    private LinearLayoutManager layoutManager;
     private ChatRoomThreadAdapter mAdapter;
     private ArrayList<Message> messageArrayList;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -75,11 +89,12 @@ public class ChatRoomActivity extends AppCompatActivity {
     ArrayList<FriendsResult> mList = new ArrayList<>(); //단톡방 리스트
     String roomName;
 
+    InputMethodManager imm;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_activity_chat_room);
-        Log.d(TAG, "onCreate: "+ PropertyManager.getInstance().getIsTab2Visible());
+//        Log.d(TAG, "onCreate: "+ PropertyManager.getInstance().getIsTab2Visible());   //only visible
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.common_back2);
         setSupportActionBar(toolbar);
@@ -96,15 +111,42 @@ public class ChatRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "menu click", Toast.LENGTH_SHORT).show();
-                DBManager.getInstance().deleteRoomMsg(Integer.parseInt(chatRoomId));
+                ArrayList<Message> list = (ArrayList<Message>) DBManager.getInstance().searchAllMsg(Integer.parseInt(chatRoomId));
+                if(list != null && list.size() > 0){
+                    for(int i=0; i<list.size(); i++){
+                        Log.e("list.get("+i+")", list.get(i).toString());
+                    }
+                }
             }
         });
-
+        imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
             //==========================
 //        inputMessage = (EditText) findViewById(R.id.message);
 //        btnSend = (Button) findViewById(R.id.btn_send);
         inputMessage = (EditText) findViewById(R.id.edit_detail_input);
         inputMessage.setHint("메시지를 입력해주세요.");
+        inputMessage.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.e(TAG, "onFocusChange: "+ hasFocus );
+                if(hasFocus){
+                    if (mAdapter.getItemCount() > 0) {
+                        Log.e(TAG, "onFocusChange: "+ hasFocus + ""+mAdapter.getItemCount());
+//                        smoothScrollToPosition(recyclerView, mAdapter.getItemCount());
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+                            }
+                        }, 200);
+//                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+//                        recyclerView.scrollToPosition(mAdapter.getItemCount());
+                    }
+                } else {
+//                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                }
+            }
+        });
         btnSend = (Button) findViewById(R.id.btn_detail_send);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         messageArrayList = new ArrayList<>();
@@ -113,8 +155,30 @@ public class ChatRoomActivity extends AppCompatActivity {
         String selfUserId = ""+MyApplication.getInstance().getPrefManager().getUser().getId();
 
         mAdapter = new ChatRoomThreadAdapter(this, messageArrayList, selfUserId);
+        mAdapter.setOnAdapterItemClickListener(new ChatRoomThreadAdapter.OnAdapterItemClickListener() {
+            @Override
+            public void onAdapterItemClick(ChatRoomThreadAdapter adapter, View view, Message item, int type) {
+                switch (type) {
+                    case 100:
+//                        Toast.makeText(ChatRoomActivity.this, "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        getUserInfo(item.user.id);
+                        break;
+                    case 200:
+                        Toast.makeText(ChatRoomActivity.this, "name View click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        });
+        mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                Message data = messageArrayList.get(position);
+                Toast.makeText(ChatRoomActivity.this, "Long click"+ data.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
+
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
@@ -206,7 +270,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 //        챗룸아이디가 같으면 아답터에 추가 아니면 디비에만 추가.
         if(this.chatRoomId.equals(""+message.chat_room_id)){
             if (message != null && chatRoomId != null) {
-                DBManager.getInstance().insertMsg(message);
                 messageArrayList.add(message);
                 mAdapter.notifyDataSetChanged();
                 if (mAdapter.getItemCount() > 1) {
@@ -225,8 +288,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 notificationUtils.showNotificationMessage("Push msg", message.message, message.createdAt, intent);
-                addRoomAndMessage(chatRoomId, message);
-
             }
         }
 
@@ -361,13 +422,20 @@ public class ChatRoomActivity extends AppCompatActivity {
                             message.chat_room_id = chatRoomId;
                             int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
                             String username = PropertyManager.getInstance().getUserName();
-                            String email = PropertyManager.getInstance().getEmail();
-                            User user = new User(userId, username, email);
+                            User user = new User(userId, username, null);
                             //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
                             //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
-//                            message.setUser(result.messages.get(i).getUser());
                             message.setUser(user);
-                            DBManager.getInstance().insertMsg(message);
+
+                            String createdAt = result.messages.get(i).getCreatedAt();
+                            if(!lastDay.substring(0, 10).equals(createdAt.substring(0, 10))){
+                                Message logMsg = new Message(); //같은 message변수를 쓰니까 2개씩 중복 됨
+                                lastDay = createdAt;
+                                logMsg.createdAt = createdAt;
+                                logMsg.bgColor = 1;    //view type log
+                                messageArrayList.add(logMsg);
+                            }
+                            message.bgColor = 0; //view type message
                             messageArrayList.add(message);
                         }
                         Log.e("sendMsg",result.messages.get(0).toString());
@@ -411,35 +479,31 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                             int userId = Integer.parseInt(PropertyManager.getInstance().getUserId());
                             String username = PropertyManager.getInstance().getUserName();
-                            String email = PropertyManager.getInstance().getEmail();
-                            User user = new User(userId, username, email);
+                            User user = new User(userId, username, null);
                             //send메시지의 response객체의 message 객체 안에는 user가 포함되어 있지 않음.
                             //어차피 내가 보내는 메시지이니까. 프로퍼티 매니저에 저장된 정보 기반으로 User() 객체 생성해서 저장함
-//                            message.setUser(result.messages.get(i).getUser());
                             message.setUser(user);
-                            messageArrayList.add(message);
-                            // insert to DB
-                            ChatRoom cr = new ChatRoom();
-                            cr.setId(message.chat_room_id);
-                            cr.setName(roomName);   // cr.setName(mItem.username);
-                            cr.setLastMessage(message.message);
-                            cr.setUnreadCount(0);
-                            cr.setTimestamp(message.createdAt);
-                            cr.bgColor = 0; //없으면 저장 안되나?
-                            cr.image ="";
-                            cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId());
-                            if( DBManager.getInstance().insertRoom(cr) > 0 ){
-                                Log.e("msg.toString", message.toString());
-                                DBManager.getInstance().insertMsg(message);
+                            String createdAt = result.messages.get(i).getCreatedAt();
+                            if(!lastDay.substring(0, 10).equals(createdAt.substring(0, 10))){
+                                Message logMsg = new Message(); //같은 message변수를 쓰니까 2개씩 중복 됨
+                                lastDay = createdAt;
+                                logMsg.createdAt = createdAt;
+                                logMsg.bgColor = 1;    //view type log
+                                messageArrayList.add(logMsg);
                             }
+                            message.bgColor = 0; //view type message
+                            messageArrayList.add(message);
                         }
                     }
-                    //subscribe..
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
                         recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
                     }
                 } else {
+                    if(messageArrayList != null && messageArrayList.size() > 0){
+                        messageArrayList.clear();
+                        mAdapter.notifyDataSetChanged();
+                    }
                     Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -447,69 +511,109 @@ public class ChatRoomActivity extends AppCompatActivity {
             @Override
             public void onFailure(okhttp3.Request request, int code, Throwable cause) {
                 Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                if(messageArrayList != null && messageArrayList.size() > 0){
+                    messageArrayList.clear();
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
 
-    private void fetchChatThread(int chatRoomId){
-        ArrayList<Message> list = new ArrayList<Message>();
-        list = (ArrayList<Message>) DBManager.getInstance().searchAllMsg(chatRoomId);
 
-        if(list != null && list.size() > 0){
-            for(int i=0; i<list.size(); i++){
-                Log.e("list.get("+i+")", list.get(i).toString());
-                Message message = new Message();
-                message.setId(list.get(i).getId());
-                message.setMessage(list.get(i).getMessage());
-                message.setCreatedAt(list.get(i).getCreatedAt());
-                message.chat_room_id = chatRoomId; // added on 1026
-                User user = new User(list.get(i).user.id, list.get(i).user.name);   //userId, username
-                message.setUser(user);
-                messageArrayList.add(message);
-            }
-        }
-        mAdapter.notifyDataSetChanged();
-        if (mAdapter.getItemCount() > 1) {
-            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
-//            recyclerView.scrollToPosition(mAdapter.getItemCount());
-        }
-
-
-    }
+//    fetch messages thread from Sqlite
 //    private void fetchChatThread(int chatRoomId){
-//        NetworkManager.getInstance().getDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, new NetworkManager.OnResultListener<ChatInfo>(){
-//            @Override
-//            public void onSuccess(okhttp3.Request request, ChatInfo result) {
-//                if (result.error.equals(false)) {
-//                    if(result.messages != null){
-//                        for(int i=0; i<result.messages.size(); i++){
-//                            Log.e("msg"+i+" :", result.messages.get(i).toString());
-//                            Message message = new Message();
-//                            message.setId(result.messages.get(i).getId());
-//                            message.setMessage(result.messages.get(i).getMessage());
-//                            message.chat_room_id = chatRoomId; // added on 1026
-//                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
-//                            message.setUser(result.messages.get(i).getUser());
-//                            messageArrayList.add(message);
-//                        }
-//                    }
-//                    mAdapter.notifyDataSetChanged();
-//                    if (mAdapter.getItemCount() > 1) {
-////                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
-//                        recyclerView.scrollToPosition(mAdapter.getItemCount()-1);
-//                    }
-//                } else {
-//                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
-//                }
+//        ArrayList<Message> list = new ArrayList<Message>();
+//        list = (ArrayList<Message>) DBManager.getInstance().searchAllMsg(chatRoomId);
+//        if(list != null && list.size() > 0){
+//            for(int i=0; i<list.size(); i++){
+//                Log.e("list.get("+i+")", list.get(i).toString());
+//                Message message = new Message();
+//                message.setId(list.get(i).getId());
+//                message.setMessage(list.get(i).getMessage());
+//                message.setCreatedAt(list.get(i).getCreatedAt());
+//                message.chat_room_id = chatRoomId; // added on 1026
+//                User user = new User(list.get(i).user.id, list.get(i).user.name);   //userId, username
+//                message.setUser(user);
+//                messageArrayList.add(message);
 //            }
-//
-//            @Override
-//            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-//                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
-//            }
-//        });
+//        }
+//        mAdapter.notifyDataSetChanged();
+//        if (mAdapter.getItemCount() > 1) {
+//            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+////            recyclerView.scrollToPosition(mAdapter.getItemCount());
+//        }
 //    }
 
+    String lastDay = "abcdefghijklm";   //init over length 10
+    private void fetchChatThread(final int chatRoomId){
+        final String lastJoin;
+        if(DBManager.getInstance().isRoomExists(chatRoomId)){
+            lastJoin = DBManager.getInstance().searchRoom(chatRoomId).get(0).lastJoin;
+        } else {
+            lastJoin = "";
+        }
+        if(lastJoin == null || lastJoin.equals("")){
+            Log.e(TAG, "fetchChatThread: timeStamp undefined error");
+            Toast.makeText(ChatRoomActivity.this, "timeStamp undefined error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, new NetworkManager.OnResultListener<ChatInfo>(){
+            @Override
+            public void onSuccess(okhttp3.Request request, ChatInfo result) {
+                if (result.error.equals(false)) {
+                    if(result.messages != null){
+                        for(int i=0; i<result.messages.size(); i++){
+                            Message message = new Message();
+                            message.setId(result.messages.get(i).getId());
+                            message.setMessage(result.messages.get(i).getMessage());
+                            message.chat_room_id = chatRoomId; // added on 1026
+                            message.setCreatedAt(result.messages.get(i).getCreatedAt());
+                            message.setUser(result.messages.get(i).getUser());
+                            String createdAt = result.messages.get(i).getCreatedAt();
+                            if(!lastDay.substring(0, 10).equals(createdAt.substring(0, 10))){
+                                Message logMsg = new Message(); //같은 message변수를 쓰니까 2개씩 중복 됨
+                                lastDay = createdAt;
+                                logMsg.createdAt = createdAt;
+                                logMsg.bgColor = 1;    //view type log
+                                messageArrayList.add(logMsg);
+                            }
+                            message.bgColor = 0; //view type message
+                            messageArrayList.add(message);
+                        }
+                    }
+                    mAdapter.notifyDataSetChanged();
+                    if (mAdapter.getItemCount() > 1) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+//                                recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+                                recyclerView.scrollToPosition(mAdapter.getItemCount()-1); //안먹네
+                            }
+                        }, 500);
+
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                    messageArrayList.clear();
+                    mAdapter.notifyDataSetChanged();
+                }
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                messageArrayList.clear();
+                mAdapter.notifyDataSetChanged();
+                dialog.dismiss();
+            }
+        });
+        dialog = new ProgressDialog(ChatRoomActivity.this);
+        dialog.setTitle("메시지 로딩...");
+        dialog.show();
+    }
+
+    ProgressDialog dialog = null;
     /**
      * Fetching all the messages of a single chat room
      * Using volley
@@ -753,37 +857,106 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     }
 
-    private  void isRoomExists(String chatRoomId, Message message){
-        if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
-            //존재하지 않으면 생성
-            ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId),
-                    message.user.name,/*네임*/
-                    message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
-            DBManager.getInstance().insertRoom(cr);
+    public static void smoothScrollToPosition(final AbsListView view, final int position) {
+        View child = getChildAtPosition(view, position);
+        // There's no need to scroll if child is already at top or view is already scrolled to its end
+        if ((child != null) && ((child.getTop() == 0) || ((child.getTop() > 0) && !view.canScrollVertically(1)))) {
+            return;
+        }
+
+        view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    view.setOnScrollListener(null);
+
+                    // Fix for scrolling bug
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.setSelection(position);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
+                                 final int totalItemCount) { }
+        });
+
+        // Perform scrolling to position
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                view.smoothScrollToPositionFromTop(position, 0);
+            }
+        });
+    }
+    public static View getChildAtPosition(final AdapterView view, final int position) {
+        final int index = position - view.getFirstVisiblePosition();
+        if ((index >= 0) && (index < view.getChildCount())) {
+            return view.getChildAt(index);
+        } else {
+            return null;
         }
     }
 
-    private void addRoomAndMessage(String chatRoomId, Message message){
-        ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId), message.user.name,/*네임*/ message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 0, /* 언리드카운트,*/ "", /*image url*/ 0/* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
-        ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(Integer.parseInt(chatRoomId));
-        if(list.size() == 0){   //없으면 룸생성
-            cr.unreadCount = 0;
-            DBManager.getInstance().insertRoom(cr);
-        } else {    //있으면 업데이트
-            if(list.size() == 1 && list.get(0).id == Integer.parseInt(chatRoomId)){
-                cr = list.get(0);
-                cr.unreadCount = list.get(0).unreadCount + 1;
-                cr.lastMessage = message.message;
-                cr.timestamp = message.createdAt;
-//                DBManager.getInstance().updateRoom(cr);
-//                Log.d(TAG, "addRoomAndMessage: 111 "+cr.toString());
-            }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case FriendsSectionFragment.FRIENDS_RC_NUM:
+                if (resultCode == RESULT_OK) {
+                    Bundle extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+                    if(result != null){
+//                        Log.e(TAG, "onActivityResult: " + result );
+                        EventBus.getInstance().post(result);
+                    }
+                }
+                break;
         }
-        if(DBManager.getInstance().insertMsg(message) > 0 ){    //insertMsg 성공하면 updateRoom
-            if(DBManager.getInstance().updateRoom(cr) > 0 ){
-                MainActivity.setChatCount(cr.unreadCount);
-            }
-        }
+    }
+
+    private void getUserInfo(int writer) {
+        NetworkManager.getInstance().getDongneUserInfo(ChatRoomActivity.this, writer,
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(okhttp3.Request request, FriendsInfo result) {
+                        if (result.error.equals(false)) {
+                            FriendsResult data;
+                            if(result.result != null && result.result.size() == 1){
+                                data = result.result.get(0);
+//                                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+//                                Log.e(TAG, "onSuccess: "+data.toString() );
+                                Intent intent = new Intent(ChatRoomActivity.this, FriendsDetailActivity.class);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, 0);   //position은 이제 필요 없는데..
+                                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                                startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                            } else {
+                                Log.e(TAG, result.message);
+                                Toast.makeText(ChatRoomActivity.this, "result.error: false" + result.message, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Log.e(TAG, result.message);
+                            Toast.makeText(ChatRoomActivity.this, "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                        Toast.makeText(ChatRoomActivity.this, TAG + " getUser onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(ChatRoomActivity.this);
+        dialog.setTitle("유저 정보를 가져오는 중...");
+        dialog.show();
     }
 
 }

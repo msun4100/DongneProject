@@ -29,6 +29,7 @@ public class DBConstant {
         public static final String COLUMN_BG = "bg";
         public static final String COLUMN_IMAGE = "image";
         public static final String COLUMN_ACTIVE_USER = "active_user";
+        public static final String COLUMN_LAST_JOIN = "last_join";
     }
 
     public interface MessagesTable extends BaseColumns {

@@ -74,6 +74,7 @@ import kr.me.ansr.gcmchat.model.User;
 import kr.me.ansr.tab.chat.plus.ChatPlusActivity;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
+import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
 
 /**
  * Created by KMS on 2016-07-06.
@@ -95,7 +96,7 @@ public class GcmChatFragment extends PagerFragment {
 
     public static int lastRoomSize = 0;
     public static final int DIALOG_RC_ROOM_DELETE = 203;
-    public static int unreadCount = 0;
+//    public static int unreadCount = 0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gcmchat, container, false);
@@ -179,16 +180,6 @@ public class GcmChatFragment extends PagerFragment {
                 mDialogFragment.setArguments(b);
                 mDialogFragment.setTargetFragment(GcmChatFragment.this, DIALOG_RC_ROOM_DELETE);
                 mDialogFragment.show(getActivity().getSupportFragmentManager(), "logoutDialog");
-
-                List<Message> list = DBManager.getInstance().searchAllMsg(chatRoom.id);
-                Log.e("msgs", list.toString());
-//                List<ChatRoom> list = DBManager.getInstance().searchAllRoom();
-//                if(list!=null && list.size() > 0){
-//                    for(ChatRoom cr : list){
-//                        Log.e("a", cr.toString());
-//                    }
-//                }
-
             }
         }));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -247,22 +238,26 @@ public class GcmChatFragment extends PagerFragment {
     }
 
 
-    private  void isRoomExists(String chatRoomId, Message message){
-        if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
-            //존재하지 않으면 생성
-            ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId),
-                    message.user.name,/*네임*/
-                    message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
-            DBManager.getInstance().insertRoom(cr);
-            refreshList();
-        }
-    }
+//    private  void isRoomExists(String chatRoomId, Message message){
+//        if(!DBManager.getInstance().isRoomExists(Integer.parseInt(chatRoomId))){
+//            //존재하지 않으면 생성
+//            ChatRoom cr = new ChatRoom(Integer.parseInt(chatRoomId),
+//                    message.user.name,/*네임*/
+//                    message.message, /* 라스트메시지*/ message.createdAt, /* 타임스탬프*/ 1, /* 언리드카운트,*/ "", /*image url*/ 0   /* bgColor*/, Integer.parseInt(PropertyManager.getInstance().getUserId()));
+//            DBManager.getInstance().insertRoom(cr);
+//            refreshList();
+//        }
+//    }
     /**
      * Handles new push notification
      */
+
     private void handlePushNotification(Intent intent) {
         int type = intent.getIntExtra("type", -1);
-
+        isFirst = intent.getBooleanExtra("isFirst", false);
+        if(isFirst){
+            num++;
+        }
         // if the push is of chat room message
         // simply update the UI unread messages count
         if (type == Config.PUSH_TYPE_CHATROOM) {
@@ -272,56 +267,54 @@ public class GcmChatFragment extends PagerFragment {
             Log.e("message", message.toString());
             Log.e("chatRoomId", chatRoomId);
 
-            isRoomExists(chatRoomId, message);  //1028
             if (message != null && chatRoomId != null) {
-                DBManager.getInstance().insertMsg(message);
-                updateRow(chatRoomId, message);
-                MainActivity.setChatCount(100); //0보다 크면 N 뜨니까
-                Log.d(TAG, "handlePushNotification: "+100);
+//                updateRow(chatRoomId, message);
+//                MainActivity.setChatCount(num); //0보다 크면 N 뜨니까
+                refreshList();
+                Log.d(TAG, "handlePushNotification: "+num);
             }
         } else if (type == Config.PUSH_TYPE_USER) {
             // push belongs to user alone
             // just showing the message in a toast
             Message message = (Message) intent.getSerializableExtra("message");
-            Toast.makeText(getActivity(), "New push: " + message.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "PUSH_TYPE_USER: " + message.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "handlePushNotification: "+"PUSH_TYPE_USER " + message.getMessage()  );
         } else if (type == Config.PUSH_TYPE_NEW_ROOM) {
             // push from addChatRoom url
             // just invoke refreshList() and updateRow()
-
             Message message = (Message) intent.getSerializableExtra("message");
             String chatRoomId = intent.getStringExtra("chat_room_id");
             Log.e("PUSH_TYPE_NEW_ROOM", ""+Config.PUSH_TYPE_NEW_ROOM);
             Log.e("message", message.toString());
             Log.e("chatRoomId", chatRoomId);
 
-            isRoomExists(chatRoomId, message);  //1028
             if (message != null && chatRoomId != null) {
-                DBManager.getInstance().insertMsg(message);
-                updateRow(chatRoomId, message);
-                MainActivity.setChatCount(1000);
-                Log.d(TAG, "handlePushNotification: "+1000);
+//                updateRow(chatRoomId, message);
+//                MainActivity.setChatCount(num);
+                refreshList();
+                Log.d(TAG, "handlePushNotification: "+num);
             }
         } else if (type == Config.PUSH_TYPE_NOTIFICATION){
-
+            Message message = (Message) intent.getSerializableExtra("message");
+            Toast.makeText(getActivity(), "PUSH_TYPE_NOTIFICATION" + message.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "handlePushNotification: "+"PUSH_TYPE_NOTIFICATION " + message.getMessage()  );
         }
     }
 
     /**
      * Updates the chat list unread count and the last message
      */
-    //채팅방 들어갔따 나올 때
+    //채팅방 들어갔다 나올 때
     private void updateRowLastMsg(String chatRoomId, Message message) {
         for (ChatRoom cr : chatRoomArrayList) {
             String crGetId = ""+cr.getId();
             if (crGetId.equals(chatRoomId)) {
                 int index = chatRoomArrayList.indexOf(cr);
                 cr.setLastMessage(message.getMessage());
-                ((MainActivity)getActivity()).setChatCount( 0 );    //N있으면 없어지게
                 cr.setUnreadCount(0);
                 cr.setTimestamp(message.getCreatedAt());
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
-                DBManager.getInstance().updateRoom(cr);
                 break;
             }
         }
@@ -338,9 +331,7 @@ public class GcmChatFragment extends PagerFragment {
                 cr.setTimestamp(message.getCreatedAt());
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
-                DBManager.getInstance().updateRoom(cr);
-                MainActivity.setChatCount(200);
-                Log.d(TAG, "updateRow: "+ 200);
+                Log.d(TAG, "updateRow: "+ num);
                 break;
             }
         }
@@ -356,7 +347,7 @@ public class GcmChatFragment extends PagerFragment {
                 cr.setUnreadCount(0);
                 chatRoomArrayList.remove(index);
                 chatRoomArrayList.add(index, cr);
-                DBManager.getInstance().updateRoom(cr);
+
                 break;
             }
         }
@@ -366,65 +357,80 @@ public class GcmChatFragment extends PagerFragment {
     /**
      * fetching the chat rooms by making http call
      */
-
+    int num = 0;
+    boolean isFirst = true;
     private void fetchChatRooms(){
-        ArrayList<String> roomList = new ArrayList<>();
-//        roomList.add("74"); roomList.add(""+ (-1)); roomList.add(""+ 116); roomList.add(""+21); roomList.add(""+24);
-        ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();
-        for(ChatRoom cr : list){
-            roomList.add(""+cr.id);
-            Log.e("fetch:", cr.toString());
-        }
-        lastRoomSize = list.size(); //db에 저장된 마지막 룸 갯수를 저장
-        if(roomList.size() < 1) {
-            chatRoomArrayList.clear();
-            mAdapter.notifyDataSetChanged();
-            lastRoomSize = 0;
-            Log.e("fetchChatRooms","roomList is null");
-            return;
-        }
-
-        NetworkManager.getInstance().postDongneChatRooms(getActivity(), roomList, new NetworkManager.OnResultListener<ChatRoomInfo>(){
+//        if(FriendsTwoFragment.mAdapter != null && FriendsTwoFragment.mAdapter.getItemCount() > 0){
+//            Log.d(TAG, "fetchChatRooms: " + FriendsTwoFragment.mAdapter.getItemCount());
+//        }
+        NetworkManager.getInstance().postDongneChatRooms(getActivity(), PropertyManager.getInstance().getUserId(), new NetworkManager.OnResultListener<ChatRoomInfo>() {
             @Override
             public void onSuccess(okhttp3.Request request, ChatRoomInfo result) {
                 if (result.error.equals(false)) {
+                    List<ChatRoom> list = DBManager.getInstance().searchAllRoom();  //'N' 표시 전 비교 위해
+                    String lastJoin = "";
                     if(result.chat_rooms != null){
-                        unreadCount = 0;
                         ArrayList<ChatRoom> chatRoomsArray = result.chat_rooms;
                         for(int i=0; i<chatRoomsArray.size(); i++){
                             ChatRoom cr = new ChatRoom();
                             cr.setId(chatRoomsArray.get(i).id);
-                            ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchRoom(chatRoomsArray.get(i).id);
-                            if(list != null && list.size() == 1){
-                                String roomname = getSortedRoomName(chatRoomsArray.get(i).name);
-                                cr.setName(roomname);
-                                cr.setLastMessage(list.get(0).lastMessage);
-                                cr.setUnreadCount(list.get(0).unreadCount);
-                                cr.setTimestamp(list.get(0).timestamp);   //modification required
-                                cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId());
-                                unreadCount += list.get(0).unreadCount;
-                            } else {
-                                cr.setName(chatRoomsArray.get(i).name);
-                                cr.setLastMessage(chatRoomsArray.get(i).lastMessage);  //modification required
-                                Random r = new Random();
-                                cr.setUnreadCount(r.nextInt(100)+10);
-                                cr.setTimestamp(chatRoomsArray.get(i).timestamp);   //modification required
-                                cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId());
+                            cr.setName(getSortedRoomName(chatRoomsArray.get(i).name));
+                            cr.setLastMessage(chatRoomsArray.get(i).lastMessage);  //modification required
+                            cr.setTimestamp(chatRoomsArray.get(i).timestamp);   //Adapter 의 함수 자체에서 seoul시간으로 변환됨
+                            cr.activeUser = Integer.parseInt(PropertyManager.getInstance().getUserId());
+                            cr.users = chatRoomsArray.get(i).users; //mongodb field
+
+                            for(ChatRoom dbRoom : list){
+                                if(chatRoomsArray.get(i).id == dbRoom.id){
+                                    //compareTo : a > b :긍정값,  a < b 부정값 a==b :0
+//                                    cr.activeUser = dbRoom.activeUser;
+                                    lastJoin = dbRoom.lastJoin; //방탈했다가 다시 받는 경우 고려
+                                    if(chatRoomsArray.get(i).timestamp.compareTo(dbRoom.timestamp) > 0 ){
+                                        //라스트메시지의 타임스탬프가 큰경우 == unread_message가 있다.
+                                        cr.setUnreadCount(1); // N 띄움
+                                        num++;
+                                        Log.e(TAG, "onSuccess: num++ "+num );
+                                    } else {
+                                        cr.setUnreadCount(0); // N 없앰
+                                    }
+                                    break;
+                                }
                             }
-                            chatRoomArrayList.add(cr);
+                            //채팅방 나가면 단말기 디비에 lastJoin을 ""로(채팅방이 액티브상태면 라스트조인이 ""이 아님. )
+                            //방탈했다가 다시들어온 시간보다 메시지 시간이 크면
+                            if( !lastJoin.equals("")){
+                                chatRoomArrayList.add(cr);
+                            }
                         }
-                        MainActivity.setChatCount(unreadCount);
+//                        lastRoomSize = chatRoomsArray.size();
+                        if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
+                            MainActivity.setChatCount(num);
+                        } else {
+                            MainActivity.setChatCount(0);
+                        }
                     }
                 } else {
                     Toast.makeText(getActivity(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
                 }
                 mAdapter.notifyDataSetChanged();
+                showLayout();
                 // subscribing to all chat room topics
-                subscribeToAllTopics();
+//                subscribeToAllTopics();
+                if(result.chat_rooms != null && result.chat_rooms.size() > 0){
+                    if(lastRoomSize != result.chat_rooms.size()){   //매번 sub 하는 걸 막음 기존에 받은 사이즈와 서버에서 받은 룸사이즈가 다른 경우만 subscribe All.
+                        lastRoomSize = result.chat_rooms.size();
+                        subscribeToAllTopics(result.chat_rooms);
+                    }
+                }
+
             }
 
             @Override
             public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                if(chatRoomArrayList != null){
+                    chatRoomArrayList.clear();
+                    mAdapter.notifyDataSetChanged();
+                }
                 Toast.makeText(getActivity(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
             }
         });
@@ -445,6 +451,7 @@ public class GcmChatFragment extends PagerFragment {
                     // check for error flag
                     if (obj.getBoolean("error") == false) {
                         JSONArray chatRoomsArray = obj.getJSONArray("chat_rooms");
+//                        subscribeToAllTopics(chatRoomsArray);
                         for (int i = 0; i < chatRoomsArray.length(); i++) {
                             JSONObject chatRoomsObj = (JSONObject) chatRoomsArray.get(i);
                             ChatRoom cr = new ChatRoom();
@@ -471,7 +478,7 @@ public class GcmChatFragment extends PagerFragment {
                 mAdapter.notifyDataSetChanged();
 
                 // subscribing to all chat room topics
-                subscribeToAllTopics();
+//                subscribeToAllTopics();
             }
         }, new Response.ErrorListener() {
 
@@ -498,15 +505,24 @@ public class GcmChatFragment extends PagerFragment {
     // Subscribing to all chat room topics
     // each topic name starts with `topic_` followed by the ID of the chat room
     // Ex: topic_1, topic_2
-    private void subscribeToAllTopics() {
-        for (ChatRoom cr : chatRoomArrayList) {
+//    private void subscribeToAllTopics() {
+//        for (ChatRoom cr : chatRoomArrayList) {
+//            Intent intent = new Intent(getActivity(), GcmIntentService.class);
+//            intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE);
+//            intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.getId());
+//            getActivity().startService(intent);
+//        }
+//    }
+
+    private void subscribeToAllTopics(List<ChatRoom> list) {
+        for (ChatRoom cr : list) {
             Intent intent = new Intent(getActivity(), GcmIntentService.class);
             intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE);
             intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.getId());
             getActivity().startService(intent);
         }
-        showLayout();
     }
+
 
     private void launchLoginActivity() {
         Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -591,61 +607,28 @@ public class GcmChatFragment extends PagerFragment {
                 ((MainActivity)getActivity()).getToolbarTitle().setText("");
             }
             PropertyManager.getInstance().setIsTab2Visible("visible");
-            Log.e("lastRoomSize", ""+lastRoomSize);
-            Log.e("db size", ""+DBManager.getInstance().searchAllRoom().size());
-            ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();
-            Log.d(TAG, "setUserVisibleHint: "+ list.toString());
-            if(list.size() != lastRoomSize){
-                refreshList();  //서버 요청까지하고 subscribe까지
-            } else {
-                //언리드카운트와 라스트 메시지만 수정
-                unreadCount = 0;
-                if(list.size() > 0 && chatRoomArrayList != null && chatRoomArrayList.size() > 0){
-                    for(ChatRoom dbcr : list){
-                        for(int i =0; i< chatRoomArrayList.size(); i++){
-                            if(dbcr.id == chatRoomArrayList.get(i).id){
-                                chatRoomArrayList.get(i).unreadCount = dbcr.unreadCount;
-                                chatRoomArrayList.get(i).timestamp = dbcr.timestamp;
-                                chatRoomArrayList.get(i).lastMessage = dbcr.lastMessage;
-                                unreadCount += dbcr.unreadCount;
-                            }
-                        }
-                    }
-                    mAdapter.notifyDataSetChanged();
-                }
-                MainActivity.setChatCount(0);   //보여졌으니까 N없앰
-            }
-            // 1104
-            /*test용*/if(chatRoomArrayList != null && chatRoomArrayList.size() > 0){
-                Log.d(TAG, "setUserVisibleHint: "+chatRoomArrayList.toString());
-            }
+            num = 0;
+            isFirst = false;
+            refreshList();  // == initData 서버 요청까지하고 subscribe까지
             if(withIntent){
-                Log.e(TAG, "setUserVisibleHint: "+item.userId);
-                Log.e(TAG, "setUserVisibleHint: "+item.username);
-                String name1 = PropertyManager.getInstance().getUserName()+","+item.username;
-                String name2 = item.username + "," +PropertyManager.getInstance().getUserName();
-                ChatRoom chatRoom = new ChatRoom();
-                chatRoom.name = name1;
-                chatRoom.id = -1;
-                int rcNum = ChatInfo.CHAT_RC_NUM_PLUS;
+//                Log.d(TAG, "setUserVisibleHint: "+ getActivity().getIntent().toString());
+//                Bundle extraBundle = ((MainActivity)getActivity()).getIntent().getExtras();
+//                FriendsResult item = (FriendsResult) extraBundle.getSerializable("mItem");
+//                String c_id = extraBundle.getString("chat_room_id");
+//                String roomname = extraBundle.getString("name");
+//                Log.e(TAG, "setUserVisibleHint: "+item.toString());
+//                Log.e(TAG, "setUserVisibleHint: "+c_id);
+//                Log.e(TAG, "setUserVisibleHint: "+roomname);
+//                int rc_num = extraBundle.getInt("rc_num", -1);
                 ArrayList<FriendsResult> itemList = new ArrayList<>();
                 itemList.add(item);
-                if(chatRoomArrayList != null && chatRoomArrayList.size() > 0 ){
-                    for(ChatRoom cr : chatRoomArrayList){
-                        if(item.username.equals(cr.name)){
-                            chatRoom.id = cr.id;
-                            chatRoom.name = cr.name;
-                            rcNum = ChatInfo.CHAT_RC_NUM;
-                            break;
-                        }
-                    }
-                }
-                Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
-                intent.putExtra("chat_room_id", ""+chatRoom.id);
-                intent.putExtra("name", chatRoom.name);
-                intent.putExtra("mList", itemList);
-                startActivityForResult(intent, rcNum);
-                Log.e(TAG, "withIntent: "+rcNum+" "+chatRoom.toString());
+                Intent i = new Intent(getActivity(), ChatRoomActivity.class);
+                i.putExtra("chat_room_id", ""+c_id);
+                i.putExtra("name", roomName);
+                i.putExtra("mList", itemList);
+                startActivityForResult(i, rc_num);
+                withIntent = false;
+
             }
             withIntent = false;
         } else {
@@ -697,6 +680,11 @@ public class GcmChatFragment extends PagerFragment {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             Toast.makeText(getActivity(), "홈클릭", Toast.LENGTH_SHORT).show();
+            ArrayList<ChatRoom> list = (ArrayList<ChatRoom>)DBManager.getInstance().searchAllRoom();
+            Log.e(TAG, "onOptionsItemSelected: ChatRoom Size"+ list.size() );
+            for(ChatRoom cr : list){
+                Log.e(TAG, "onOptionsItemSelected: "+cr.id+" "+DBManager.getInstance().searchAllMsg(cr.id).toString() );
+            }
             refreshList();
             return true;
         }
@@ -717,16 +705,25 @@ public class GcmChatFragment extends PagerFragment {
                     if(lastMsg != null && returnString.equals("success")){
                         Log.e("afterChatRoomActivity", "success");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
-                        if(lastMsg != null){
-                            Log.e("lastMsg", lastMsg.toString());
-                            updateRowLastMsg(""+lastMsg.chat_room_id, lastMsg);
+                        Log.e("after lastMsg ", lastMsg.toString());
+                        ChatRoom cr = null;
+                        if(DBManager.getInstance().isRoomExists(lastMsg.chat_room_id) == true){
+                            cr = DBManager.getInstance().searchRoom(lastMsg.chat_room_id).get(0);
+                            Log.e("after cr", cr.toString());
                         }
-                        refreshList();
-//                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+                        Log.e("after cr lst", DBManager.getInstance().searchRoom(lastMsg.chat_room_id).toString());
+                        if(cr != null && cr.id == lastMsg.chat_room_id){
+                            cr.unreadCount = 0;
+                            cr.setTimestamp(lastMsg.getCreatedAt());    //updates room's last joined timeStamp
+                            DBManager.getInstance().updateRoom(cr);
+                        }
                     } else {
                         Log.e("afterChatRoomActivity", "failure");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_SHORT).show();
                     }
+                    num = 0;
+                    isFirst = false;
+                    refreshList();
                 }
                 break;
             case ChatInfo.CHAT_RC_NUM_PLUS:
@@ -746,15 +743,25 @@ public class GcmChatFragment extends PagerFragment {
                     if(lastMsg != null && returnString.equals("success")){
                         Log.e("afterChatRoomActivity", "success");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_LONG).show();
-                        if(lastMsg != null){
-                            Log.e("lastMsg", lastMsg.toString());
-                            updateRowLastMsg(""+lastMsg.chat_room_id, lastMsg);
+                        Log.e("after lastMsg ", lastMsg.toString());
+                        ChatRoom cr = null;
+                        if(DBManager.getInstance().isRoomExists(lastMsg.chat_room_id) == true){
+                            cr = DBManager.getInstance().searchRoom(lastMsg.chat_room_id).get(0);
+                            Log.e("after cr1", cr.toString());
                         }
-                        refreshList();
+                        Log.e("after cr lst", DBManager.getInstance().searchRoom(lastMsg.chat_room_id).toString());
+                        if(cr != null && cr.id == lastMsg.chat_room_id){
+                            cr.unreadCount = 0;
+                            cr.setTimestamp(lastMsg.getCreatedAt());    //updates room's last joined timeStamp
+                            DBManager.getInstance().updateRoom(cr);
+                        }
                     } else {
                         Log.e("afterChatRoomActivity", "failure");
                         Toast.makeText(getActivity(), "return key== "+requestCode+"/"+returnString, Toast.LENGTH_SHORT).show();
                     }
+                    num = 0;
+                    isFirst = false;
+                    refreshList();
                 }
                 break;
             case DIALOG_RC_ROOM_DELETE:
@@ -763,21 +770,25 @@ public class GcmChatFragment extends PagerFragment {
                     Bundle extraBundle = data.getExtras();
                     int chatRoomId = extraBundle.getInt("chatRoomId", -1);
                     if(chatRoomId != -1){
-                        List<Message> list = DBManager.getInstance().searchAllMsg(chatRoomId);
-                        Log.e("msgs1", list.toString());
-                        if(DBManager.getInstance().deleteRoomMsg(chatRoomId) > 0){
-                            if(DBManager.getInstance().deleteRoom(chatRoomId) > 0){
-                                Intent intent = new Intent(getActivity(), GcmIntentService.class);
-                                intent.putExtra(GcmIntentService.KEY, GcmIntentService.UNSUBSCRIBE);
-                                intent.putExtra(GcmIntentService.TOPIC, "topic_" + chatRoomId);
-                                getActivity().startService(intent);
-                                Toast.makeText(getActivity(), "삭제 되었습니다."+""+ chatRoomId, Toast.LENGTH_SHORT).show();
-//                                MainActivity.setChatCount(Integer.parseInt(MainActivity.chatCount.getText().toString()) - );
-                                refreshList();
+//                        List<Message> list = DBManager.getInstance().searchAllMsg(chatRoomId);
+//                        Log.e(TAG, "onActivityResult: msgs1"+ list.toString() );
+                        if(DBManager.getInstance().deleteRoomMsg(chatRoomId) >= 0){
+                            if(DBManager.getInstance().isRoomExists(chatRoomId)){
+//                                지우는게 아니라 activeUser만 0으로 고쳐줌 x 유니크 제약조건 위배 --> 라스트조인 널로
+                                ChatRoom cr = DBManager.getInstance().searchRoom(chatRoomId).get(0);
+                                cr.lastJoin = "";
+                                if(DBManager.getInstance().updateRoom(cr) >= 0){
+                                    Log.e(TAG, "onActivityResult: chatRoom update" + cr.toString() );
+                                    num = 0;
+                                    isFirst = false;
+                                    refreshList();
+                                }
+//                                if(DBManager.getInstance().deleteRoom(chatRoomId) >= 0){
+//                                    Log.e(TAG, "onActivityResult: chatRoom " + chatRoomId + " removed" );
+//                                    refreshList();
+//                                }
                             }
                         }
-                        List<Message> list2 = DBManager.getInstance().searchAllMsg(chatRoomId);
-                        Log.e("msgs2", list2.toString()); //삭제되었으니까 없겠지
                     }
                 } else if(resultCode == getActivity().RESULT_CANCELED){
                     //.. cancel process
@@ -791,6 +802,7 @@ public class GcmChatFragment extends PagerFragment {
 
     Handler mHandler = new Handler(Looper.getMainLooper());
     private void refreshList(){
+        Log.e(TAG, "refreshList: searchAllRoom "+ DBManager.getInstance().searchAllRoom().toString() );
         mHandler.postDelayed(new Runnable() {
 
             @Override
@@ -827,9 +839,11 @@ public class GcmChatFragment extends PagerFragment {
         return roomname.substring(0, roomname.length()-2);
     }
 
-
+    //newIntent values
     public static boolean withIntent = false;
     public static FriendsResult item = new FriendsResult();
-
+    public static int c_id;
+    public static int rc_num;
+    public static String roomName;
 
 } //end of class

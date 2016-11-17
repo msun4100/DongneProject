@@ -50,7 +50,7 @@ public class FriendsTwoFragment extends PagerFragment {
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
-    MyFriendsAdapter mAdapter;
+    public static MyFriendsAdapter mAdapter;
     //    RecyclerView.LayoutManager layoutManager;
     LinearLayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;

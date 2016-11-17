@@ -77,14 +77,15 @@
             android:background="#ffffff"
             android:orientation="horizontal">
             <FrameLayout
+                android:id="@+id/frame_my_0_0"
+                android:background="@drawable/z_btn_white_selector"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <ImageButton
+                <ImageView
                     android:layout_width="72dp"
                     android:layout_height="72dp"
                     android:layout_gravity="center"
                     android:id="@+id/image_my_0_0"
-                    android:background="@drawable/z_btn_white_selector"
                     android:src="@drawable/f_icon_my_write"/>
             </FrameLayout>
         </LinearLayout>
@@ -97,6 +98,8 @@
             android:background="#ffffff"
             android:orientation="horizontal">
             <FrameLayout
+                android:id="@+id/frame_my_0_1"
+                android:background="@drawable/z_btn_white_selector"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <ImageView
@@ -114,6 +117,8 @@
             android:background="#ffffff"
             android:orientation="horizontal">
             <FrameLayout
+                android:id="@+id/frame_my_0_2"
+                android:background="@drawable/z_btn_white_selector"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <ImageView
@@ -140,6 +145,8 @@
             android:background="#ffffff"
             android:orientation="horizontal">
             <FrameLayout
+                android:id="@+id/frame_my_1_0"
+                android:background="@drawable/z_btn_white_selector"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <ImageView
@@ -159,6 +166,8 @@
             android:background="#ffffff"
             android:orientation="horizontal">
             <FrameLayout
+                android:id="@+id/frame_my_1_1"
+                android:background="@drawable/z_btn_white_selector"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <ImageView

@@ -28,7 +28,9 @@ import kr.me.ansr.common.CustomEditText;
 import kr.me.ansr.database.DBManager;
 import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.model.ChatInfo;
+import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.gcmchat.model.Message;
+import kr.me.ansr.tab.chat.ChatRoomInfo;
 import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
@@ -85,13 +87,14 @@ public class ChatPlusActivity extends AppCompatActivity {
                         if(list != null){
                             Toast.makeText(ChatPlusActivity.this, "checkedItems:"+mAdapter.getCheckedItemPositions(), Toast.LENGTH_SHORT).show();
                             Log.e("checkedItems", list.toString());
-                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
-                            int num = DBManager.getInstance().searchRoomName(roomName);
-                            intent.putExtra("chat_room_id", ""+num);
-                            intent.putExtra("name", roomName);
-//                            intent.putExtra("mItem", list.get(0));
-                            intent.putExtra("mList", list);
-                            startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
+                            searchRoom(list, roomName);
+//                            int num = DBManager.getInstance().searchRoomName(roomName);
+//                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
+//                            intent.putExtra("chat_room_id", ""+num);
+//                            intent.putExtra("name", roomName);
+////                            intent.putExtra("mItem", list.get(0));
+//                            intent.putExtra("mList", list);
+//                            startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
 //                            finish();
                         }
                         break;
@@ -103,14 +106,15 @@ public class ChatPlusActivity extends AppCompatActivity {
                             Log.e("checkedItem", item.toString());
                             list.clear();
                             list.add(item);
-                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
-                            int num = DBManager.getInstance().searchRoomName(item.username);
+//                            int num = DBManager.getInstance().searchRoomName(item.username);
+//                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
 //                            intent.putExtra("chat_room_id", "-1");
-                            intent.putExtra("chat_room_id", num);
-                            intent.putExtra("name", item.username + ","+PropertyManager.getInstance().getUserName());
-//                            intent.putExtra("mItem", item);
-                            intent.putExtra("mList", list);
-                            startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
+                            searchRoom(list, item.username + ","+PropertyManager.getInstance().getUserName());
+//                            intent.putExtra("chat_room_id", num);
+//                            intent.putExtra("name", item.username + ","+PropertyManager.getInstance().getUserName());
+////                            intent.putExtra("mItem", item);
+//                            intent.putExtra("mList", list);
+//                            startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
                         }
                         break;
                     default:
@@ -232,6 +236,55 @@ public class ChatPlusActivity extends AppCompatActivity {
     private static final int DISPLAY_NUM = 4;
     private int start=0;
     private String reqDate = null;
+
+    private void searchRoom(final ArrayList<FriendsResult> mList, final String roomName){
+        final ArrayList<String> list = new ArrayList<>();
+        for(FriendsResult fr : mList){
+            list.add(""+fr.getUserId());
+        }
+        list.add(""+PropertyManager.getInstance().getUserId());
+
+        Log.d("TAG", "searchRoom: "+ list.toString());
+
+
+        NetworkManager.getInstance().postDongneCheckChatRooms(ChatPlusActivity.this, list,
+                new NetworkManager.OnResultListener<ChatRoomInfo>() {
+                    @Override
+                    public void onSuccess(Request request, ChatRoomInfo result) {
+                        if(result.error.equals(false)){
+                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
+                            if(result.chat_rooms.size() == 1 ){
+                                ChatRoom cr = result.chat_rooms.get(0);
+                                intent.putExtra("chat_room_id", ""+cr.getId());
+                                intent.putExtra("name", roomName);
+                                intent.putExtra("mList", mList);
+                                startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
+                            } else {
+//                                -1로 넘어감
+                                intent.putExtra("chat_room_id", "-1");
+                                intent.putExtra("name", roomName);
+                                intent.putExtra("mList", mList);
+                                startActivityForResult(intent, ChatInfo.CHAT_RC_NUM_PLUS_NEXT);
+                            }
+                        } else {
+                            Toast.makeText(ChatPlusActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                        finish();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+        dialog = new ProgressDialog(ChatPlusActivity.this);
+        dialog.setTitle("Loading....");
+        dialog.show();
+    }
+
 
     private void initData(){
         NetworkManager.getInstance().getDongneFriendsStatus(ChatPlusActivity.this, "" + 1, //status

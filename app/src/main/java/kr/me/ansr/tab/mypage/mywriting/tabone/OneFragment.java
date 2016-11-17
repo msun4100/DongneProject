@@ -653,6 +653,11 @@ public class OneFragment extends PagerFragment{
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
 
+    @Subscribe
+    public void onEvent(BoardResult br){
+        Log.e("onEvent:", "MyOne br");
+        findOneAndModify(br, "_default_");
+    }
 
 
     public OneFragment(){}
