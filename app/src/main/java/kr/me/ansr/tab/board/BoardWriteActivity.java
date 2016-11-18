@@ -204,6 +204,7 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     }
 
     private void initData(){
+        Log.e(TAG, "initData: "+mItem.toString() );
         if(mItem.type.equals("00") || mItem.type.equals("10")){
             checkBox.setChecked(true);
         } else {
@@ -272,10 +273,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-//        if (!validateBody()) {
-//            Toast.makeText(BoardWriteActivity.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
         String type = getBoardType();
         Log.e("putWriteType:", type);
         //임시 pageId == univId
@@ -292,7 +289,11 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             public void onSuccess(Request request, WriteInfo result) {
                 if(result.error.equals(false)){
                     Log.e(TAG+" result.message: ", result.message);
-                    mItem = result.result;
+//                    mItem = result.result;
+                    mItem.body = result.result.body;
+                    mItem.pic = result.result.pic;
+                    mItem.updatedAt = result.result.updatedAt;
+
                     if(filePath != null){
                         imageUpload(""+result.result.boardId);
                     } else {
@@ -407,6 +408,10 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     private void finishAndReturnData(boolean result){
         Intent intent = new Intent();
         if(result){
+            if(mItem != null){
+//                _EDIT_ 모드 일때만 로그 찍히게 postWrite 일땐 어차피 리스트 갱신이라 mItem 리턴을 안함.
+                Log.e(TAG, "finishAndReturnData: " + mItem.toString() );
+            }
             intent.putExtra("mItem", mItem);
             intent.putExtra("return", "success");
         } else {

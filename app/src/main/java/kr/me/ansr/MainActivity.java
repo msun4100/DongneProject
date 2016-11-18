@@ -27,6 +27,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.login.SplashActivity;
 import kr.me.ansr.tab.board.BoardFragment;
 import kr.me.ansr.tab.board.one.BoardInfo;
@@ -203,11 +204,11 @@ public class MainActivity extends AppCompatActivity {
 							+"\njobname "+PropertyManager.getInstance().getJobName()
 							+"\njobteam "+PropertyManager.getInstance().getJobTeam()
 							+"\nnewCount "+PropertyManager.getInstance().getNewCount()
+							+"\nresizeValue "+ Config.resizeValue
 					, Toast.LENGTH_LONG).show();
 			return true;
 		}
         if (id == R.id.logout) {
-			PropertyManager.getInstance().setNewCount(0);
             PropertyManager.getInstance().clearProperties();
             Intent intent = new Intent(MainActivity.this, SplashActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);

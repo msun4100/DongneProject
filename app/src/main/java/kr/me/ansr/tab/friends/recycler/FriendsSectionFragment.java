@@ -107,12 +107,12 @@ public class FriendsSectionFragment extends PagerFragment
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-//                        start = 0;
-//                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-//                        initUnivUsers();
-                        if(!dialog.isShowing()){
-                            refreshLayout.setRefreshing(false);
-                        }
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        initUnivUsers();
+//                        if(!dialog.isShowing()){
+//                            refreshLayout.setRefreshing(false);
+//                        }
                     }
                 }, 1000);
             }

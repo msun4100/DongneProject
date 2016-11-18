@@ -100,6 +100,7 @@ public void removeItem(BoardResult child){
                     items.get(index).type = child.type;
                     items.get(index).user = child.user;
                     items.get(index).pic = child.pic;
+                    items.get(index).preReplies = child.preReplies;
                 }
                 break;
             }

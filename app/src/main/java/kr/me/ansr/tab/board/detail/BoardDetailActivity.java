@@ -1,5 +1,6 @@
 package kr.me.ansr.tab.board.detail;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +10,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -82,7 +86,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     CheckBox checkBox;
     String currentTab = null;
     ScrollView mScrollView;
-
+    View rootView;  //on 1116
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +162,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         });
         mScrollView = (ScrollView)findViewById(R.id.scrollView);
         initData();
+
+        rootView = (View)findViewById(R.id.rootView);
+        setupParent(rootView);
     }
 
     private void sendReply(){
@@ -180,6 +187,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                             listView.setVisibility(View.VISIBLE);
                         }
                         mAdapter.add(result.result);
+                        if(mItem.preReplies.size() < 3){    //add to preReplies array
+                            mItem.preReplies.add(result.result);
+                        }
                         mItem.repCount = mAdapter.getCount();   //디테일 빠져나갔을 때 갱신위해
                         int cnt = Integer.valueOf(replyCountView.getText().toString());
                         replyCountView.setText(""+(cnt+1));
@@ -197,13 +207,19 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     inputReply.setText("");
                     Toast.makeText(BoardDetailActivity.this, "error: true" +  result.message, Toast.LENGTH_SHORT).show();
                 }
+                hideSoftKeyboard();
+                dialog.dismiss();
             }
 
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
                 Toast.makeText(BoardDetailActivity.this, "onFailure:"+ cause, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
+        dialog = new ProgressDialog(this);
+        dialog.setTitle("댓글 등록중...");
+        dialog.show();
     }
 
     private void initData(){
@@ -212,14 +228,19 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             public void onSuccess(Request request, BoardInfo result) {
                 if(result.error.equals(false)){
                     if(!result.message.equals("DOCS_LENGTH_ERROR")  && result.result != null ){
-                        Log.e(TAG, result.comment.toString());
+                        mItem = result.result.get(0);
                         if (result.comment != null && result.comment.size() >= 1) {
                             ct = result.comment.get(0);
-//                            mAdapter.setTotalCount(result."repTotal");
                             replyCountView.setText("" + ct.replies.size());
                             listView.setVisibility(View.VISIBLE);
                             mAdapter.clear();
                             mAdapter.addAll(ct.replies);
+                            for(int i=0; i<ct.replies.size(); i++){
+                                if(i == 3){
+                                    break;
+                                }
+                                mItem.preReplies.add(ct.replies.get(i));    //preReplies에 넣어줌 리턴할 데이터 위해
+                            }
                         } else {
                             replyCountView.setText("0");
                             listView.setVisibility(View.GONE);
@@ -234,7 +255,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 //                                }
 //                            });
                         }
-                        mItem = result.result.get(0);
+
                         mItem.repCount = mAdapter.getCount();   //client용 repCount 초기화
                         setBoardItem(mItem);
                     } else {
@@ -289,7 +310,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             stuIdView.setText("17");
         }
 
-        timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
+        timeStampView.setText(MyApplication.getTimeStamp(item.updatedAt));
         likeCountView.setText(""+item.likeCount);
     }
 
@@ -456,8 +477,10 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     }
 
     private void finishAndReturnData(){
+        Log.e(TAG, "finishAndReturnData: mPosition "+ mPosition);
         if(mPosition != -1){
             //board tab에서 요청한 상세보기면 setResult해줌
+            Log.e(TAG, "finishAndReturnData: " + mItem.toString() );
             Intent intent = new Intent();
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM, mItem);
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, mPosition);
@@ -525,6 +548,29 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                 }
                 break;
         }
+    }
+
+    protected void setupParent(View view) {
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard();
+                    return false;
+                }
+            });
+        }
+        //If a layout container, iterate over children
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupParent(innerView);
+            }
+        }
+    }
+    private void hideSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
 

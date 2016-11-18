@@ -40,4 +40,16 @@ public class ReplyResult implements Serializable {
         this.replies = replies;
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "ReplyResult{" +
+                ", body='" + body + '\'' +
+                ", userId=" + userId +
+                ", username='" + username + '\'' +
+                ", type='" + type + '\'' +
+                ", boardId=" + boardId +
+                ", updatedAt='" + updatedAt + '\'' +
+                '}';
+    }
 }

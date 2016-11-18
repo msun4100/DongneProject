@@ -72,6 +72,8 @@ import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 public class ChatRoomActivity extends AppCompatActivity {
 
     private String TAG = ChatRoomActivity.class.getSimpleName();
+    public static final int FRIENDS_RC_NUM = 213;
+    public static final String ACTION_GET_ROOM = "actionGetRoom";
 
     private String chatRoomId;
     private RecyclerView recyclerView;
@@ -830,7 +832,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         MyApplication.getInstance().addToRequestQueue(strReq);
     }
     private void finishAndReturnData(boolean result){
-
         Intent intent = new Intent();
         if(result){
             intent.putExtra("return", "success");
@@ -845,6 +846,24 @@ public class ChatRoomActivity extends AppCompatActivity {
         this.setResult(RESULT_OK, intent);
         finish();
     }
+    private void finishAndReturnData(boolean result, String action){
+        Intent intent = new Intent();
+        intent.setAction(action); //인텐트가 액션값을 갖고 있으면 스태틱변수 기반으로 GcmChatFragment에서 챗룸액티비티 다시 실행하도록
+        if(result){
+            intent.putExtra("return", "success");
+            Message lastMsg = null;
+            if(messageArrayList.size() > 0) {
+                lastMsg = messageArrayList.get( messageArrayList.size()-1 );
+            }
+            intent.putExtra("lastMsg", lastMsg);
+        } else {    //result == false
+            intent.putExtra("return", "failure");
+        }
+        this.setResult(RESULT_OK, intent);
+        finish();
+    }
+
+
     @Override
     public void onBackPressed() {
         Log.e("chat_room_id: ", chatRoomId);
@@ -906,7 +925,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case FriendsSectionFragment.FRIENDS_RC_NUM:
+            case ChatRoomActivity.FRIENDS_RC_NUM:
                 if (resultCode == RESULT_OK) {
                     Bundle extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
@@ -914,6 +933,11 @@ public class ChatRoomActivity extends AppCompatActivity {
 //                        Log.e(TAG, "onActivityResult: " + result );
                         EventBus.getInstance().post(result);
                     }
+                    if(data.getAction() != null && data.getAction().equals(ACTION_GET_ROOM)){
+                        Log.e(TAG, "onActivityResult: getAction..." );
+                        finishAndReturnData(true, ACTION_GET_ROOM);
+                    }
+
                 }
                 break;
         }
@@ -935,7 +959,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
                                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, 0);   //position은 이제 필요 없는데..
                                 intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
-                                startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                                intent.setAction(ACTION_GET_ROOM);
+                                startActivityForResult(intent, ChatRoomActivity.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
                             } else {
                                 Log.e(TAG, result.message);
                                 Toast.makeText(ChatRoomActivity.this, "result.error: false" + result.message, Toast.LENGTH_SHORT).show();

@@ -76,19 +76,29 @@ public class MypageFragment extends PagerFragment {
 	}
 
 	private void initData(){
-		String username = PropertyManager.getInstance().getUserName();
-		if(username != null && !username.equals("")){
-			usernameView.setText(username);
+		FriendsResult item = FriendsSectionFragment.getUserInfo();
+		if(item == null){
+			String username = PropertyManager.getInstance().getUserName();
+			if(username != null && !username.equals("")){
+				usernameView.setText(username);
+			} else {
+				usernameView.setText("유저명");
+			}
+			String userId = PropertyManager.getInstance().getUserId();
+			String url = Config.FILE_GET_URL.replace(":userId", "" + userId).replace(":size", "small");
+			Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
+					.centerCrop()
+					.signature(new StringSignature(MyApplication.getInstance().getCurrentTimeStampString()))//매번 새로고침
+					.into(thumbIcon);
 		} else {
-			usernameView.setText("유저명");
+			usernameView.setText(item.username);
+			String url = Config.FILE_GET_URL.replace(":userId", "" + item.userId).replace(":size", "small");
+			Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
+					.centerCrop()
+					.signature(new StringSignature(item.updatedAt))//매번 새로고침
+					.into(thumbIcon);
 		}
 
-		String userId = PropertyManager.getInstance().getUserId();
-		String url = Config.FILE_GET_URL.replace(":userId", "" + userId).replace(":size", "small");
-		Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
-				.centerCrop()
-				.signature(new StringSignature(MyApplication.getInstance().getCurrentTimeStampString()))//매번 새로고침
-				.into(thumbIcon);
 	}
 
 	public View.OnClickListener mListener = new View.OnClickListener(){

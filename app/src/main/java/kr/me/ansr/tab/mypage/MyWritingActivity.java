@@ -118,15 +118,12 @@ public class MyWritingActivity extends AppCompatActivity {
         switch (requestCode) {
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == RESULT_OK) {
-//                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                     Bundle extraBundle = data.getExtras();
                     BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
                     if(result != null){
                         Log.e(TAG, "onActivityResult: "+ result.toString() );
                         EventBus.getInstance().post(result);
                     }
-
-//                    EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                 }
                 break;
             case BoardWriteActivity.BOARD_WRITE_RC_NEW:
@@ -150,7 +147,12 @@ public class MyWritingActivity extends AppCompatActivity {
                     Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_LONG).show();
                     if(returnString.equals("success")){
                         Log.e("afterEdit", "success");
-                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+//                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+                        BoardResult result = (BoardResult)extraBundle.getSerializable("mItem");
+                        if(result != null){
+                            Log.e(TAG, "onActivityResult: "+ result.toString() );
+                            EventBus.getInstance().post(result);
+                        }
                     } else {
                         Log.e("afterEdit", "failure");
                         Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_SHORT).show();

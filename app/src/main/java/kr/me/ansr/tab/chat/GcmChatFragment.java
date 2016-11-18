@@ -388,8 +388,8 @@ public class GcmChatFragment extends PagerFragment {
                                     if(chatRoomsArray.get(i).timestamp.compareTo(dbRoom.timestamp) > 0 ){
                                         //라스트메시지의 타임스탬프가 큰경우 == unread_message가 있다.
                                         cr.setUnreadCount(1); // N 띄움
-                                        num++;
-                                        Log.e(TAG, "onSuccess: num++ "+num );
+//                                        num++;
+//                                        Log.e(TAG, "onSuccess: num++ "+num );
                                     } else {
                                         cr.setUnreadCount(0); // N 없앰
                                     }
@@ -403,6 +403,8 @@ public class GcmChatFragment extends PagerFragment {
                             }
                         }
 //                        lastRoomSize = chatRoomsArray.size();
+                        Log.e(TAG, "onSuccess: num "+num );
+                        Log.e(TAG, "onSuccess: isFirst "+isFirst );
                         if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
                             MainActivity.setChatCount(num);
                         } else {
@@ -616,9 +618,6 @@ public class GcmChatFragment extends PagerFragment {
 //                FriendsResult item = (FriendsResult) extraBundle.getSerializable("mItem");
 //                String c_id = extraBundle.getString("chat_room_id");
 //                String roomname = extraBundle.getString("name");
-//                Log.e(TAG, "setUserVisibleHint: "+item.toString());
-//                Log.e(TAG, "setUserVisibleHint: "+c_id);
-//                Log.e(TAG, "setUserVisibleHint: "+roomname);
 //                int rc_num = extraBundle.getInt("rc_num", -1);
                 ArrayList<FriendsResult> itemList = new ArrayList<>();
                 itemList.add(item);
@@ -626,6 +625,9 @@ public class GcmChatFragment extends PagerFragment {
                 i.putExtra("chat_room_id", ""+c_id);
                 i.putExtra("name", roomName);
                 i.putExtra("mList", itemList);
+                Log.e(TAG, "setUserVisibleHint: "+c_id);
+                Log.e(TAG, "setUserVisibleHint: "+roomName);
+                Log.e(TAG, "setUserVisibleHint: "+itemList.toString());
                 startActivityForResult(i, rc_num);
                 withIntent = false;
 
@@ -723,7 +725,29 @@ public class GcmChatFragment extends PagerFragment {
                     }
                     num = 0;
                     isFirst = false;
-                    refreshList();
+//                    refreshList();
+                    if(data.getAction() == null){
+                        //기존대로 리프레시 하는 케이스
+                        refreshList();
+                    } else if (data.getAction() != null && data.getAction().equals(ChatRoomActivity.ACTION_GET_ROOM)){
+                        //Action값이 있는 경우  === ChatRoom -> FriendsDetail -> 1:1대화버튼클릭 한 경우
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ArrayList<FriendsResult> itemList = new ArrayList<>();
+                                itemList.add(item);
+                                Intent i = new Intent(getActivity(), ChatRoomActivity.class);
+                                i.putExtra("chat_room_id", ""+c_id);
+                                i.putExtra("name", roomName);
+                                i.putExtra("mList", itemList);
+                                Log.e(TAG, "setUserVisibleHint: "+c_id);
+                                Log.e(TAG, "setUserVisibleHint: "+roomName);
+                                Log.e(TAG, "setUserVisibleHint: "+itemList.toString());
+                                startActivityForResult(i, rc_num);
+                                withIntent = false;
+                            }
+                        }, 100);
+                    }
                 }
                 break;
             case ChatInfo.CHAT_RC_NUM_PLUS:

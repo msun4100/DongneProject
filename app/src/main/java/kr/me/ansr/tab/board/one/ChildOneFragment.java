@@ -34,6 +34,7 @@ import kr.me.ansr.common.ReportFormDialogFragment;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.tab.board.BoardWriteActivity;
 import kr.me.ansr.tab.board.PagerFragment;
+import kr.me.ansr.tab.board.PreLoadLayoutManager;
 import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.like.LikeInfo;
 import kr.me.ansr.tab.board.reply.CommentThread;
@@ -54,8 +55,7 @@ public class ChildOneFragment extends PagerFragment {
 
     RecyclerView recyclerView;
     BoardAdapter mAdapter;
-    //    RecyclerView.LayoutManager layoutManager;
-    LinearLayoutManager layoutManager;
+    PreLoadLayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;
     boolean isLast = false;
     Handler mHandler = new Handler(Looper.getMainLooper());
@@ -99,7 +99,8 @@ public class ChildOneFragment extends PagerFragment {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
-                int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+//                int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();  //Completely로 하면 -1리턴 되는 경우가 있음
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
@@ -169,7 +170,7 @@ public class ChildOneFragment extends PagerFragment {
             }
         });
         recyclerView.setAdapter(mAdapter);
-        layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager = new PreLoadLayoutManager(getActivity());
 //        layoutManager.scrollToPosition(5);
 //        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
         recyclerView.setLayoutManager(layoutManager);
@@ -207,6 +208,7 @@ public class ChildOneFragment extends PagerFragment {
     }
 
     private void showBoardDetail(BoardResult data, int position){
+        Log.e(TAG, "showBoardDetail: "+data.toString() );
         selectedItem = data;
         Intent intent = new Intent(getActivity(), BoardDetailActivity.class);
 //                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
@@ -429,7 +431,7 @@ public class ChildOneFragment extends PagerFragment {
                     new NetworkManager.OnResultListener<BoardInfo>() {
                         @Override
                         public void onSuccess(Request request, BoardInfo result) {
-                            Log.e(TAG+"getMore:", ""+result.message);
+                            Log.e(TAG, "onSuccess: getMore"+result.message );
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")){
                                 Log.e(TAG+"getMore:", result.result.toString());
                                 ArrayList<CommentThread> comment = result.comment;
@@ -442,7 +444,7 @@ public class ChildOneFragment extends PagerFragment {
                             isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
+                            Log.e(TAG+ "getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
@@ -606,10 +608,12 @@ public class ChildOneFragment extends PagerFragment {
     }
 
     private void findOneAndModify(BoardResult br){
-        Log.e(TAG, "findOneAndModify: before "+br.toString() );
-        if(mAdapter == null || mAdapter.getItemCount() < 1) return;
+//        Log.e(TAG, "findOneAndModify: before "+br.toString() );
+        if(mAdapter == null || mAdapter.getItemCount() < 1) {
+            Log.e(TAG, "findOneAndModify: null or itemCount error");
+            return;
+        }
         mAdapter.findOneAndModify(br);
-
     }
 
 
@@ -623,25 +627,26 @@ public class ChildOneFragment extends PagerFragment {
         super.onActivityResult(requestCode, resultCode, data);
         Bundle extraBundle;
         switch (requestCode) {
-            case BoardInfo.BOARD_RC_NUM:
-                if (resultCode == getActivity().RESULT_OK) {
-                    extraBundle = data.getExtras();
-                    int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
-                    BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
-                    Log.e("ChildOne", "result_ok");
-                    ModifiedSetItem(position, result);
-                    break;
-                }
+//            case BoardInfo.BOARD_RC_NUM:
+//                if (resultCode == getActivity().RESULT_OK) {
+//                    extraBundle = data.getExtras();
+//                    int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+//                    BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+//                    Log.e("ChildOne", "result_ok");
+//                    ModifiedSetItem(position, result);
+//                    break;
+//                }
             case BoardWriteActivity.BOARD_WRITE_RC_NEW:
                 refreshList();
                 break;
-            case BoardWriteActivity.BOARD_WRITE_RC_EDIT:
-                if(resultCode == getActivity().RESULT_OK){
-                    extraBundle = data.getExtras();
-                    BoardResult br = (BoardResult)extraBundle.getSerializable("mItem");
-                    findOneAndModify(br);
-                }
-                break;
+//                //1116 이제 여기로 안타고 BoardFragment에서 Post(new BoardResult) 해서 @subscribe(BoardResult br) 에서 받고,  findOneAndModify함
+//            case BoardWriteActivity.BOARD_WRITE_RC_EDIT:
+//                if(resultCode == getActivity().RESULT_OK){
+//                    extraBundle = data.getExtras();
+//                    BoardResult br = (BoardResult)extraBundle.getSerializable("mItem");
+//                    findOneAndModify(br);
+//                }
+//                break;
             case DIALOG_RC_NUM:
                 if(resultCode == getActivity().RESULT_OK){
                     extraBundle = data.getExtras();
@@ -709,7 +714,7 @@ public class ChildOneFragment extends PagerFragment {
     //register/unregister 하는 과정은 baseFragment인 PagerFragment에서
     @Subscribe
     public void onEvent(ActivityResultEvent activityResultEvent){
-        Log.e("onEvent:", "ChildOne");
+        Log.e("onEvent:", "ChildOne ARE");
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
 

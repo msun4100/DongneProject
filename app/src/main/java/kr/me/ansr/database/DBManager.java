@@ -199,7 +199,7 @@ public class DBManager extends SQLiteOpenHelper {
 
         String groupBy = null;
         String having = null;
-        String orderBy = DBConstant.PushTable.COLUMN_CREATED_AT + " COLLATE LOCALIZED ASC";
+        String orderBy = DBConstant.PushTable.COLUMN_CREATED_AT + " COLLATE LOCALIZED DESC";
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.query(DBConstant.PushTable.TABLE_NAME, columns, where, whereArgs, groupBy, having, orderBy);  //return c 대신 풀코드 복사
 

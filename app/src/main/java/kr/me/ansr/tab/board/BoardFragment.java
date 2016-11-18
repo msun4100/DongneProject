@@ -8,6 +8,7 @@ import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.board.one.ChildOneFragment;
 import kr.me.ansr.tab.board.two.ChildTwoFragment;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
@@ -186,15 +187,20 @@ public class BoardFragment extends PagerFragment {
 					Bundle extraBundle = data.getExtras();
 					FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
 					if (result != null) {
-						EventBus.getInstance().post(result);
+						EventBus.getInstance().post((FriendsResult)result);
 //						Log.e(TAG, "onActivityResult: "+ result);
 					}
 				}
 				break;
 			case BoardInfo.BOARD_RC_NUM:
 				if (resultCode == getActivity().RESULT_OK) {
-
-					EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+					Bundle extraBundle = data.getExtras();
+//					int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
+					BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+					if (result != null) {
+						EventBus.getInstance().post((BoardResult)result);
+					}
+//					EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
 				}
 				break;
 			case BoardWriteActivity.BOARD_WRITE_RC_NEW:
@@ -218,7 +224,10 @@ public class BoardFragment extends PagerFragment {
 					Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_LONG).show();
 					if(returnString.equals("success")){
 						Log.e("afterEdit", "success");
-						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+						BoardResult result = (BoardResult)extraBundle.getSerializable("mItem");
+						if (result != null) {
+							EventBus.getInstance().post((BoardResult)result);
+						}
 					} else {
 						Log.e("afterEdit", "failure");
 						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
@@ -237,7 +246,7 @@ public class BoardFragment extends PagerFragment {
 		int width = displayMetrics.widthPixels;
 		int height = displayMetrics.heightPixels;
 		Config.resizeValue = width;
-		Log.d("BoardFragment", "setBoardResizePixel: "+Config.resizeValue);
+		Log.e(TAG, "setBoardResizePixel: "+"width:"+width+" height:"+height );
 	}
 	private void checkBoardSize(){
 		if(Config.resizeValue == 0 || Config.resizeValue == -1){

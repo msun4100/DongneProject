@@ -45,10 +45,37 @@ public class BoardResult implements Serializable {
         return "BoardResult{" +
                 "_id='" + _id + '\'' +
                 ", boardId=" + boardId +
+                ", univId=" + univId +
                 ", writer=" + writer +
+                ", pageId=" + pageId +
+                ", title='" + title + '\'' +
                 ", commentId='" + commentId + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", likes=" + likes +
                 ", likeCount=" + likeCount +
+                ", viewCount=" + viewCount +
                 ", repCount=" + repCount +
+                ", body='" + body + '\'' +
+                ", type='" + type + '\'' +
+                ", user=" + user +
+                ", pic=" + pic +
+                ", preReplies=" + preReplies +
                 '}';
     }
+
+    //    @Override
+//    public String toString() {
+//        return "BoardResult{" +
+//                "_id='" + _id + '\'' +
+//                ", boardId=" + boardId +
+//                ", writer=" + writer +
+//                ", updatedAt=" + updatedAt +
+//                ", commentId='" + commentId + '\'' +
+//                ", likeCount=" + likeCount +
+//                ", likes=" + likes +
+//                ", repCount=" + repCount +
+//                ", preReplies=" + preReplies +
+//                '}';
+//    }
 }

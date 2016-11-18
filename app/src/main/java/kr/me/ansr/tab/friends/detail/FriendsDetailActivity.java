@@ -520,32 +520,60 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             i.putExtra("tab", "tab2");
                             if(result.chat_rooms.size() == 1 ){
-//                                i.putExtra("mItem", mItem);
-//                                i.putExtra("chat_room_id", ""+result.chat_rooms.get(0).id);
-//                                i.putExtra("name", result.chat_rooms.get(0).name);
-//                                i.putExtra("rc_num", ChatInfo.CHAT_RC_NUM);
-                                GcmChatFragment.item = mItem;
-                                GcmChatFragment.c_id = result.chat_rooms.get(0).id;
-                                GcmChatFragment.roomName = result.chat_rooms.get(0).name;
-                                GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM;
-                                GcmChatFragment.withIntent = true;
-                                dialog.dismiss();
-                                startActivity(i);
+                                String action = "";
+                                if(getIntent().getAction() != null){
+                                    action = getIntent().getAction();
+                                }
+                                if( !action.equals("") && action.equals(ChatRoomActivity.ACTION_GET_ROOM) ){
+                                    //채팅방에서 연 경우 withIntent를 바로 못타고 다른탭갔다왔을때 호출되는 setUservisibleHint에서 타게 되는 버그 잡기 위해
+                                    Intent intent = new Intent();
+                                    intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, mItem);
+                                    intent.setAction(ChatRoomActivity.ACTION_GET_ROOM); //액션추가
+                                    setResult(RESULT_OK, intent);//RESULT_OK를 FriendsFragment의 온리절트에서 받음
+                                    GcmChatFragment.item = mItem;
+                                    GcmChatFragment.c_id = result.chat_rooms.get(0).id;
+                                    GcmChatFragment.roomName = result.chat_rooms.get(0).name;
+                                    GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM;
+                                    dialog.dismiss();
+                                    finish();
+                                } else {
+                                    GcmChatFragment.item = mItem;
+                                    GcmChatFragment.c_id = result.chat_rooms.get(0).id;
+                                    GcmChatFragment.roomName = result.chat_rooms.get(0).name;
+                                    GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM;
+                                    GcmChatFragment.withIntent = true;
+                                    dialog.dismiss();
+                                    startActivity(i);
+                                }
                             } else {
-//                                -1로 넘어감
-//                                i.putExtra("mItem", mItem);
-//                                i.putExtra("chat_room_id", "-1");
-//                                i.putExtra("name", roomName);
-//                                i.putExtra("rc_num", ChatInfo.CHAT_RC_NUM_PLUS);
-                                GcmChatFragment.item = mItem;
-                                GcmChatFragment.c_id = -1;
-                                GcmChatFragment.roomName = roomName;
-                                GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM_PLUS;
-                                GcmChatFragment.withIntent = true;
-                                dialog.dismiss();
-                                startActivity(i);
+//                               방이 없는 경우. -1로 넘어감
+                                String action = "";
+                                if(getIntent().getAction() != null){
+                                    action = getIntent().getAction();
+                                }
+                                if( !action.equals("") && action.equals(ChatRoomActivity.ACTION_GET_ROOM) ){
+                                    //채팅방에서 연 경우 withIntent를 바로 못타고 다른탭갔다왔을때 호출되는 setUservisibleHint에서 타게 되는 버그 잡기 위해
+                                    Intent intent = new Intent();
+                                    intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, mItem);
+                                    intent.setAction(ChatRoomActivity.ACTION_GET_ROOM); //액션추가
+                                    setResult(RESULT_OK, intent);//RESULT_OK를 FriendsFragment의 온리절트에서 받음
+                                    GcmChatFragment.item = mItem;
+                                    GcmChatFragment.c_id = -1;
+                                    GcmChatFragment.roomName = roomName;
+                                    GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM_PLUS;
+                                    dialog.dismiss();
+                                    finish();
+                                } else {
+                                    GcmChatFragment.item = mItem;
+                                    GcmChatFragment.c_id = -1;
+                                    GcmChatFragment.roomName = roomName;
+                                    GcmChatFragment.rc_num = ChatInfo.CHAT_RC_NUM_PLUS;
+                                    GcmChatFragment.withIntent = true;
+                                    dialog.dismiss();
+                                    startActivity(i);
+                                }
                             }
-                        } else {
+                        } else {    //요청 실패
                             Toast.makeText(FriendsDetailActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             finish();

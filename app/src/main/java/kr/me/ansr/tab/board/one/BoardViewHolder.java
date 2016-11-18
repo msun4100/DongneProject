@@ -178,7 +178,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             stuIdView.setText(stuId.substring(2,4));    //2016 --> 16
         } else { stuIdView.setText("17"); }
         deptView.setText(item.user.deptname);
-        timeStampView.setText(MyApplication.getTimeStamp(item.createdAt));
+        timeStampView.setText(MyApplication.getTimeStamp(item.updatedAt));
 //        if(item.likes.contains(Integer.valueOf(PropertyManager.getInstance().getUserId()))){
 //            iconLike.setImageResource(R.drawable.e__like_2);
 //        } else {iconLike.setImageResource(R.drawable.e__like);}
