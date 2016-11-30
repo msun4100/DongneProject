@@ -22,6 +22,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.CommonInfo;
@@ -85,6 +90,9 @@ public class SignUpAccountActivity extends AppCompatActivity {
             }
         });
         textConfirm.setVisibility(View.GONE);
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     ProgressDialog dialog = null;
@@ -238,5 +246,15 @@ public class SignUpAccountActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
 
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
 }

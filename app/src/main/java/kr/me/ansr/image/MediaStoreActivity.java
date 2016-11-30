@@ -236,7 +236,6 @@ public class MediaStoreActivity extends AppCompatActivity{
     public static FriendsResult copyItem;
     public void finishAndCancel(){
         Intent intent = new Intent();
-        copyItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
         intent.putExtra("mItem", copyItem);
         setResult(RESULT_CANCELED, intent);
         finish();

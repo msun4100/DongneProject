@@ -24,6 +24,8 @@ public class PushAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements OnItemClickListener, OnItemLongClickListener, ItemViewHolder.OnLikeClickListener{
     public List<Push> items = new ArrayList<Push>();
 
+
+
     public interface OnAdapterItemClickListener {
         public void onAdapterItemClick(PushAdapter adapter, View view, Push item, int type);
     }
@@ -88,6 +90,16 @@ public class PushAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
         getItem(position).bgColor = 1;
         notifyDataSetChanged();
+    }
+
+
+    private int totalCount;
+    public void setTotalCount(int count){
+        this.totalCount = count;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
     }
 
     public static final int VIEW_TYPE_SECTION_HEADER = 0;

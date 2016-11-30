@@ -148,8 +148,12 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             iconThumb.setImageResource(R.drawable.e__who_icon);
         } else {
             nameView.setText(item.user.username);
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-            Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.updatedAt)).into(iconThumb);
+            if( !TextUtils.isEmpty(item.user.pic.small) && item.user.pic.small.equals("1") ){
+                String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
+                Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.user.updatedAt)).into(iconThumb);
+            } else {
+                iconThumb.setImageResource(R.drawable.e__who_icon);
+            }
         }
         if (item.pic.size() > 0){
             bodyImage.setVisibility(View.VISIBLE);

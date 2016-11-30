@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import kr.me.ansr.common.CustomEditText;
 import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.tab.board.detail.BoardDetailActivity;
 import kr.me.ansr.tab.board.one.BoardInfo;
+import kr.me.ansr.tab.board.one.BoardResult;
 import kr.me.ansr.tab.board.reply.ReplyResult;
 import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
 import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
@@ -41,7 +44,7 @@ import okhttp3.Request;
  */
 public class TwoFragment extends PagerFragment {
     private static final String TAG = TwoFragment.class.getSimpleName();
-
+    public static final int MY_WRITING_COMMENT_RC_NUM = 225;
     RecyclerView recyclerView;
     CommentAdapter mAdapter;
     //    RecyclerView.LayoutManager layoutManager;
@@ -69,7 +72,7 @@ public class TwoFragment extends PagerFragment {
                         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                         initReplies();
                     }
-                }, 2000);
+                }, 1000);
             }
         });
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -107,9 +110,9 @@ public class TwoFragment extends PagerFragment {
 //                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("currentTab", "0"); //재학생 탭 == 0
+//                intent.putExtra("currentTab", "0"); //재학생 탭 == 0
 //                startActivity(intent);
-                getActivity().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
+                getActivity().startActivityForResult(intent, MY_WRITING_COMMENT_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
             }
         });
         mAdapter.setOnAdapterItemClickListener(new CommentAdapter.OnAdapterItemClickListener() {
@@ -173,6 +176,9 @@ public class TwoFragment extends PagerFragment {
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initReplies();
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("MyWriting_TAB2");
+        t.send(new HitBuilders.AppViewBuilder().build());
         return view;
     }
 
@@ -501,6 +507,25 @@ public class TwoFragment extends PagerFragment {
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
 
+    @Subscribe
+    public void onEvent(ReplyResult rr){
+        Log.e("onEvent:", "MyTwo rr");
+        start = 0;
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        initReplies();
+//        findOneAndModify(rr, "_default_");
+    }
+//    private void findOneAndModify(ReplyResult rr, String mode){
+//        if(mAdapter == null || mAdapter.getItemCount() < 1) return;
+//        mAdapter.findOneAndModify(rr);
+//        switch (mode){
+//            case "_REMOVE_":
+//                break;
+//            case "_EDIT_":
+//                break;
+//            default:break;
+//        }
+//    }
 
 
     public TwoFragment(){}

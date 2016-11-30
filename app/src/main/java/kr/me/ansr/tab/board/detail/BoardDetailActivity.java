@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 
@@ -165,6 +169,10 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
         rootView = (View)findViewById(R.id.rootView);
         setupParent(rootView);
+
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     private void sendReply(){
@@ -287,8 +295,12 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             iconThumb.setImageResource(R.drawable.e__who_icon);
         } else {
             nameView.setText(item.user.username);
-            String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
-            Glide.with(this).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.updatedAt)).into(iconThumb);
+            if( !TextUtils.isEmpty(item.user.pic.small) && item.user.pic.small.equals("1") ){
+                String url = Config.FILE_GET_URL.replace(":userId", ""+item.writer).replace(":size", "small");
+                Glide.with(this).load(url).placeholder(R.drawable.e__who_icon).centerCrop().signature(new StringSignature(item.user.updatedAt)).into(iconThumb);
+            } else {
+                iconThumb.setImageResource(R.drawable.e__who_icon);
+            }
         }
         if (item.pic.size() > 0){
             bodyImage.setVisibility(View.VISIBLE);
@@ -317,6 +329,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     public View.OnClickListener viewListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
             switch (v.getId()) {
 //                BoardResult data = mAdapter.getItem(position);
                 case R.id.relative_board_like_layout:
@@ -325,6 +338,8 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     if(mItem.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
                     String to = ""+mItem.writer;
                     postLike(likeMode, String.valueOf(mItem.boardId), PropertyManager.getInstance().getUserId(), to, Integer.MAX_VALUE);
+
+                    t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Button").setLabel("Like view Click").build());
                     break;
                 case R.id.text_board_body:
                     Toast.makeText(BoardDetailActivity.this,"detail body click", Toast.LENGTH_SHORT).show();
@@ -336,6 +351,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     b.putString("tag", BoardReportDialogFragment.TAG_BOARD_DETAIL);
                     mDialogFragment.setArguments(b);
                     mDialogFragment.show(getSupportFragmentManager(), "boardReportDialog");
+                    t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Button").setLabel("Report view Click").build());
                     break;
                 default:
                     break;
@@ -573,5 +589,15 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
 
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
 }

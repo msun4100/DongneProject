@@ -74,6 +74,19 @@ implements OnItemClickListener, OnItemLongClickListener, OtherViewHolder.OnLikeC
     private Context mContext;
     private ArrayList<Message> messageArrayList;
 
+
+    public int logCount = 0; //on 1130
+    int total;
+    public int getTotalCount() {
+        return total;
+    }
+    public void setTotalCount(int total) {
+        this.total = total;
+    }
+
+
+
+
 //    public class ViewHolder extends RecyclerView.ViewHolder {
 //        TextView message, timestamp;
 //        ImageView thumb;

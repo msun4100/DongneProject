@@ -3,6 +3,7 @@ package kr.me.ansr.tab.meet;
 import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.database.DBConstant;
@@ -17,6 +18,7 @@ import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
 import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 import kr.me.ansr.tab.mypage.FriendStatusActivity;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +46,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MeetFragment extends PagerFragment {
@@ -59,7 +65,6 @@ public class MeetFragment extends PagerFragment {
 	SwipeRefreshLayout refreshLayout;
 	boolean isLast = false;
 	Handler mHandler = new Handler(Looper.getMainLooper());
-
 
 
 	@Override
@@ -78,11 +83,9 @@ public class MeetFragment extends PagerFragment {
 				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
-//                        if(!dialog.isShowing()){
-//                            refreshLayout.setRefreshing(false);
-//                        }
-//                        일단 그냥 1초 있다가 사라지게, 현재 구현한 것은 getMoreItem() 같은 것 없이 전체리스트 불러오도록 처리
-						refreshLayout.setRefreshing(false);
+						num = 0;
+						isFirst = false;
+						initData();
 					}
 				}, 1000);
 			}
@@ -93,7 +96,7 @@ public class MeetFragment extends PagerFragment {
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 				if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    getMoreItem();
+                    getMoreItem();
 				}
 			}
 			@Override
@@ -179,8 +182,8 @@ public class MeetFragment extends PagerFragment {
 			}
 		};
 
-		initData();
 
+		initData();
 		return view;
 	}
 
@@ -189,21 +192,86 @@ public class MeetFragment extends PagerFragment {
 	int num = 0;
 	boolean isFirst = true;
 	private void initData(){
-		if(mAdapter != null){
-			mAdapter.clear();
-			List<Push> items = DBManager.getInstance().searchAll();
-			for (Push p : items) {
-				Log.e("feed: ", p.toString());
-				mAdapter.add(p);
+//		if(start == 0){
+//			int total = DBManager.getInstance().searchAll().size();
+//			mAdapter.setTotalCount(total);
+//		}
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if(mAdapter != null){
+					start = 0;
+					int total = DBManager.getInstance().searchAll().size();
+					mAdapter.setTotalCount(total);
+					mAdapter.clear();
+					List<Push> items = DBManager.getInstance().searchPush(start, DISPLAY_NUM);
+					if(items.size() > 0){
+						for (Push p : items) {
+							Log.e("feed: ", p.toString());
+							mAdapter.add(p);
+						}
+						start++;
+					} else {
+//						Toast.makeText(getActivity(), "HAS_NO_PUSH_MSG", Toast.LENGTH_SHORT).show();
+					}
+					if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
+						MainActivity.setPushCount(num);
+					} else {
+						MainActivity.setPushCount(0);
+					}
+					showLayout();
+				}
+				dialog.dismiss();
+				refreshLayout.setRefreshing(false);
 			}
-			if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
-				MainActivity.setPushCount(num);
-			} else {
-				MainActivity.setPushCount(0);
-			}
-			showLayout();
+		}, 100);
+		dialog = new ProgressDialog(getActivity());
+		dialog.setTitle("Push Loading....");
+		dialog.show();
+	}
+
+	ProgressDialog dialog = null;
+	boolean isMoreData = false;
+	private static final int DISPLAY_NUM = 10;
+	private int start=0;
+
+	private void getMoreItem() {
+		if (isMoreData) return;
+		isMoreData = true;
+		if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() ) {
+			mHandler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					List<Push> items = DBManager.getInstance().searchPush(start, DISPLAY_NUM);
+					if(mAdapter != null){
+//						mAdapter.clear();
+						if(items.size() > 0){
+							for (Push p : items) {
+								Log.e("getmore feed: ", p.toString());
+								mAdapter.add(p);
+							}
+							start++;
+						} else {
+							Toast.makeText(getActivity(), "HAS_NO_PUSH_MSG", Toast.LENGTH_SHORT).show();
+						}
+						if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
+							MainActivity.setPushCount(num);
+						} else {
+							MainActivity.setPushCount(0);
+						}
+						showLayout();
+					}
+					isMoreData = false;
+					dialog.dismiss();
+					refreshLayout.setRefreshing(false);
+				}
+			},100);
+			dialog = new ProgressDialog(getActivity());
+			dialog.setTitle("Push Loading....");
+			dialog.show();
 		}
 	}
+
 	private void showLayout(){
 		if (mAdapter.getItemCount() > 0){
 			emptyMsg.setVisibility(View.GONE);

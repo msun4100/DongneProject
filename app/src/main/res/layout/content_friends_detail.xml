@@ -34,10 +34,9 @@
             android:background="@drawable/b_main_view_contents_bg" />
         <ImageView
             android:id="@+id/image_friends_detail_back_icon"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:padding="11dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:src="@drawable/abc_ic_clear_mtrl_alpha" />
         <FrameLayout
             android:layout_width="wrap_content"

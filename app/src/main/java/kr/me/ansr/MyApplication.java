@@ -10,6 +10,8 @@ import android.view.View;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 
 
 import java.net.URISyntaxException;
@@ -17,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -134,5 +137,40 @@ public class MyApplication extends Application {
 		return timestamp;
 	}
 
+
+	/**
+	 * Enum used to identify the tracker that needs to be used for tracking.
+	 *
+	 * A single tracker is usually enough for most purposes. In case you do need multiple trackers,
+	 * storing them all in Application object helps ensure that they are created only once per
+	 * application instance.
+	 */
+	private static final String PROPERTY_ID = "UA-87692023-1";
+
+	public enum TrackerName {
+		APP_TRACKER,           // 앱 별로 트래킹
+		GLOBAL_TRACKER,        // 모든 앱을 통틀어 트래킹
+		ECOMMERCE_TRACKER,     // 아마 유료 결재 트래킹 개념 같음
+	}
+
+	HashMap<TrackerName, Tracker> mTrackers = new HashMap<>();
+
+	public synchronized Tracker getTracker(TrackerName trackerId){
+		if(!mTrackers.containsKey(trackerId)){
+			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+			Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(PROPERTY_ID) :
+					(trackerId == TrackerName.GLOBAL_TRACKER) ? analytics.newTracker(R.xml.global_tracker) :
+							analytics.newTracker(R.xml.ecommerce_tracker);
+			mTrackers.put(trackerId, t);
+		}
+		return mTrackers.get(trackerId);
+	}
+
+//	public void startGA(Context context){
+//		GoogleAnalytics.getInstance(this).reportActivityStart(context);
+//	}
+//	public void stopGA(Context context){
+//		GoogleAnalytics.getInstance(this).reportActivityStop(context);
+//	}
 
 }

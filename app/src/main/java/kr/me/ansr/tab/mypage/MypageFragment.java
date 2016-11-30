@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 public class MypageFragment extends PagerFragment {
 	private static final String TAG = MypageFragment.class.getSimpleName();
@@ -72,6 +75,11 @@ public class MypageFragment extends PagerFragment {
 		menu12.setOnClickListener(mListener);
 
 		initData();
+
+		//	on 1118
+		Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+		t.setScreenName("TAB5_"+getClass().getSimpleName());
+		t.send(new HitBuilders.AppViewBuilder().build());
 		return view;
 	}
 
@@ -92,14 +100,49 @@ public class MypageFragment extends PagerFragment {
 					.into(thumbIcon);
 		} else {
 			usernameView.setText(item.username);
-			String url = Config.FILE_GET_URL.replace(":userId", "" + item.userId).replace(":size", "small");
-			Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
-					.centerCrop()
-					.signature(new StringSignature(item.updatedAt))//매번 새로고침
-					.into(thumbIcon);
+			if(!TextUtils.isEmpty(item.pic.small) && item.pic.small.equals("1")){
+				String url = Config.FILE_GET_URL.replace(":userId", "" + item.userId).replace(":size", "small");
+				Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
+						.centerCrop()
+						.signature(new StringSignature(item.updatedAt))//매번 새로고침
+						.into(thumbIcon);
+			} else {
+				thumbIcon.setImageResource(R.drawable.e__who_icon);
+			}
+
 		}
 
 	}
+
+	// override init func.
+	private void changeData(FriendsResult item){
+		if(item == null){
+			String username = PropertyManager.getInstance().getUserName();
+			if(username != null && !username.equals("")){
+				usernameView.setText(username);
+			} else {
+				usernameView.setText("유저명");
+			}
+			String userId = PropertyManager.getInstance().getUserId();
+			String url = Config.FILE_GET_URL.replace(":userId", "" + userId).replace(":size", "small");
+			Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
+					.centerCrop()
+					.signature(new StringSignature(MyApplication.getInstance().getCurrentTimeStampString()))//매번 새로고침
+					.into(thumbIcon);
+		} else {
+			usernameView.setText(item.username);
+			if(!TextUtils.isEmpty(item.pic.small) && item.pic.small.equals("1")){
+				String url = Config.FILE_GET_URL.replace(":userId", "" + item.userId).replace(":size", "small");
+				Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon)
+						.centerCrop()
+						.signature(new StringSignature(item.updatedAt))//매번 새로고침
+						.into(thumbIcon);
+			} else {
+				thumbIcon.setImageResource(R.drawable.e__who_icon);
+			}
+		}
+	}
+
 
 	public View.OnClickListener mListener = new View.OnClickListener(){
 		@Override
@@ -171,27 +214,23 @@ public class MypageFragment extends PagerFragment {
 		switch (requestCode) {
 			case 125:
 				if (resultCode == Activity.RESULT_OK ) {
-					Log.d("TAG", "onActivityResult: "+resultCode);
+					Log.d(TAG, "onActivityResult: OK");
 					Bundle extraBundle = data.getExtras();
 					FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
-					result.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();	//TimeStamp만 변경 --> 프로필 이미지 갱신
-					// 사실상 여기서 result는 사용 안함
+					Log.d(TAG, "onActivityResult: "+result.toString());
 					EventBus.getInstance().post(result);	//post가 호출 안되네.. pause??라서 그런가?
 					if(result != null){
-						//OK로 오는 경우는 이미 ImageHomeFragment에서 EditUser 를 하고 넘어온 값.	//캔슬일 경우만 updatedAt 갱신함.(프로필 갱신을 위해서)
-						initData();
+						changeData(result);
 					}
 				}
 				else if(resultCode == Activity.RESULT_CANCELED){
-					Log.d("TAG", "onActivityResult: "+resultCode);
+					Log.d(TAG, "onActivityResult: CANCEL");
 					Bundle extraBundle = data.getExtras();
 					FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
-					result.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();	//TimeStamp만 변경 --> 프로필 이미지 갱신
-					// 사실상 여기서 result는 사용 안함
+					Log.d(TAG, "onActivityResult: "+result.toString());
 					EventBus.getInstance().post(result);	//post가 호출 안되네.. pause??라서 그런가?
 					if(result != null){
-						editUser(); 	//전부다 null로 요청하고 updatedAt만 수정
-//						initData();		//editUser Success에서 처리
+						changeData(result);
 					}
 				}
 				break;
@@ -199,7 +238,8 @@ public class MypageFragment extends PagerFragment {
 	}
 	ProgressDialog dialog = null;
 	private void editUser(){
-		NetworkManager.getInstance().putDongnePutEditUser(getActivity(), PropertyManager.getInstance().getDeptName(), null, null, null, null, null, null, new NetworkManager.OnResultListener<CommonInfo>() {
+		String reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+		NetworkManager.getInstance().putDongnePutEditUser(getActivity(), reqDate, PropertyManager.getInstance().getDeptName(), null, null, null, null, null, null, new NetworkManager.OnResultListener<CommonInfo>() {
 			@Override
 			public void onSuccess(Request request, CommonInfo result) {
 				if (result.error.equals(true)) {

@@ -108,23 +108,16 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
             distanceView.setText("어딘가");
         }
 
-
-        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-        Glide.with(mContext).load(url)
-                .placeholder(R.drawable.e__who_icon)
-                .centerCrop()
-                .signature(new StringSignature(item.getUpdatedAt()))
-                .into(iconThumbView);
-//        if (!TextUtils.isEmpty(item.pic.small)) {
-//            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-//            Glide.with(mContext).load(url)
-//                    .placeholder(R.drawable.e__who_icon)
-//                    .centerCrop()
-//                    .signature(new StringSignature(item.getUpdatedAt()))
-//                    .into(iconThumbView);
-//        } else {
-//            iconThumbView.setImageResource(R.drawable.e__who_icon);
-//        }
+        if( !TextUtils.isEmpty(item.pic.small) && item.pic.small.equals("1") ){
+            String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+            Glide.with(mContext).load(url)
+                    .placeholder(R.drawable.e__who_icon)
+                    .centerCrop()
+                    .signature(new StringSignature(item.getUpdatedAt()))
+                    .into(iconThumbView);
+        } else {
+            iconThumbView.setImageResource(R.drawable.e__who_icon);
+        }
 
     }
 

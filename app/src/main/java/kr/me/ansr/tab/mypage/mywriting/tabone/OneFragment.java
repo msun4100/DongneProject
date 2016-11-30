@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class OneFragment extends PagerFragment{
                         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                         initBoard();
                     }
-                }, 2000);
+                }, 1000);
             }
         });
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
@@ -115,7 +117,7 @@ public class OneFragment extends PagerFragment{
 //                intent.putExtra(BoardInfo.BOARD_DETAIL_OBJECT, data);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_BOARD_ID, data.boardId);
                 intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("currentTab", "0"); //재학생 탭 == 0
+//                intent.putExtra("currentTab", "0"); // There is no current tab
                 getActivity().startActivityForResult(intent, BoardInfo.BOARD_RC_NUM); //tabHost가 있는 BoardFragment에서 리절트를 받음
             }
         });
@@ -193,6 +195,9 @@ public class OneFragment extends PagerFragment{
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initBoard();
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("MyWriting_TAB1");
+        t.send(new HitBuilders.AppViewBuilder().build());
         return view;
     }
 

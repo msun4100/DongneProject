@@ -1,12 +1,17 @@
 package kr.me.ansr.gcmchat.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import kr.me.ansr.MyApplication;
@@ -49,6 +55,7 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
     public ChatRoomsAdapter(Context mContext, ArrayList<ChatRoom> chatRoomArrayList) {
         this.mContext = mContext;
         this.chatRoomArrayList = chatRoomArrayList;
+//        this.originItems = chatRoomArrayList;
 
         Calendar calendar = Calendar.getInstance();
         today = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
@@ -168,4 +175,54 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
 
         }
     }
+
+    public boolean isSearching = false;
+    private ArrayList<ChatRoom> filterList = new ArrayList<ChatRoom>();
+    // Do Search...
+    public boolean filter(final String text, final ArrayList<ChatRoom> originList) {
+        // Searching could be complex.. so this job will dispatch it to a runnable thread...
+
+        new Thread(new Runnable() {
+            boolean bool;
+
+            @Override
+            public void run() {
+                // Clear the filter list
+                bool = false;
+                filterList.clear();
+                // If there is no search value, then add all original list items to filter list
+                if (TextUtils.isEmpty(text)) {
+                    filterList.addAll(originList);
+                    bool = false;
+                } else {
+                    // Iterate in the original List and add it to filter list...
+                    for (ChatRoom cr : originList) {
+                        if (cr.name.toLowerCase().contains(text.toLowerCase()) ) {
+//                        if (cr.name.contains(text) ) {
+                            // Adding Matched items
+                            filterList.add(cr);
+                            bool = true;
+                        }
+                    }
+                }
+                chatRoomArrayList.clear();  //adapter에 쓰이는 리스트
+                chatRoomArrayList.addAll(filterList);
+//                Log.e("mAdpater", "run0: "+ originList.toString() );
+//                Log.e("mAdpater", "run1: "+ chatRoomArrayList.toString() );
+//                Log.e("mAdpater", "run2: "+ filterList.toString() );
+                // Set on UI Thread
+                ((Activity) mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Notify the List that the DataSet has changed...
+                        notifyDataSetChanged();
+                        isSearching = bool;
+                    }
+                });
+//                isSearching = bool;
+            }
+        }).start();
+        return isSearching;
+    }
+
 }

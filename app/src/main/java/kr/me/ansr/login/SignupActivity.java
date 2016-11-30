@@ -22,6 +22,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.ArrayList;
 
 import kr.me.ansr.MainActivity;
@@ -178,6 +182,10 @@ public class SignupActivity extends AppCompatActivity {
 		});
 
 		initData();
+
+		Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+		t.setScreenName(getClass().getSimpleName());
+		t.send(new HitBuilders.AppViewBuilder().build());
 	}
 
 
@@ -473,5 +481,17 @@ public class SignupActivity extends AppCompatActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 }

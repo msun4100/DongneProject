@@ -221,6 +221,39 @@ public class DBManager extends SQLiteOpenHelper {
         return list;
     }
 
+    public List<Push> searchPush(int start, int display){
+//        private final String MY_QUERY = "SELECT * FROM table_a a INNER JOIN table_b b ON a.id=b.other_id WHERE b.property_id=?";
+//        db.rawQuery(MY_QUERY, new String[]{String.valueOf(propertyId)});
+        final String MY_QUERY = "SELECT "+DBConstant.PushTable._ID +", image, chat_room_id, message_id, message, created_at, user_id, name, bg"
+                + " FROM "+ DBConstant.PushTable.TABLE_NAME
+                + " ORDER BY "+ DBConstant.PushTable.COLUMN_CREATED_AT + " COLLATE LOCALIZED DESC"
+                + " LIMIT ?"
+                + " OFFSET ?;";
+        SQLiteDatabase db = getReadableDatabase();
+//        Log.e(TAG, "searchPush: "+MY_QUERY);
+        Cursor c = db.rawQuery(MY_QUERY, new String[]{String.valueOf(display), String.valueOf(start * display)});
+
+        List<Push> list = new ArrayList<Push>();
+        while(c.moveToNext()) {
+            Push p = new Push();
+            p.id = c.getLong(c.getColumnIndex(DBConstant.PushTable._ID));
+            p.image = c.getString(c.getColumnIndex(DBConstant.PushTable.COLUMN_IMAGE));
+            p.chat_room_id = c.getInt(c.getColumnIndex(DBConstant.PushTable.COLUMN_CHAT_ROOM_ID));
+            p.message_id = c.getInt(c.getColumnIndex(DBConstant.PushTable.COLUMN_MESSAGE_ID));
+            p.message = c.getString(c.getColumnIndex(DBConstant.PushTable.COLUMN_MESSAGE));
+            p.created_at = c.getString(c.getColumnIndex(DBConstant.PushTable.COLUMN_CREATED_AT));
+            p.user_id = c.getInt(c.getColumnIndex(DBConstant.PushTable.COLUMN_USER_ID));
+            p.name = c.getString(c.getColumnIndex(DBConstant.PushTable.COLUMN_NAME));
+            p.bgColor = c.getInt(c.getColumnIndex(DBConstant.PushTable.COLUMN_BG));
+            list.add(p);
+        }
+        c.close();
+        return list;
+    }
+
+
+
+
     //chat_room_table
     public long insertRoom(ChatRoom cr) {
         values.clear();

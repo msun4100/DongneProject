@@ -33,6 +33,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.text.SimpleDateFormat;
@@ -138,15 +140,11 @@ public class FriendsSectionFragment extends PagerFragment
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                Log.e("lastVisibleItemPosition",""+lastVisibleItemPosition);
-                Log.e("222",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-                Log.e("333",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-                Log.e("444", ""+isLast);
             }
         });
         mAdapter = new SectionAdapter();
@@ -182,6 +180,7 @@ public class FriendsSectionFragment extends PagerFragment
             public void onItemLongClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
                 selectedItem = data;
+                if(PropertyManager.getInstance().getUserId().equals(""+data.userId)) return;
                 ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
                 Bundle b = new Bundle();
 //                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
@@ -242,9 +241,14 @@ public class FriendsSectionFragment extends PagerFragment
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                Log.e(TAG, "onClick: "+mSearchOption );
+                if(mSearchOption == 3){
+                    spinner.setSelection(0);    // ==서치옵션도 0 이 됨
+                }
                 if(isSearching == true){
                     frameSearch.setVisibility(View.GONE);
                     searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 //                    initUnivUsers();
                     restoreList();
                     isSearching = false;
@@ -281,7 +285,7 @@ public class FriendsSectionFragment extends PagerFragment
         cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
         cancelView.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 clearSearchInput(); //또는 아래 코드처럼 검색값 입력창 닫히면서 기본값 정렬되게?
                 mSearchOption = spinner.getSelectedItemPosition();
                 start = 0;
@@ -291,6 +295,7 @@ public class FriendsSectionFragment extends PagerFragment
                         public void run() {
                             isSearching = false;
                             searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                             setContainerVisibility();
                             restoreList();
 //                            initUnivUsers();
@@ -299,6 +304,11 @@ public class FriendsSectionFragment extends PagerFragment
                 }
             }
         });
+
+        //		on 1118
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("TAB1_ChildOneFragment");
+        t.send(new HitBuilders.AppViewBuilder().build());
 
         return view;
     }
@@ -344,12 +354,15 @@ public class FriendsSectionFragment extends PagerFragment
         Log.e("s_job", job);
 
         storeList();    //기존 데이타 백업
-        mSearchOption = 0; //이름정렬
+        mSearchOption = spinner.getSelectedItemPosition();
         start = 0;
         if(true){
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+                    t.send(new HitBuilders.EventBuilder().setCategory("TAB1_ChildOneFragment").setAction("Press Button").setLabel("Search view Click").build());
+
                     isSearching = true;
                     searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
                     setContainerVisibility();
@@ -426,8 +439,10 @@ public class FriendsSectionFragment extends PagerFragment
                             if(result.result != null){
                                 mAdapter.blockCount = 0;
                                 mAdapter.items.clear();
-                                mAdapter.setTotalCount(result.total);
-                                setTabTotalCount(result.total);
+                                if(result.total != -99999){ //가까운 거리순은 토탈이 없기때문에 -99999리턴해줌
+                                    mAdapter.setTotalCount(result.total);
+                                    setTabTotalCount(result.total);
+                                }
                                 ArrayList<FriendsResult> items = result.result;
 
                                 if(PropertyManager.getInstance().getNewCount() < result.total){
@@ -948,28 +963,53 @@ public class FriendsSectionFragment extends PagerFragment
     }
 
     private void restoreList(){
-        start = FriendsDataManager.getInstance().getStart();
-        reqDate = FriendsDataManager.getInstance().getReqDate();
-        mSearchOption = FriendsDataManager.getInstance().getmSearchOption();
-        spinner.setSelection(mSearchOption);
-        mAdapter.clearAll();
-        mAdapter.setTotalCount(FriendsDataManager.getInstance().getTotalCount());
-        mAdapter.addAll(FriendsDataManager.getInstance().getList());
-        int lastVisibleItemPosition = FriendsDataManager.getInstance().getLastVisibleItemPosition();
+        if(FriendsDataManager.getInstance().items.size() > 0){
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("Loading data...");
+            dialog.show();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    start = FriendsDataManager.getInstance().getStart();
+                    reqDate = FriendsDataManager.getInstance().getReqDate();
+                    mSearchOption = FriendsDataManager.getInstance().getmSearchOption();
+                    spinner.setSelection(mSearchOption);
+                    mAdapter.clearAll();
+                    mAdapter.setTotalCount(FriendsDataManager.getInstance().getTotalCount());
+                    mAdapter.addAll(FriendsDataManager.getInstance().getList());
+                    int lastVisibleItemPosition = FriendsDataManager.getInstance().getLastVisibleItemPosition();
 //        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, lastVisibleItemPosition );
-        recyclerView.scrollToPosition(lastVisibleItemPosition);
-        FriendsDataManager.getInstance().clearAll();
+                    recyclerView.scrollToPosition(lastVisibleItemPosition);
+                    FriendsDataManager.getInstance().clearAll();
+                    if(dialog.isShowing() == true){
+                        dialog.dismiss();
+                    }
+                }
+            }, 100);
+        } else {
+            reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+            start = 0;
+            initUnivUsers();
+        }
+
     }
 
     private void storeList() {
         //기존 데이타 백업
-        FriendsDataManager.getInstance().setmSearchOption(mSearchOption);
-        //+3해주는건 검색필터 입력창이 열릴때 lastVisiblePosition이 3~4정도 줄어듬
-        FriendsDataManager.getInstance().setLastVisibleItemPosition(layoutManager.findLastCompletelyVisibleItemPosition() + 3);
-        FriendsDataManager.getInstance().setTotalCount(mAdapter.getTotalCount());
-        FriendsDataManager.getInstance().setStart(start);
-        FriendsDataManager.getInstance().setReqDate(reqDate);
-        FriendsDataManager.getInstance().clearAll();
-        FriendsDataManager.getInstance().addAll(mAdapter.getGroupItems());
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FriendsDataManager.getInstance().setmSearchOption(mSearchOption);
+                //+3해주는건 검색필터 입력창이 열릴때 lastVisiblePosition이 3~4정도 줄어듬
+                FriendsDataManager.getInstance().setLastVisibleItemPosition(layoutManager.findLastCompletelyVisibleItemPosition() + 3);
+                FriendsDataManager.getInstance().setTotalCount(mAdapter.getTotalCount());
+                FriendsDataManager.getInstance().setStart(start);
+                FriendsDataManager.getInstance().setReqDate(reqDate);
+                FriendsDataManager.getInstance().clearAll();
+                FriendsDataManager.getInstance().addAll(mAdapter.getGroupItems());
+            }
+        }, 100);
     }
+
+
 }

@@ -23,6 +23,9 @@
                 android:hint="게시글 검색 (작성자/내용)"
                 android:textColor="@color/list_search_colorHint"
                 android:textColorHint="#cbc8c6"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"
+                android:lines="1"
                 android:textSize="13sp" />
 
             <ImageView

@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.board.one;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,17 +11,25 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Random;
 
+import kr.me.ansr.MainActivity;
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
@@ -62,11 +71,12 @@ public class ChildOneFragment extends PagerFragment {
     ImageView searchIcon;
     CustomEditText searchInput;
     public String word = null;
+    InputMethodManager imm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_board_one, container, false);
-
+        imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -88,7 +98,7 @@ public class ChildOneFragment extends PagerFragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if(word != null && !word.equals("") && word.length() > 0){
+                    if(word != null && !word.equals("") && word.length() > 0 && isSearching == true){
                         getMoreSearchItem();
                     } else {
                         getMoreItem();
@@ -99,9 +109,12 @@ public class ChildOneFragment extends PagerFragment {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
-//                int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+                int lastCompletelyVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
                 int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();  //Completely로 하면 -1리턴 되는 경우가 있음
-                if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+                if(lastCompletelyVisibleItemPosition == RecyclerView.NO_POSITION && ((totalItemCount - 1) == lastVisibleItemPosition) ){
+                    lastCompletelyVisibleItemPosition = lastVisibleItemPosition;
+                }
+                if (totalItemCount > 0 && lastCompletelyVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastCompletelyVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
@@ -147,6 +160,9 @@ public class ChildOneFragment extends PagerFragment {
                         if(data.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
                         String to = ""+data.writer;
                         postLike(likeMode, String.valueOf(data.boardId), PropertyManager.getInstance().getUserId(), to, position);
+
+                        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+                        t.send(new HitBuilders.EventBuilder().setCategory("TAB3_ChildOne").setAction("Press Button").setLabel("Like view Click").build());
                         break;
                     case 500:
 //                        Toast.makeText(getActivity(), "reply view click:\n", Toast.LENGTH_SHORT).show();
@@ -179,21 +195,53 @@ public class ChildOneFragment extends PagerFragment {
 
 //        search views
         searchInput = (CustomEditText)view.findViewById(R.id.custom_editText1);
+        searchInput.setHint("게시글 검색 (작성자/학과/내용)");
+        searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                    word = searchInput.getText().toString();
+                    if(!word.equals("") && word != null && isSearching == false){
+//                    searchInput.setText("");
+                        isSearching = true;
+                        searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        searchBoard();
+                    } else {
+                        isSearching = false;
+                        searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        word = "";
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        initBoard();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 word = searchInput.getText().toString();
-                if(!word.equals("") && word != null){
-//                    searchInput.setText("");
-                    searchInput.setText(word + " (취소:검색어 초기화 후 검색 버튼 클릭.)");
-//                    Toast.makeText(getActivity(), "searchInput:"+word, Toast.LENGTH_SHORT).show();
+                if(!word.equals("") && word != null && isSearching == false){
+                    isSearching = true;
+                    searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+//                    searchInput.setText("검색어:"+word);
                     start = 0;
                     reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                     searchBoard();
                 } else {
-//                    searchInput.setHint("게시글 검색 (작성자/내용)");
+                    isSearching = false;
+                    searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     word = "";
+                    searchInput.setText("");
                     start = 0;
                     reqDate = MyApplication.getInstance().getCurrentTimeStampString();
                     initBoard();
@@ -204,8 +252,15 @@ public class ChildOneFragment extends PagerFragment {
         start = 0;
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initBoard();
+
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("TAB3_"+getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
+
         return view;
     }
+
+    public boolean isSearching = false;
 
     private void showBoardDetail(BoardResult data, int position){
         Log.e(TAG, "showBoardDetail: "+data.toString() );
@@ -304,6 +359,9 @@ public class ChildOneFragment extends PagerFragment {
                                     mAdapter.add(child);
                                 }
                                 start++;
+                                if (mAdapter.getItemCount() > 0){
+                                    recyclerView.scrollToPosition(0);
+                                }
                             } else {
                                 //has no board item
                                 mAdapter.items.clear();
@@ -378,6 +436,9 @@ public class ChildOneFragment extends PagerFragment {
                                     mAdapter.add(child);
                                 }
                                 start++;
+                                if (mAdapter.getItemCount() > 0){
+                                    recyclerView.scrollToPosition(0);
+                                }
                             } else {
                                 //has no board item
                                 mAdapter.items.clear();
@@ -420,8 +481,6 @@ public class ChildOneFragment extends PagerFragment {
 //        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > mAdapter.getItemCount()) {
         if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount()) {
             //기존 코드에서 +DIS_NUM 한 것은 마지막 디스플레이가 리프레쉬 안되서 디스플레이 수만큼 +시킴.
-//            int start = mAdapter.getItemCount() + 1;
-//            int display = 50;
             NetworkManager.getInstance().postDongneBoardList(getActivity(),
                     PropertyManager.getInstance().getUnivId(),
                     tab,
@@ -434,9 +493,27 @@ public class ChildOneFragment extends PagerFragment {
                             Log.e(TAG, "onSuccess: getMore"+result.message );
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")){
                                 Log.e(TAG+"getMore:", result.result.toString());
+                                ArrayList<BoardResult> items = result.result;
                                 ArrayList<CommentThread> comment = result.comment;
-                                Log.e(TAG+"getMore-comment:", comment.toString());
-                                mAdapter.addAll(result.result);
+                                for(int i=0; i < items.size(); i++){
+                                    BoardResult child = items.get(i);
+                                    if(comment != null){
+                                        for(CommentThread ct : comment){
+                                            if(ct._id.equals(child.commentId)){
+                                                child.repCount = ct.replies.size();
+                                                int sum = 0;
+                                                for(ReplyResult rr : ct.replies){
+                                                    if(sum++ == 3) break;
+                                                    child.preReplies.add(rr);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    mAdapter.add(child);
+                                }
+//                                Log.e(TAG+"getMore-comment:", comment.toString());
+//                                mAdapter.addAll(result.result);
                                 start++;
                             } else {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
@@ -476,10 +553,25 @@ public class ChildOneFragment extends PagerFragment {
                         public void onSuccess(Request request, BoardInfo result) {
                             Log.e(TAG+"getMoreSearch:", ""+result.message);
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")){
-                                Log.e(TAG+"getMoreSearch:", result.result.toString());
+                                ArrayList<BoardResult> items = result.result;
                                 ArrayList<CommentThread> comment = result.comment;
-                                Log.e(TAG+"getMoreSearch-comment:", comment.toString());
-                                mAdapter.addAll(result.result);
+                                for(int i=0; i < items.size(); i++){
+                                    BoardResult child = items.get(i);
+                                    if(comment != null){
+                                        for(CommentThread ct : comment){
+                                            if(ct._id.equals(child.commentId)){
+                                                child.repCount = ct.replies.size();
+                                                int sum = 0;
+                                                for(ReplyResult rr : ct.replies){
+                                                    if(sum++ == 3) break;
+                                                    child.preReplies.add(rr);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    mAdapter.add(child);
+                                }
                                 start++;
                             } else {
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
@@ -740,4 +832,5 @@ public class ChildOneFragment extends PagerFragment {
 
         }
     }
+
 }

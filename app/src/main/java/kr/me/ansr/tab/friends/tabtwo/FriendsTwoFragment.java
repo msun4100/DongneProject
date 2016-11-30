@@ -1,5 +1,8 @@
 package kr.me.ansr.tab.friends.tabtwo;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,10 +12,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -21,23 +28,33 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
+import kr.me.ansr.common.InputDialogFragment;
+import kr.me.ansr.common.ReportDialogFragment;
+import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.common.event.FriendsFragmentResultEvent;
 import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.friends.MySpinnerAdapter;
 import kr.me.ansr.tab.friends.PagerFragment;
+import kr.me.ansr.tab.friends.detail.FriendsDetailActivity;
+import kr.me.ansr.tab.friends.detail.StatusInfo;
 import kr.me.ansr.tab.friends.model.FriendsInfo;
 import kr.me.ansr.tab.friends.model.FriendsResult;
-import kr.me.ansr.tab.friends.recycler.FriendsDataManager;
+import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.recycler.MyDecoration;
+import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
+import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 import okhttp3.Request;
 
 /**
@@ -46,7 +63,12 @@ import okhttp3.Request;
 public class FriendsTwoFragment extends PagerFragment {
 
     private static final String TAG = FriendsTwoFragment.class.getSimpleName();
-    public static final int FRIENDS_RC_NUM = 201;
+    public static final int FRIENDS_RC_NUM = 299;
+    public static final int DIALOG_RC_NUM = 300;
+    public static final int DIALOG_RC_CUT_OFF = 301;
+    public static final int DIALOG_RC_BLOCK = 302;
+    public static final int DIALOG_RC_REPORT = 303;
+    public static final int DIALOG_RC_SEND_REQ = 304;
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
@@ -65,60 +87,63 @@ public class FriendsTwoFragment extends PagerFragment {
     ImageView searchIcon;
     FrameLayout frameSearch;
 
+    InputMethodManager imm;
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends_section, container, false);
         activity = (AppCompatActivity) getActivity();
-//        getActivity().getWindow().setSoftInputMode(
-//                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
+        imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
-//                mHandler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if(!dialog.isShowing()){
-//                            refreshLayout.setRefreshing(false);
-//                        }
-//                    }
-//                }, 2000);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        start = 0;
+                        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+                        initUnivUsers();
+                    }
+                }, 1000);
             }
         });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
-        recyclerView.addOnItemTouchListener(new MyFriendsAdapter.RecyclerTouchListener(getActivity(), recyclerView, new MyFriendsAdapter.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                // when chat is clicked, launch full chat thread activity
-                FriendsResult data = mAdapter.getItem(position);
-                switch (view.getId()) {
-                    case 100:
-                        Toast.makeText(getActivity(), "nameView click" + data.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                    case 200:
-                        Toast.makeText(getActivity(), "imageView click" + data.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(getActivity(), "data Click: " + data.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                Toast.makeText(getActivity(), "data Long Click\n: " + data.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }));
+//        recyclerView.addOnItemTouchListener(new MyFriendsAdapter.RecyclerTouchListener(getActivity(), recyclerView, new MyFriendsAdapter.ClickListener() {
+//            @Override
+//            public void onClick(View view, int position) {
+//                // when chat is clicked, launch full chat thread activity
+//                FriendsResult data = mAdapter.getItem(position);
+//                switch (view.getId()) {
+//                    case 100:
+//                        Toast.makeText(getActivity(), "nameView click" + data.toString(), Toast.LENGTH_SHORT).show();
+//                        break;
+//                    case 200:
+//                        Toast.makeText(getActivity(), "imageView click" + data.toString(), Toast.LENGTH_SHORT).show();
+//                        break;
+//                    default:
+//                        Toast.makeText(getActivity(), "data Click: " + data.toString(), Toast.LENGTH_SHORT).show();
+//                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onLongClick(View view, int position) {
+//                FriendsResult data = mAdapter.getItem(position);
+//                Toast.makeText(getActivity(), "data Long Click\n: " + data.toString(), Toast.LENGTH_SHORT).show();
+//            }
+//        }));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    getMoreItem();
+                    if(isSearching == true){
+                        getMoreSearchUsers(username, enterYear, deptname, job);
+                    } else {
+                        getMoreItem();
+                    }
                 }
 
             }
@@ -144,12 +169,42 @@ public class FriendsTwoFragment extends PagerFragment {
             public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type) {
                 switch (type) {
                     case 100:
-                        Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "on Adapter nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         break;
                     case 200:
-                        Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "on Adapter imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         break;
                 }
+            }
+        });
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+                Log.e("FriendsTwoFragment", data.toString());
+                Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                getParentFragment().startActivityForResult(intent, FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+            }
+        });
+        mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                FriendsResult data = mAdapter.getItem(position);
+                selectedItem = data;
+                if(PropertyManager.getInstance().getUserId().equals(""+data.userId)) return;
+                ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
+                Bundle b = new Bundle();
+//                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
+                b.putSerializable("userInfo", data);
+                b.putString("tag", ReportDialogFragment.TAG_TAB_TWO_UNIV);
+                mDialogFragment.setArguments(b);
+                mDialogFragment.setTargetFragment(FriendsTwoFragment.this, DIALOG_RC_NUM);
+                mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportDialog");
             }
         });
 
@@ -162,7 +217,7 @@ public class FriendsTwoFragment extends PagerFragment {
 //        initUnivUsers(); //onResume에서 호출
 
         start = 0;
-        reqDate = getCurrentTimeStamp();
+        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
 //        initUnivUsers();
 
         //        implements common_search_bar_spinner======================================
@@ -203,7 +258,17 @@ public class FriendsTwoFragment extends PagerFragment {
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                setContainerVisibility();
+                if(isSearching == true){
+                    frameSearch.setVisibility(View.GONE);
+                    searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+//                    initUnivUsers();
+                    restoreList();
+                    isSearching = false;
+                    clearSearchInput();
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                } else if(isSearching == false){
+                    setContainerVisibility();
+                }
             }
         });
 
@@ -211,37 +276,144 @@ public class FriendsTwoFragment extends PagerFragment {
         inputYear = (EditText)view.findViewById(R.id.edit_search_enteryear);
         inputDept = (EditText)view.findViewById(R.id.edit_search_dept);
         inputJob = (EditText)view.findViewById(R.id.edit_search_job);
+        inputJob.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                    searchProcess();
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
         confirmView = (TextView)view.findViewById(R.id.text_search_confirm);
         confirmView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Log.e("confirm","clicked");
+                searchProcess();
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
         cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
         cancelView.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
-                clearSearchInput();
-                setContainerVisibility();
+            public void onClick(final View v) {
+                clearSearchInput(); //또는 아래 코드처럼 검색값 입력창 닫히면서 기본값 정렬되게?
+                mSearchOption = spinner.getSelectedItemPosition();
+                start = 0;
+                if(true){
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            isSearching = false;
+                            searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                            setContainerVisibility();
+                            restoreList();
+//                            initUnivUsers();
+                        }
+                    }, 500);
+                }
             }
         });
+
+        //		on 1118
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("TAB1_ChildTwoFragment");
+        t.send(new HitBuilders.AppViewBuilder().build());
 
         return view;
     }
 
+    public boolean isSearching = false;
+    public String username = null;
+    public String enterYear = null;
+    public String deptname = null;
+    public String job = null;
+
     EditText inputName, inputYear, inputDept, inputJob;
     TextView confirmView, cancelView;
+    public String headerString = null;
+    public void searchProcess(){
+        username = inputName.getText().toString();
+        enterYear = inputYear.getText().toString();
+        deptname = inputDept.getText().toString();
+        job = inputJob.getText().toString();
+        if(username.equals("") && enterYear.equals("") && deptname.equals("") && job.equals("")){
+            Toast.makeText(getActivity(), "검색 조건을 하나 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        headerString = "";
+        if(!TextUtils.isEmpty(username)){
+            headerString += "이름:" + username +", ";
+        }
+        if(!TextUtils.isEmpty(enterYear)){
+            headerString += "학번:" + enterYear +", ";
+        }
+        if(!TextUtils.isEmpty(deptname)){
+            headerString += "학과:" + deptname +", ";
+        }
+        if(!TextUtils.isEmpty(job)){
+            headerString += "회사/직무:" + job +", ";
+        }
+        if(!TextUtils.isEmpty(headerString)){
+            headerString = headerString.substring(0, headerString.length() - 2);
+        }
+
+        Log.e("s_username", username);
+        Log.e("s_enterYear", enterYear);
+        Log.e("s_deptname", deptname);
+        Log.e("s_job", job);
+
+        storeList();    //기존 데이타 백업
+        mSearchOption = spinner.getSelectedItemPosition();
+        start = 0;
+        if(true){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+                    t.send(new HitBuilders.EventBuilder().setCategory("TAB1_ChildOneFragment").setAction("Press Button").setLabel("Search view Click").build());
+
+                    isSearching = true;
+                    searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                    setContainerVisibility();
+                    initSearchUsers(username, enterYear, deptname, job);
+                }
+            }, 500);
+        }
+    }
+
     public void clearSearchInput(){
         inputName.setText(""); inputYear.setText(""); inputDept.setText(""); inputJob.setText("");
+        username = null; enterYear = null; deptname = null; job = null;
     }
     public void setContainerVisibility(){
         if(frameSearch == null){
             return;
         }
         if(frameSearch.getVisibility() == View.VISIBLE){
+//            Fragment f = getActivity().getSupportFragmentManager().findFragmentByTag(F1_TAG);
+//            if(f != null){
+//                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//                ft.remove(f);
+//                ft.commit();
+//            }
             frameSearch.setVisibility(View.GONE);
         } else {
+//            searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+//            Bundle bundle = new Bundle();
+//            bundle.putString("filePath", "");
+//            Fragment f = getActivity().getSupportFragmentManager().findFragmentByTag(F1_TAG);
+//            if (f == null) {
+//                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//                SearchFragment newFragment = SearchFragment.newInstance();
+//                newFragment.setArguments(bundle);
+////                ft.setCustomAnimations(R.anim.slide_top_in, R.anim.slide_top_out);
+//                ft.replace(R.id.containerforsearch, newFragment, F1_TAG);
+//                ft.commit();
+//            }
             frameSearch.setVisibility(View.VISIBLE);
         }
     }
@@ -259,7 +431,7 @@ public class FriendsTwoFragment extends PagerFragment {
 //            return;
             mUnivId = ""+ (0); //테스트 위해 임시로 (회원가입안하고 테스트 해보기 위해)
         }
-        reqDate = getCurrentTimeStamp();
+//        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         NetworkManager.getInstance().postDongneUnivUsers(getActivity(),
                 1, //mode
                 null,
@@ -304,19 +476,25 @@ public class FriendsTwoFragment extends PagerFragment {
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
                 });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Friends list Loading...");
+        dialog.show();
     }
 
     boolean isMoreData = false;
     private static final int DISPLAY_NUM = FriendsInfo.FRIEND_DISPLAY_NUM;
     private int start=0;
     private String reqDate = null;
+    private String searchReqDate = null;
 
     @Override
     public void onResume() {
@@ -356,15 +534,20 @@ public class FriendsTwoFragment extends PagerFragment {
                             }
 
                             isMoreData = false;
+                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                             Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
                             isMoreData =false;
+                            dialog.dismiss();
                             refreshLayout.setRefreshing(false);
                         }
                     });
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("Friends list Loading...");
+            dialog.show();
         }
     }
 
@@ -374,11 +557,138 @@ public class FriendsTwoFragment extends PagerFragment {
         }
     }
 
-    public String getCurrentTimeStamp(){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        String currentDateandTime = sdf.format(new Date());
-        return currentDateandTime;
+    private void initSearchUsers(String username, String enterYear, String deptname, String job){
+        String mUnivId = PropertyManager.getInstance().getUnivId();
+        searchReqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        NetworkManager.getInstance().postDongneUnivUsersSearch(getActivity(),
+                1,//mode
+                mSearchOption,//req.body.sort
+                mUnivId,
+                ""+start,
+                ""+DISPLAY_NUM,
+                ""+searchReqDate,
+                username,
+                enterYear,
+                deptname,
+                job,
+                new NetworkManager.OnResultListener<FriendsInfo>() {
+                    @Override
+                    public void onSuccess(Request request, FriendsInfo result) {
+                        if (result.error.equals(false)) {
+                            if(!result.message.equals("has no more friends")){
+                                mAdapter.blockCount = 0;
+                                mAdapter.items.clear();
+                                mAdapter.setTotalCount(result.total);
+                                Log.d(TAG, "onSuccess: total"+result.total);
+                                ArrayList<FriendsResult> items = result.result;
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    result.user.status = 1;
+                                    mAdapter.put("내 프로필", result.user);
+                                }
+                                for(int i=0; i < items.size(); i++){
+                                    FriendsResult child = items.get(i);
+                                    Log.e(TAG, ""+child);
+                                    if(child.status == 3){
+                                        mAdapter.blockCount++;
+                                        continue;
+                                    }
+//                                    mAdapter.put("검색 결과", child);
+                                    mAdapter.put(headerString, child);
+                                }
+                                start++;
+                            } else {    //has no more friends
+                                mAdapter.blockCount = 0;
+                                mAdapter.items.clear();
+                                mAdapter.setTotalCount(0);
+                                if(result.user != null){
+                                    Log.e(TAG+" user:", result.user.toString());
+                                    result.user.status = 1;
+                                    mAdapter.put("내 프로필", result.user);
+                                }
+                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            mAdapter.items.clear();
+                            Log.e(TAG, result.message);
+                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        dialog.dismiss();
+                        refreshLayout.setRefreshing(false);
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("Loading....");
+        dialog.show();
     }
+
+    private void getMoreSearchUsers(String username, String enterYear, String deptname, String job){
+        String mUnivId = PropertyManager.getInstance().getUnivId();
+        if (isMoreData) return;
+        isMoreData = true;
+
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() + mAdapter.blockCount ) {
+//        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() > (mAdapter.getItemCount() + mAdapter.blockCount) ) {
+            NetworkManager.getInstance().postDongneUnivUsersSearch(getActivity(),
+                    1,//mode
+                    mSearchOption,//req.body.sort
+                    mUnivId,
+                    ""+start,
+                    ""+DISPLAY_NUM,
+                    ""+searchReqDate,
+                    username,
+                    enterYear,
+                    deptname,
+                    job,
+                    new NetworkManager.OnResultListener<FriendsInfo>() {
+                        @Override
+                        public void onSuccess(Request request, FriendsInfo result) {
+                            if (result.error.equals(false)) {
+                                Log.e(TAG, "onSuccess: " + result.message);
+                                if(!result.message.equals("has no more friends")){
+                                    ArrayList<FriendsResult> items = result.result;
+                                    for(int i=0; i < items.size(); i++){
+                                        FriendsResult child = items.get(i);
+                                        Log.e(TAG, ""+child);
+                                        if(child.status == 3){
+                                            mAdapter.blockCount++;
+                                            continue;
+                                        }
+                                        mAdapter.put(headerString, child);
+                                    }
+                                    start++;
+                                } else {
+                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.e(TAG, "onSuccess: "+result.message);
+                                Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            }
+                            Log.e(TAG+"getMoreItem() start=", ""+start);
+                            dialog.dismiss();
+                            isMoreData = false;
+                            refreshLayout.setRefreshing(false);
+                        }
+
+                        @Override
+                        public void onFailure(Request request, int code, Throwable cause) {
+                            dialog.dismiss();
+                            isMoreData =false;
+                            refreshLayout.setRefreshing(false);
+                        }
+                    });
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("get more items...");
+            dialog.show();
+        }
+    }
+
 
     private void findOneAndModify(FriendsResult fr){
         if(mAdapter == null || mAdapter.getItemCount() < 1) return;
@@ -387,6 +697,7 @@ public class FriendsTwoFragment extends PagerFragment {
         switch (fr.status){
             case -1:
                 mAdapter.removeItem(fr);
+//                mAdapter.setTotalCount(mAdapter.getTotalCount()-1);
                 num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
                 setTabTotalCount(--num);
                 break;
@@ -397,6 +708,7 @@ public class FriendsTwoFragment extends PagerFragment {
             case 2:
             case 3:
                 mAdapter.removeItem(fr);
+//                mAdapter.setTotalCount(mAdapter.getTotalCount()-1);
                 mAdapter.blockCount++;
                 num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
                 setTabTotalCount(--num);
@@ -404,6 +716,208 @@ public class FriendsTwoFragment extends PagerFragment {
             default:break;
         }
     }
+
+    ProgressDialog dialog = null;
+    FriendsResult selectedItem = null;
+    public void updateStatus(final int status, int to, String msg){
+        if(selectedItem == null){
+            Log.e("selectedItem is null","");
+            return;
+        }
+        Log.e("selectedItem ", selectedItem.toString());
+        final FriendsResult mItem = selectedItem;
+        //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneFriendsUpdate(MyApplication.getContext(),
+                status, //3 report -> CustomDialog 를 통해 온 요청이면 status == 3, ReportFormDialog에서 온 요청이면 status = 2, msg=reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
+                            mItem.status = status;
+                            EventBus.getInstance().post(mItem); //수정된 체로 보냄
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
+    }
+
+    public void removeStatus(int userId, final FriendsResult mItem){
+        //파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneFriendsRemove(MyApplication.getContext(),
+                userId,
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            mItem.status = -1;
+                            EventBus.getInstance().post(mItem); //수정된 체로 보냄
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
+    }
+
+    public void reportUser(int type){
+        if(selectedItem == null){
+            return;
+        }
+        final int to = selectedItem.userId;
+        String msg = "friends";
+        final FriendsResult mItem = selectedItem;
+        //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
+        NetworkManager.getInstance().postDongneReportUpdate(MyApplication.getContext(),
+                type, //reportType
+                to, //to == 선택된 아이템의 userId
+                msg, //블락하는데 메세지는 상관없음.
+                new NetworkManager.OnResultListener<StatusInfo>() {
+                    @Override
+                    public void onSuccess(Request request, StatusInfo result) {
+                        if (result.error.equals(false)) {
+                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
+                        } else {
+                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+        dialog = new ProgressDialog(getActivity());
+        dialog.setTitle("서버 요청 중..");
+        dialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle extraBundle;
+        switch (requestCode) {
+            case FriendsSectionFragment.FRIENDS_RC_NUM: //디테일에서 리턴받은 값
+                if (resultCode == getActivity().RESULT_OK) {
+//                    extraBundle = data.getExtras();
+//                    int position = extraBundle.getInt(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, -1);
+//                    FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
+//                    Toast.makeText(getActivity(),""+ result.toString() , Toast.LENGTH_SHORT).show();
+//                    ModifiedSetItem(position, result);
+//                    findOneAndModify(result);
+                    break;
+                }
+            case DIALOG_RC_BLOCK:
+                if (resultCode == getActivity().RESULT_OK) {
+                    Log.e("DIALOG_RC_BLOCK","aaaaaaaa");
+                    extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+                    updateStatus(StatusInfo.STATUS_BLOCKED, result.userId, "blocked");
+                }
+                break;
+            case DIALOG_RC_CUT_OFF:
+                if (resultCode == getActivity().RESULT_OK) {
+                    Log.e("DIALOG_RC_CUT_OFF","aaaaaaaa");
+                    extraBundle = data.getExtras();
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+                    removeStatus(result.userId, result);
+                }
+                break;
+            case DIALOG_RC_REPORT:
+                if (resultCode == getActivity().RESULT_OK) {
+                    Log.e("DIALOG_RC_REPORT","aaaaaaaa");
+                    extraBundle = data.getExtras();
+                    int reportType = extraBundle.getInt("type", -1);
+                    if(reportType != -1){
+                        reportUser(reportType);
+                    }
+                }
+                break;
+            case DIALOG_RC_SEND_REQ:
+                if (resultCode == getActivity().RESULT_OK) {
+                    Log.e("DIALOG_RC_SEND_REQ","aaaaaaaa");
+                    extraBundle = data.getExtras();
+                    String msg = extraBundle.getString("msg");
+                    FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
+                    if(msg != null && result != null){
+                        updateStatus(StatusInfo.STATUS_PENDING, result.userId, msg);
+                    }
+                }
+                break;
+        }
+    }
+
+    private void restoreList(){
+        if(FriendsTwoDataManager.getInstance().items.size() > 0){
+            dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("Loading data...");
+            dialog.show();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    start = FriendsTwoDataManager.getInstance().getStart();
+                    reqDate = FriendsTwoDataManager.getInstance().getReqDate();
+                    mSearchOption = FriendsTwoDataManager.getInstance().getmSearchOption();
+                    spinner.setSelection(mSearchOption);
+                    mAdapter.clearAll();
+                    mAdapter.setTotalCount(FriendsTwoDataManager.getInstance().getTotalCount());
+                    mAdapter.addAll(FriendsTwoDataManager.getInstance().getList());
+                    int lastVisibleItemPosition = FriendsTwoDataManager.getInstance().getLastVisibleItemPosition();
+                    recyclerView.scrollToPosition(lastVisibleItemPosition);
+                    FriendsTwoDataManager.getInstance().clearAll();
+                    if(dialog.isShowing() == true){
+                        dialog.dismiss();
+                    }
+                }
+            }, 100);
+        } else {
+            reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+            start = 0;
+            initUnivUsers();
+        }
+    }
+
+    private void storeList() {
+        //기존 데이타 백업
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FriendsTwoDataManager.getInstance().setmSearchOption(mSearchOption);
+                //+3해주는건 검색필터 입력창이 열릴때 lastVisiblePosition이 3~4정도 줄어듬
+                FriendsTwoDataManager.getInstance().setLastVisibleItemPosition(layoutManager.findLastCompletelyVisibleItemPosition() + 3);
+                FriendsTwoDataManager.getInstance().setTotalCount(mAdapter.getTotalCount());
+                FriendsTwoDataManager.getInstance().setStart(start);
+                FriendsTwoDataManager.getInstance().setReqDate(reqDate);
+                FriendsTwoDataManager.getInstance().clearAll();
+                FriendsTwoDataManager.getInstance().addAll(mAdapter.getGroupItems());
+            }
+        }, 100);
+
+    }
+
 
 
 

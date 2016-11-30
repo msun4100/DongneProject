@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -15,8 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +40,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.playlog.internal.LogEvent;
@@ -97,6 +105,7 @@ public class GcmChatFragment extends PagerFragment {
     public static int lastRoomSize = 0;
     public static final int DIALOG_RC_ROOM_DELETE = 203;
 //    public static int unreadCount = 0;
+    InputMethodManager imm;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gcmchat, container, false);
@@ -108,6 +117,7 @@ public class GcmChatFragment extends PagerFragment {
         activity = (AppCompatActivity) getActivity();
         emptyMsg = (TextView)view.findViewById(R.id.text_empty_msg);
         emptyMsg.setText(getResources().getString(R.string.empty_chat_msg));
+        imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,20 +223,72 @@ public class GcmChatFragment extends PagerFragment {
         //        search views
         searchInput = (CustomEditText)view.findViewById(R.id.custom_editText1);
         searchInput.setHint(getResources().getString(R.string.chat_search_hint_msg));
+        searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+//                    String input = searchInput.getText().toString();
+//                    if(!input.equals("") && input != null){
+//                        searchProcess(input);
+//                    } else {
+//                        Toast.makeText(getActivity(), "검색어를 입력해주세요.", Toast.LENGTH_SHORT).show();
+//                    }
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
+        searchInput.addTextChangedListener(new MyTextWatcher(searchInput));
         searchIcon = (ImageView)view.findViewById(R.id.image_search_icon);
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                String input = searchInput.getText().toString();
-                if(!input.equals("") && input != null){
-                    Toast.makeText(getActivity(), "searchInput:"+input, Toast.LENGTH_SHORT).show();
-                }
+//                String input = searchInput.getText().toString();
+//                if(!input.equals("") && input != null){
+//                    if (isSearching == false) {
+//                        searchProcess(input);
+//                    } else if(isSearching == true){
+//                        refreshList();
+//                    }
+//                } else {
+//                    Toast.makeText(getActivity(), "검색어를 입력해주세요.", Toast.LENGTH_SHORT).show();
+//                }
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                searchInput.setText("");
+                mAdapter.filter("", (ArrayList<ChatRoom>) ChatRoomDataManager.getInstance().getList()); //empty text --> restore list
             }
         });
+
+        //	on 1118
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("TAB2_"+getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
 
         return view;
     }   //end of onCreateView
 
+    public boolean isSearching = false;
+    private void searchProcess(String input){
+        ChatRoomDataManager.getInstance().clearAll();
+        for(ChatRoom cr : chatRoomArrayList){
+            if (cr.name.contains(input)){
+                ChatRoomDataManager.getInstance().add(cr);
+            }
+        }
+
+        if(ChatRoomDataManager.getInstance().getList().size() > 0){
+            isSearching = true;
+            searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+            chatRoomArrayList.clear();
+//            mAdapter.notifyDataSetChanged();
+            chatRoomArrayList.addAll(ChatRoomDataManager.getInstance().getList());
+            mAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(getActivity(), "'"+input+"' 채팅방을 찾을 수 없습니다.",Toast.LENGTH_SHORT).show();
+        }
+    }
     private void showLayout(){
         if (mAdapter.getItemCount() > 0){
             emptyMsg.setVisibility(View.GONE);
@@ -403,6 +465,9 @@ public class GcmChatFragment extends PagerFragment {
                             }
                         }
 //                        lastRoomSize = chatRoomsArray.size();
+//                        mAdapter.setOriginItems(chatRoomArrayList); //using at filter list
+                        ChatRoomDataManager.getInstance().clearAll();
+                        ChatRoomDataManager.getInstance().addAll(chatRoomArrayList);
                         Log.e(TAG, "onSuccess: num "+num );
                         Log.e(TAG, "onSuccess: isFirst "+isFirst );
                         if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
@@ -827,6 +892,10 @@ public class GcmChatFragment extends PagerFragment {
     Handler mHandler = new Handler(Looper.getMainLooper());
     private void refreshList(){
         Log.e(TAG, "refreshList: searchAllRoom "+ DBManager.getInstance().searchAllRoom().toString() );
+        isSearching = false;
+        searchInput.setText("");
+        searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+        ChatRoomDataManager.getInstance().clearAll();
         mHandler.postDelayed(new Runnable() {
 
             @Override
@@ -869,5 +938,32 @@ public class GcmChatFragment extends PagerFragment {
     public static int c_id;
     public static int rc_num;
     public static String roomName;
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+        private View view;
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            switch (view.getId()) {
+                case R.id.custom_editText1:
+                    String str = charSequence.toString();
+                    mAdapter.filter(str, (ArrayList<ChatRoom>) ChatRoomDataManager.getInstance().getList());
+                    if (str.length() == 0){
+                        searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+                    } else if(str.length() > 0){
+                        searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
+                    }
+                    break;
+            }
+        }
+        public void afterTextChanged(Editable editable) {}
+    }
 
 } //end of class

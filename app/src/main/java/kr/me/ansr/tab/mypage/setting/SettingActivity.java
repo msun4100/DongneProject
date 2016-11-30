@@ -11,6 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.common.account.LogoutDialogFragment;
 import kr.me.ansr.common.account.PWDialogFragment;
@@ -47,6 +52,10 @@ public class SettingActivity extends AppCompatActivity {
         helpView.setOnClickListener(mListener);
         supView.setOnClickListener(mListener);
         cacheView.setOnClickListener(mListener);
+
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     public View.OnClickListener mListener = new View.OnClickListener(){
@@ -81,5 +90,17 @@ public class SettingActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
     }
 }

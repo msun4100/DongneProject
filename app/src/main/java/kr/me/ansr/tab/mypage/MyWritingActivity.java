@@ -19,6 +19,7 @@ import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.tab.board.BoardWriteActivity;
 import kr.me.ansr.tab.board.one.BoardInfo;
 import kr.me.ansr.tab.board.one.BoardResult;
+import kr.me.ansr.tab.board.reply.ReplyResult;
 import kr.me.ansr.tab.mypage.mywriting.tabone.OneFragment;
 import kr.me.ansr.tab.mypage.mywriting.tabtwo.TwoFragment;
 
@@ -116,12 +117,24 @@ public class MyWritingActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+            case TwoFragment.MY_WRITING_COMMENT_RC_NUM:
+                if (resultCode == RESULT_OK) {
+                    Bundle extraBundle = data.getExtras();
+                    BoardResult result = (BoardResult) extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
+                    if(result != null){
+                        Log.e(TAG, "onActivityResult: MY_WRITING_COMMENT_RC_NUM"+ result.toString() );
+                        ReplyResult rr = new ReplyResult();
+                        EventBus.getInstance().post(rr);    //reply event만 발생시키고 받는 쪽에서는 새로고침
+                        EventBus.getInstance().post(result);
+                    }
+                }
+                break;
             case BoardInfo.BOARD_RC_NUM:
                 if (resultCode == RESULT_OK) {
                     Bundle extraBundle = data.getExtras();
                     BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
                     if(result != null){
-                        Log.e(TAG, "onActivityResult: "+ result.toString() );
+                        Log.e(TAG, "onActivityResult: BOARD_RC_NUM:"+ result.toString() );
                         EventBus.getInstance().post(result);
                     }
                 }

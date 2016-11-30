@@ -18,6 +18,7 @@ public class ChatInfo {
     public ArrayList<Message> messages;
     public User user;
     public ArrayList<ChatRoom> chat_rooms;
+    public int total;
 
     public ChatInfo(){}
     public ChatInfo(Boolean error, String message, ArrayList<Message> messages, User user) {
@@ -25,5 +26,14 @@ public class ChatInfo {
         this.message = message;
         this.messages = messages;
         this.user = user;
+    }
+
+    public ChatInfo(Boolean error, String message, ArrayList<Message> messages, User user, ArrayList<ChatRoom> chat_rooms, int total) {
+        this.error = error;
+        this.message = message;
+        this.messages = messages;
+        this.user = user;
+        this.chat_rooms = chat_rooms;
+        this.total = total;
     }
 }

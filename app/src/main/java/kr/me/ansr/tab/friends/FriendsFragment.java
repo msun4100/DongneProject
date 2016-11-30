@@ -2,6 +2,7 @@ package kr.me.ansr.tab.friends;
 
 
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.PropertyManager;
@@ -33,6 +34,10 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 
@@ -69,17 +74,20 @@ public class FriendsFragment extends PagerFragment {
 		mAdapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			@Override
 			public void onTabChanged(String tabId) {
+//				Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
 				switch (tabId){
 					case "friends1":
 						currentTab = "f1";
 						totalUniv.setTextColor(0xff606a72);
 						totalFriends.setTextColor(0xff99999a);
+//						t.send(new HitBuilders.EventBuilder().setCategory("TAB1_"+getClass().getSimpleName()).setAction("Press Tab").setLabel("Tab1 Click").build());
 						break;
 					case "friends2":
 					default:
 						currentTab = "f2";
 						totalUniv.setTextColor(0xff99999a);	//ffcbc8c6 보다 진한 색
 						totalFriends.setTextColor(0xff606a72);
+//						t.send(new HitBuilders.EventBuilder().setCategory("TAB1_"+getClass().getSimpleName()).setAction("Press Tab").setLabel("Tab2 Click").build());
 						break;
 				}
 			}
@@ -101,6 +109,11 @@ public class FriendsFragment extends PagerFragment {
 
 		totalUniv = (TextView)view.findViewById(R.id.text_total_univ);
 		totalFriends = (TextView)view.findViewById(R.id.text_total_friends);
+
+//		on 1118
+		Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+		t.setScreenName("TAB1_"+getClass().getSimpleName());
+		t.send(new HitBuilders.AppViewBuilder().build());
 
 		//custom viewpager 때 수정한 코드
 		if (savedInstanceState != null) {
@@ -225,5 +238,12 @@ public class FriendsFragment extends PagerFragment {
 		}
 
 	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+	}
+
 
 }

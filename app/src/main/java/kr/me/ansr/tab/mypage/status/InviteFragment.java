@@ -10,7 +10,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import butterknife.Bind;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 
@@ -39,6 +44,10 @@ public class InviteFragment extends Fragment {
         kakao.setOnClickListener(mListener);
         fb.setOnClickListener(mListener);
         sms.setOnClickListener(mListener);
+
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
         return v;
     }
 
@@ -83,5 +92,16 @@ public class InviteFragment extends Fragment {
 //        getActivity().setResult(MediaStoreActivity.RC_SELECT_PROFILE_CODE, intent);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(getActivity()).reportActivityStart(getActivity());
+    }
+
+    @Override
+    public void onStop() {
+        GoogleAnalytics.getInstance(getActivity()).reportActivityStop(getActivity());
+        super.onStop();
+    }
 }
 

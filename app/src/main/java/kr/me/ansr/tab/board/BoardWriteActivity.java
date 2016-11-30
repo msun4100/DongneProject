@@ -46,6 +46,9 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.define.Define;
 
@@ -177,6 +180,10 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
 
         rootView = (View)findViewById(R.id.rootView);
         setupParent(rootView);
+
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     protected void setupParent(View view) {
@@ -325,7 +332,7 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
 //        }
         String type = getBoardType();
         Log.e("postWriteType:", type);
-        int pageId = Integer.valueOf(PropertyManager.getInstance().getUserId()); //임시 pageId == univId
+        int pageId = Integer.valueOf(PropertyManager.getInstance().getUnivId()); //임시 pageId == univId
         String title = "Title";
         String content = inputBody.getText().toString();
         NetworkManager.getInstance().postDongneBoardWrite(BoardWriteActivity.this, pageId, type, title, content, new NetworkManager.OnResultListener<WriteInfo>() {
@@ -646,6 +653,16 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
         alert.show();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
 
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
 
 }

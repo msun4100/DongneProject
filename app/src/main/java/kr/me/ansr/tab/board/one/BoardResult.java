@@ -37,6 +37,8 @@ public class BoardResult implements Serializable {
         public int enterYear;
         public String username;
         public String deptname;
+        public String updatedAt;
+        public Pic pic;
         public BoardUser(){}
     }
 

@@ -15,6 +15,7 @@ import com.bumptech.glide.signature.StringSignature;
 
 
 import kr.me.ansr.MyApplication;
+import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 import kr.me.ansr.database.Push;
 import kr.me.ansr.gcmchat.gcm.NotificationUtils;
@@ -85,10 +86,14 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         } else {
             nameView.setText(item.name);
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.user_id).replace(":size", "small");
+            String timeStamp = PropertyManager.getInstance().getLastUpdate();
+            if(timeStamp == null || TextUtils.isEmpty(timeStamp)){
+                timeStamp = "tempSignature";
+            }
             Glide.with(mContext).load(url)
                     .placeholder(R.drawable.e__who_icon)
                     .centerCrop()
-                    .signature(new StringSignature(item.created_at))
+                    .signature(new StringSignature(timeStamp))
                     .into(iconThumbView);
         }
 

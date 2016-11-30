@@ -82,6 +82,7 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
         notifyDataSetChanged();
     }
+
     public void add(ReplyResult child){
         items.add(child);
         notifyDataSetChanged();

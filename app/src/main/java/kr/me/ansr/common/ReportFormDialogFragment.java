@@ -35,6 +35,7 @@ public class ReportFormDialogFragment extends DialogFragment {
     public static final String TAG_BOARD_DETAIL = "BoardDetail";
 
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_TWO_UNIV = "tabTwoUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
 
     public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
@@ -95,6 +96,12 @@ public class ReportFormDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if (tag.equals(TAG_TAB_ONE_UNIV)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("type", spinnerPos);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if (tag.equals(TAG_TAB_TWO_UNIV)) {
                         Intent intent = new Intent();
                         intent.putExtra("type", spinnerPos);
                         getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -162,6 +169,7 @@ public class ReportFormDialogFragment extends DialogFragment {
 
         switch (tag) {
             case TAG_TAB_ONE_UNIV:
+            case TAG_TAB_TWO_UNIV:
                 break;
             case TAG_TAB_ONE_MY:
                 break;

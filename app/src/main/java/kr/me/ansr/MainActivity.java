@@ -1,6 +1,7 @@
 package kr.me.ansr;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +27,10 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.login.SplashActivity;
@@ -148,6 +153,10 @@ public class MainActivity extends AppCompatActivity {
 		chatCount = (TextView) findViewById(R.id.tab_chat_count);
 		pushCount = (TextView) findViewById(R.id.tab_push_count);
 
+		Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+		t.setScreenName("MainActivity");
+		t.send(new HitBuilders.AppViewBuilder().build());
+
 		if (savedInstanceState != null) {
 			mAdapter.onRestoreInstanceState(savedInstanceState);
 			String tag = savedInstanceState.getString("tabTag");
@@ -187,8 +196,12 @@ public class MainActivity extends AppCompatActivity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
+
+		Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Menu").setLabel("setting Click").build());
 			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation()
 					+"\nlatitude "+PropertyManager.getInstance().getLatitude()
 					+"\nlongitude "+PropertyManager.getInstance().getLongitude()
@@ -209,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 			return true;
 		}
         if (id == R.id.logout) {
+			t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Menu").setLabel("logout Click").build());
             PropertyManager.getInstance().clearProperties();
             Intent intent = new Intent(MainActivity.this, SplashActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -321,5 +335,17 @@ public class MainActivity extends AppCompatActivity {
 //					break;
 //			}
 //		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
+	}
+
+	@Override
+	protected void onStop() {
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
+		super.onStop();
 	}
 }

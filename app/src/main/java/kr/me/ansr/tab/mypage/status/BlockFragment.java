@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -161,6 +164,9 @@ public class BlockFragment extends Fragment {
         reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initData();
 
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
         return view;
     }
 
@@ -469,7 +475,17 @@ public class BlockFragment extends Fragment {
         EventBus.getInstance().unregister(this);
         super.onDestroyView();
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(getActivity()).reportActivityStart(getActivity());
+    }
 
+    @Override
+    public void onStop() {
+        GoogleAnalytics.getInstance(getActivity()).reportActivityStop(getActivity());
+        super.onStop();
+    }
 
 }
 

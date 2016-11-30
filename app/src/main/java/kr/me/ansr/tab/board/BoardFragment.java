@@ -2,6 +2,7 @@ package kr.me.ansr.tab.board;
 
 
 import kr.me.ansr.MainActivity;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.PagerFragment;
 import kr.me.ansr.R;
 import kr.me.ansr.common.event.ActivityResultEvent;
@@ -33,6 +34,9 @@ import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 public class BoardFragment extends PagerFragment {
 
@@ -69,13 +73,16 @@ public class BoardFragment extends PagerFragment {
 			@Override
 			public void onTabChanged(String tabId) {
 //				Log.e("current tabId:", tabId);
+//				Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
 				switch (tabId){
 					case "ttab2":
 						currentTab = "1";
+//						t.send(new HitBuilders.EventBuilder().setCategory("TAB3_"+getClass().getSimpleName()).setAction("Press Tab").setLabel("Tab2 Click").build());
 						break;
 					case "ttab1":
 					default:
 						currentTab = "0";
+//						t.send(new HitBuilders.EventBuilder().setCategory("TAB3_"+getClass().getSimpleName()).setAction("Press Tab").setLabel("Tab1 Click").build());
 						break;
 				}
 			}
@@ -91,6 +98,11 @@ public class BoardFragment extends PagerFragment {
 			public void onPageScrollStateChanged(int arg0) {
 			}
 		});
+
+		//	on 1118, child 에 달아봄
+//		Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+//		t.setScreenName("TAB3_"+getClass().getSimpleName());
+//		t.send(new HitBuilders.AppViewBuilder().build());
 
 		//custom viewpager 때 수정한 코드
 		if (savedInstanceState != null) {

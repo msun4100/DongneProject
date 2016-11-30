@@ -11,8 +11,13 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
 
@@ -51,6 +56,9 @@ public class AlarmActivity extends AppCompatActivity {
         swLike.setOnCheckedChangeListener(mListener);
         swRingtone.setOnCheckedChangeListener(mListener);
 
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
         init();
     }
 
@@ -171,5 +179,17 @@ public class AlarmActivity extends AppCompatActivity {
 //            overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
     }
 }

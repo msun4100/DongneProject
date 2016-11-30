@@ -253,7 +253,7 @@ public class SplashActivity extends Activity {
             return;
         }
         mLM.removeUpdates(mListener);
-        Log.e(TAG, "onStop: "+"==========removeUpdates===========" );
+//        Log.e(TAG, "onStop: "+"==========removeUpdates===========" );
 
     }
     //=========위치정보 세팅===========

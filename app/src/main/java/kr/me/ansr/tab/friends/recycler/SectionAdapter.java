@@ -74,6 +74,7 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         g.children.get(index).sns = child.sns;
                         g.children.get(index).desc = child.desc;
                         g.children.get(index).job = child.job;
+                        g.children.get(index).pic = child.pic;
                         g.children.get(index).updatedAt = child.updatedAt;
                     }
                     break;

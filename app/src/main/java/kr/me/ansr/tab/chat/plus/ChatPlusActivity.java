@@ -19,8 +19,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.ArrayList;
 
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
@@ -74,6 +79,8 @@ public class ChatPlusActivity extends AppCompatActivity {
                 SparseBooleanArray checkedItems = mAdapter.getCheckedItemPositions();
                 ArrayList<FriendsResult> list = new ArrayList<>();
 
+                Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+                t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Button").setLabel("Add Chat Room").build());
                 switch (mAdapter.getMode()){
                     case ChatPlusAdapter.MODE_MULTIPLE:
                         String roomName = PropertyManager.getInstance().getUserName() + ",";
@@ -229,6 +236,10 @@ public class ChatPlusActivity extends AppCompatActivity {
 //        reqDate = MyApplication.getInstance().getCurrentTimeStampString();
         initData();
 
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
+
     }
 
     ProgressDialog dialog = null;
@@ -356,4 +367,17 @@ public class ChatPlusActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
+
 }

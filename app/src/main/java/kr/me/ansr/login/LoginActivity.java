@@ -42,6 +42,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 /**
  * Created by KMS on 2016-07-11.
  */
@@ -237,6 +241,11 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		});
 		inputLayoutPw = (TextInputLayout) findViewById(R.id.input_layout_pw);
 		inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
+
+		Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+		t.setScreenName(getClass().getSimpleName());
+		t.send(new HitBuilders.AppViewBuilder().build());
+
 	}
 
 	private void requestFocus(View view) {
@@ -347,5 +356,18 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		dialog = new ProgressDialog(LoginActivity.this);
 		dialog.setTitle("Loading....");
 		dialog.show();
+	}
+
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 }

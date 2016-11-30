@@ -17,6 +17,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -106,21 +109,26 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         thirdIcon.setOnClickListener(mListener);
         backIcon.setOnClickListener(mListener);
 
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("FriendsDetailActivity");
+        t.send(new HitBuilders.AppViewBuilder().build());
 //        init();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+//        Log.e(TAG, "onResume: " );
         init(); //프로필만 바꾸고 취소 버튼을 누른경우 프로필이미지 또한 변경하기 위해
     }
 
     public View.OnClickListener mListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
+            Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
             switch (v.getId()){
                 case R.id.image_friends_detail_menu_1:
+                    t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button1 Click").build());
                     switch (mItem.status){
                         case -100:
                         case 0:
@@ -164,6 +172,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
 
                     break;
                 case R.id.image_friends_detail_menu_2:
+                    t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button2 Click").build());
                     if(mItem.userId == Integer.valueOf(PropertyManager.getInstance().getUserId())){
                         Intent intent = new Intent(FriendsDetailActivity.this, MediaStoreActivity.class);
                         intent.putExtra("mItem", mItem);
@@ -176,6 +185,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     }
                     break;
                 case R.id.image_friends_detail_menu_3:
+                    t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button3 Click").build());
                     ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
                     Bundle b = new Bundle();
                     b.putSerializable("userInfo", mItem);
@@ -261,13 +271,19 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             distanceView.setText(mItem.temp);
         } else { distanceView.setText("0m");}
 
-        String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "large");
-        Glide.with(getApplicationContext()).load(url)
-                .placeholder(R.drawable.e__who_icon)
-                .centerCrop()
+        if( !TextUtils.isEmpty(mItem.pic.large) && mItem.pic.large.equals("1") ){
+            String url = Config.FILE_GET_URL.replace(":userId", ""+mItem.userId).replace(":size", "large");
+            Glide.with(getApplicationContext()).load(url)
+                    .placeholder(R.drawable.e__who_icon)
+                    .centerCrop()
 //                .override(348,348)
-                .signature(new StringSignature(mItem.getUpdatedAt()))
-                .into(thumbIcon);
+                    .signature(new StringSignature(mItem.getUpdatedAt()))
+                    .into(thumbIcon);
+        } else {
+            thumbIcon.setImageResource(R.drawable.e__who_icon);
+        }
+
+
 
     }
     public void nextProcess(String msg){
@@ -454,14 +470,16 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+//        Log.e(TAG, "onActivityResult: " );
         switch (requestCode) {
-            case 123:
+            case 123:   //call MediaStoreActivity
                 if (resultCode == RESULT_OK) {
 //                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
                     Bundle extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
                     if(result != null){
                         mItem = result;
+//                        mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
 //                        init();   //onResume에서 호출
                     }
                 }
@@ -470,7 +488,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
                     if(result != null){
                         mItem = result;
-                        mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
+//                        mItem.updatedAt = MyApplication.getInstance().getCurrentTimeStampString();
 //                        init();
                     }
                 }
@@ -591,4 +609,15 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         dialog.show();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+    }
 }

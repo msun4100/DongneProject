@@ -17,13 +17,15 @@ import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.GroupItem;
 import kr.me.ansr.tab.friends.recycler.ItemViewHolder;
+import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
+import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
 import kr.me.ansr.tab.friends.recycler.SectionHeaderViewHolder;
 
 /**
  * Created by KMS on 2016-07-25.
  */
 public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements  ItemViewHolder.OnLikeClickListener{
+        implements  OnItemLongClickListener, OnItemClickListener, ItemViewHolder.OnLikeClickListener{
     public List<GroupItem> items = new ArrayList<GroupItem>();
     public int blockCount = 0;
 
@@ -44,6 +46,30 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     Random r = new Random();
+
+    //start recyclerView.OnItemClick implements
+    OnItemClickListener itemClickListener;
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        itemClickListener = listener;
+    }
+    @Override
+    public void onItemClick(View view, int position) {
+        if (itemClickListener != null) {
+            itemClickListener.onItemClick(view, position);
+        }
+    }//end of recyclerView.OnItemClick implements
+
+    OnItemLongClickListener itemLongClickListener;
+    public void setOnItemLongClickListener(OnItemLongClickListener listener){
+        itemLongClickListener = listener;
+    }
+    @Override
+    public void onItemLongClick(View view, int position) {
+        if (itemLongClickListener != null) {
+            itemLongClickListener.onItemLongClick(view, position);
+        }
+    }
+    //for individual listener
     public void findOneAndModify(FriendsResult child){
         for (GroupItem g : items) {
             for(FriendsResult fr : g.children){
@@ -56,6 +82,7 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         g.children.get(index).sns = child.sns;
                         g.children.get(index).desc = child.desc;
                         g.children.get(index).job = child.job;
+                        g.children.get(index).pic = child.pic;
                         g.children.get(index).updatedAt = child.updatedAt;
                     }
                     break;
@@ -113,6 +140,28 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    public void addAll(List<GroupItem> items){
+        this.items.addAll(items);
+        notifyDataSetChanged();
+    }
+
+    public List getGroupItems(){
+        return this.items;
+    }
+
+    public void clearAll() {
+//        items.clear();
+//        if(items.size() < 2){
+//            return;
+//        }
+
+//        for(int i=0; i<items.size(); i++){
+//            items.get(i).children.clear();
+//        }
+        this.items.clear();
+        notifyDataSetChanged();
+    }
+
     public static final int VIEW_TYPE_SECTION_HEADER = 0;
     public static final int VIEW_TYPE_ITEM = 1;
 
@@ -140,7 +189,8 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_ITEM :
                 view = inflater.inflate(R.layout.view_section_child, parent, false);
                 ItemViewHolder holder = new ItemViewHolder(view, parent.getContext());
-
+                holder.setOnItemClickListener(this);
+                holder.setOnItemLongClickListener(this);
                 holder.setOnLikeClickListener(this);
                 return holder;
         }

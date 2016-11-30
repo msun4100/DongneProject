@@ -6,10 +6,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -77,20 +80,19 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private String chatRoomId;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout refreshLayout;
     private LinearLayoutManager layoutManager;
     private ChatRoomThreadAdapter mAdapter;
     private ArrayList<Message> messageArrayList;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private EditText inputMessage;
     private Button btnSend;
-
 //    =====================
     TextView toolbarTitle;
     ImageView toolbarMenu;
     FriendsResult mItem;
     ArrayList<FriendsResult> mList = new ArrayList<>(); //단톡방 리스트
     String roomName;
-
     InputMethodManager imm;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +100,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         setContentView(R.layout.a_activity_chat_room);
 //        Log.d(TAG, "onCreate: "+ PropertyManager.getInstance().getIsTab2Visible());   //only visible
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.common_back2);
+        toolbar.setNavigationIcon(R.drawable.common_back_selector);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.e__titlebar_2));
@@ -150,7 +152,55 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         });
         btnSend = (Button) findViewById(R.id.btn_detail_send);
+
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+            @Override
+            public void onRefresh() {
+                if(Integer.parseInt(chatRoomId) != -1){
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+//                            start = 0;
+//                            reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+//                            fetchChatThread(Integer.parseInt(chatRoomId));
+                            refreshLayout.setRefreshing(false);
+                        }
+                    }, 500);
+                }
+            }
+        });   //this로 하려면 implements 하고 오버라이드 코드 작성하면 됨.
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (isFirstItem && newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    if(Integer.parseInt(chatRoomId) != -1){
+//                        getMoreItem(Integer.parseInt(chatRoomId));
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                int totalItemCount = mAdapter.getItemCount();
+////                int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+//                int firstCompletelyVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
+////                Log.e(TAG, "onScrolled: lastCvisible"+ lastVisibleItemPosition );
+//                Log.e(TAG, "onScrolled: totalItemCount "+ totalItemCount);
+//                Log.e(TAG, "onScrolled: firstCvisible "+ firstCompletelyVisibleItemPosition);
+////                if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+//                if (totalItemCount > 0 && firstCompletelyVisibleItemPosition != RecyclerView.NO_POSITION && ( totalItemCount - firstCompletelyVisibleItemPosition ) == totalItemCount) {
+//                    isFirstItem = true;
+//                } else {
+//                    isFirstItem = false;
+//                }
+//                Log.e(TAG, "onScrolled: isFirstItem "+ isFirstItem);
+//            }
+//        });
         messageArrayList = new ArrayList<>();
 
         // self user id is to identify the message owner
@@ -238,6 +288,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         } else {
 //            fetchChatThreadVolley();
+            start = 0;
             fetchChatThread(Integer.valueOf(chatRoomId));
         }
     }
@@ -436,6 +487,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 logMsg.createdAt = createdAt;
                                 logMsg.bgColor = 1;    //view type log
                                 messageArrayList.add(logMsg);
+                                mAdapter.logCount++;
                             }
                             message.bgColor = 0; //view type message
                             messageArrayList.add(message);
@@ -492,6 +544,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 logMsg.createdAt = createdAt;
                                 logMsg.bgColor = 1;    //view type log
                                 messageArrayList.add(logMsg);
+                                mAdapter.logCount++;
                             }
                             message.bgColor = 0; //view type message
                             messageArrayList.add(message);
@@ -546,7 +599,16 @@ public class ChatRoomActivity extends AppCompatActivity {
 //        }
 //    }
 
-    String lastDay = "abcdefghijklm";   //init over length 10
+    String lastDay = "abcdefghijklm";   //init length over 10
+
+    public int start = 0;
+    public int DISPLAY_NUM = 20;
+    ProgressDialog dialog = null;
+    boolean isFirstItem = false;
+    Handler mHandler = new Handler(Looper.getMainLooper());
+    public String reqDate = null;
+    boolean isMoreData = false;
+
     private void fetchChatThread(final int chatRoomId){
         final String lastJoin;
         if(DBManager.getInstance().isRoomExists(chatRoomId)){
@@ -559,10 +621,20 @@ public class ChatRoomActivity extends AppCompatActivity {
             Toast.makeText(ChatRoomActivity.this, "timeStamp undefined error", Toast.LENGTH_SHORT).show();
             return;
         }
-        NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, new NetworkManager.OnResultListener<ChatInfo>(){
+/*
+*   start, display 0 말고 넣어야함!!
+*
+*
+*
+*
+*
+* */
+        NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, 0, 0, new NetworkManager.OnResultListener<ChatInfo>(){
             @Override
             public void onSuccess(okhttp3.Request request, ChatInfo result) {
                 if (result.error.equals(false)) {
+                    mAdapter.setTotalCount(result.total);
+                    mAdapter.logCount = 0;
                     if(result.messages != null){
                         for(int i=0; i<result.messages.size(); i++){
                             Message message = new Message();
@@ -578,10 +650,12 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 logMsg.createdAt = createdAt;
                                 logMsg.bgColor = 1;    //view type log
                                 messageArrayList.add(logMsg);
+                                mAdapter.logCount++;
                             }
                             message.bgColor = 0; //view type message
                             messageArrayList.add(message);
                         }
+                        start++;
                     }
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
@@ -592,13 +666,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 recyclerView.scrollToPosition(mAdapter.getItemCount()-1); //안먹네
                             }
                         }, 500);
-
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
                     messageArrayList.clear();
                     mAdapter.notifyDataSetChanged();
                 }
+                refreshLayout.setRefreshing(false);
                 dialog.dismiss();
             }
 
@@ -607,6 +681,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
                 messageArrayList.clear();
                 mAdapter.notifyDataSetChanged();
+                refreshLayout.setRefreshing(false);
                 dialog.dismiss();
             }
         });
@@ -615,7 +690,86 @@ public class ChatRoomActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    ProgressDialog dialog = null;
+    private void getMoreItem(final int chatRoomId) {
+        if (isMoreData) return;
+        isMoreData = true;
+        if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() + mAdapter.logCount) {
+            final String lastJoin;
+            if(DBManager.getInstance().isRoomExists(chatRoomId)){
+                lastJoin = DBManager.getInstance().searchRoom(chatRoomId).get(0).lastJoin;
+            } else {
+                lastJoin = "";
+            }
+            if(lastJoin == null || lastJoin.equals("")){
+                Log.e(TAG, "fetchChatThread: timeStamp undefined error");
+                Toast.makeText(ChatRoomActivity.this, "timeStamp undefined error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, start, DISPLAY_NUM, new NetworkManager.OnResultListener<ChatInfo>(){
+                @Override
+                public void onSuccess(okhttp3.Request request, ChatInfo result) {
+                    if (result.error.equals(false)) {
+                        mAdapter.setTotalCount(result.total);
+                        if(result.messages != null){
+                            for(int i=0; i < result.messages.size();  i++){
+                                Message message = new Message();
+                                message.setId(result.messages.get(i).getId());
+                                message.setMessage(result.messages.get(i).getMessage());
+                                message.chat_room_id = chatRoomId; // added on 1026
+                                message.setCreatedAt(result.messages.get(i).getCreatedAt());
+                                message.setUser(result.messages.get(i).getUser());
+                                String createdAt = result.messages.get(i).getCreatedAt();
+                                if(!lastDay.substring(0, 10).equals(createdAt.substring(0, 10))){
+                                    Message logMsg = new Message(); //같은 message변수를 쓰니까 2개씩 중복 됨
+                                    lastDay = createdAt;
+                                    logMsg.createdAt = createdAt;
+                                    logMsg.bgColor = 1;    //view type log
+                                    messageArrayList.add(logMsg);
+                                    mAdapter.logCount++;
+                                }
+                                message.bgColor = 0; //view type message
+                                messageArrayList.add(message);
+                            }
+                            start++;
+                        }
+                        mAdapter.notifyDataSetChanged();
+                        if (mAdapter.getItemCount() > 1) {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+//                                recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
+                                    recyclerView.scrollToPosition(mAdapter.getItemCount()-1); //안먹네
+                                }
+                            }, 500);
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                        messageArrayList.clear();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                    isMoreData = false;
+                    dialog.dismiss();
+                    refreshLayout.setRefreshing(false);
+                }
+
+                @Override
+                public void onFailure(okhttp3.Request request, int code, Throwable cause) {
+                    Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                    messageArrayList.clear();
+                    mAdapter.notifyDataSetChanged();
+
+                    isMoreData = false;
+                    dialog.dismiss();
+                    refreshLayout.setRefreshing(false);
+                }
+            });
+            dialog = new ProgressDialog(ChatRoomActivity.this);
+            dialog.setTitle("메시지 로딩...");
+            dialog.show();
+        }
+    }
+
+
     /**
      * Fetching all the messages of a single chat room
      * Using volley

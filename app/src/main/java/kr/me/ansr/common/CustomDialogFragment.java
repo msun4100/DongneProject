@@ -36,6 +36,7 @@ public class CustomDialogFragment extends DialogFragment {
     public static final String TAG_BOARD_WRITE = "boardWrite";
     public static final String TAG_STATUS_BLOCK = "statusBlock";
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_TWO_UNIV = "tabTwoUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
     public static final String TAG_TAB_THREE_STU = "tabThreeStu";
     public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
@@ -121,6 +122,12 @@ public class CustomDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if(tag.equals(TAG_TAB_ONE_UNIV)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("mItem", mItem);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_TWO_UNIV)) {
                         Intent intent = new Intent();
                         intent.putExtra("mItem", mItem);
                         getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);

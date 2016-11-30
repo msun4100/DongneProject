@@ -73,6 +73,8 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     items.get(index).sns = child.sns;
                     items.get(index).desc = child.desc;
                     items.get(index).job = child.job;
+                    items.get(index).pic = child.pic;
+                    items.get(index).updatedAt = child.updatedAt;
                 }
                 break;
             }

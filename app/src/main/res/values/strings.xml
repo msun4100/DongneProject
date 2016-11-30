@@ -81,7 +81,7 @@
     <string name="status_greeting_msg">반가워요~</string>
 
     <string name="image_home_change_thumb"><u>사진 수정</u></string>
-    <string name="chat_search_hint_msg">채팅방 이름(동문 이름), 대화내용 검색</string>
+    <string name="chat_search_hint_msg">채팅방 이름, 동문 이름 검색</string>
     <string name="title_activity_chat_plus">ChatPlusActivity</string>
 
 

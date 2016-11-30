@@ -1,6 +1,7 @@
 package kr.me.ansr.login.autocomplete.univ;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ public class UnivItemView extends FrameLayout {
 //        iconView.setImageDrawable(data.icon);
         univnameView.setText(data.univname);
         totalView.setText("("+data.total+"명)");
+        totalView.setVisibility(View.GONE);
 //        univIdView.setText(""+data.univId);
     }
 }

@@ -11,6 +11,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 
 /**
@@ -59,6 +64,9 @@ public class SignupWayActivity extends AppCompatActivity {
                 Toast.makeText(SignupWayActivity.this, "kakao talk",Toast.LENGTH_SHORT).show();
             }
         });
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
 
     }
 
@@ -84,4 +92,15 @@ public class SignupWayActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
 }

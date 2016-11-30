@@ -215,8 +215,11 @@ public class NetworkManager {
             json.addProperty("password", password);
             json.addProperty("pushId", PropertyManager.getInstance().getRegistrationId());
             json.addProperty("univId", PropertyManager.getInstance().getUnivId());
-            json.addProperty("lat", PropertyManager.getInstance().getLatitude());
-            json.addProperty("lon", PropertyManager.getInstance().getLongitude());
+            String lat = PropertyManager.getInstance().getLatitude();
+            String lon = PropertyManager.getInstance().getLongitude();
+            if(lat == null) lat = "0"; if(lon == null) lon = "0";
+            json.addProperty("lat", lat);
+            json.addProperty("lon", lon);
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
@@ -541,8 +544,11 @@ public class NetworkManager {
             job.addProperty("team", jobteam);
             // location 객체 생성
             JsonObject location = new JsonObject();
-            location.addProperty("lat", PropertyManager.getInstance().getLatitude());
-            location.addProperty("lon", PropertyManager.getInstance().getLongitude());
+            String lat = PropertyManager.getInstance().getLatitude();
+            String lon = PropertyManager.getInstance().getLongitude();
+            if(lat == null) lat = "0"; if(lon == null) lon = "0";
+            location.addProperty("lat", lat);
+            location.addProperty("lon", lon);
 
             json.add("univ", univ);
             json.add("job", job);
@@ -1524,13 +1530,15 @@ public class NetworkManager {
     }
 
 //    private static final String URL_CHAT_THREAD = SERVER_URL + "/chat_rooms/:id";
-    public Request postDongneFetchChatThread(Context context, int chatRoomId, String joined_at, final OnResultListener<ChatInfo> listener) {
+    public Request postDongneFetchChatThread(Context context, int chatRoomId, String joined_at, int start, int display, final OnResultListener<ChatInfo> listener) {
         try {
             String url = URL_CHAT_THREAD.replace(":id", ""+chatRoomId);
             final CallbackObject<ChatInfo> callbackObject = new CallbackObject<ChatInfo>();
 
             JsonObject json = new JsonObject();
             json.addProperty("joined_at", joined_at);
+            json.addProperty("start", ""+start);
+            json.addProperty("display", ""+display);
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)
@@ -1607,12 +1615,13 @@ public class NetworkManager {
     }
 
     private static final String URL_PUT_USER_EDIT = SERVER_URL + "/users";
-    public Request putDongnePutEditUser(Context context, String deptname, String desc1, String desc2, String jobname, String jobteam, String fb, String insta, final OnResultListener<CommonInfo> listener) {
+    public Request putDongnePutEditUser(Context context, String reqDate, String deptname, String desc1, String desc2, String jobname, String jobteam, String fb, String insta, final OnResultListener<CommonInfo> listener) {
         try {
             String url = URL_PUT_USER_EDIT;
 
             final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
             JsonObject json = new JsonObject();
+            json.addProperty("reqDate", reqDate);
             json.addProperty("email", PropertyManager.getInstance().getEmail());
             json.addProperty("deptname", deptname);
             json.addProperty("desc1", desc1);
@@ -1955,15 +1964,14 @@ public class NetworkManager {
 
 
     private static final String URL_DELETE_PIC_USER = SERVER_URL + "/deletePic/user/:userId";
-    public Request deleteDongnePicUser(Context context, int userId, final OnResultListener<CommonInfo> listener) {
+    public Request deleteDongnePicUser(Context context, String reqDate, int userId, final OnResultListener<CommonInfo> listener) {
         try {
             String url = URL_DELETE_PIC_USER.replace(":userId", ""+userId);
 
             final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
             JsonObject json = new JsonObject();
-            json.addProperty("reqDate", MyApplication.getInstance().getCurrentTimeStampString());
+            json.addProperty("reqDate", reqDate);
 //            json.addProperty("to", ""+to);
-
             String jsonString = json.toString();
             RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, jsonString);
             Request request = new Request.Builder().url(url)

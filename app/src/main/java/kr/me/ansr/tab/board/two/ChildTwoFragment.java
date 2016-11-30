@@ -7,6 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
 import kr.me.ansr.tab.board.PagerFragment;
 
@@ -24,6 +28,10 @@ public class ChildTwoFragment extends PagerFragment {
 
 
         initData();
+        Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName("TAB3_"+getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
+
         return view;
     }
 

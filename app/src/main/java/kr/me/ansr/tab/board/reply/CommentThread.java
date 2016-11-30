@@ -20,4 +20,14 @@ public class CommentThread implements Serializable {
         this.boardId = boardId;
         this.replies = replies;
     }
+
+    @Override
+    public String toString() {
+        return "CommentThread{" +
+                "_id='" + _id + '\'' +
+                ", title='" + title + '\'' +
+                ", boardId=" + boardId +
+                ", replies=" + replies +
+                '}';
+    }
 }

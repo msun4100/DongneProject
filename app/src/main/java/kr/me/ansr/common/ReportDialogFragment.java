@@ -17,6 +17,7 @@ import kr.me.ansr.R;
 import kr.me.ansr.tab.friends.detail.StatusResult;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
+import kr.me.ansr.tab.friends.tabtwo.FriendsTwoFragment;
 
 /**
  * Created by KMS on 2016-09-01.
@@ -24,6 +25,7 @@ import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 public class ReportDialogFragment extends DialogFragment {
     public static final String TAG_FRIENDS_DETAIL = "friendsDetail";
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_TWO_UNIV = "tabTwoUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
     public static final String TAG_TAB_THREE = "tabThree";
     public static final String TAG_LIST = "list";   //친구리스트에서
@@ -107,6 +109,45 @@ public class ReportDialogFragment extends DialogFragment {
                             dismiss();
                         }
                     }
+                    if(tag.equals(TAG_TAB_TWO_UNIV)) {
+                        if(data.status == 1){
+                            CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("tag", CustomDialogFragment.TAG_TAB_ONE_UNIV);
+                            b.putString("title","정말 친구를 끊으시겠습니까?");
+                            b.putString("body", "해당 유저와 대화하기 기능을 사용할 수 없습니다.");
+                            b.putSerializable("mItem", data);
+                            mDialogFragment.setArguments(b);
+                            mDialogFragment.setTargetFragment(getTargetFragment(), FriendsTwoFragment.DIALOG_RC_CUT_OFF);
+                            mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
+                            dismiss();
+                        } else if(data.status == -1){
+                            Log.e("친구신청: ",""+data.status);
+                            int userId =Integer.parseInt(PropertyManager.getInstance().getUserId());
+                            StatusResult sr = new StatusResult(
+                                    userId, //from
+                                    data.userId, //to
+                                    -1, //status
+                                    userId, //actionUser
+                                    "", //updatedAt
+                                    ""  //msg
+                            );
+                            InputDialogFragment mDialogFragment = InputDialogFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("tag", tag);
+                            b.putSerializable("mStatus", sr);
+                            b.putSerializable("mItem", data);
+                            mDialogFragment.setArguments(b);
+                            mDialogFragment.setTargetFragment(getTargetFragment(), FriendsTwoFragment.DIALOG_RC_SEND_REQ);
+                            mDialogFragment.show(getActivity().getSupportFragmentManager(), "inputDialog");
+                            dismiss();
+                        } else {
+                            //이미 신청한경우
+                            Toast.makeText(getActivity(), "이미 친구 신청을 한 상태 입니다.", Toast.LENGTH_SHORT).show();
+                            dismiss();
+                        }
+                    }
+
                     if(tag.equals(TAG_LIST)) {
                         Toast.makeText(getActivity(), "cut off", Toast.LENGTH_SHORT).show();
                         dismiss();
@@ -178,6 +219,23 @@ public class ReportDialogFragment extends DialogFragment {
                             dismiss();
                         }
                     }
+                    if(tag.equals(TAG_TAB_TWO_UNIV)) {
+                        if(data.status == 3){
+                            Toast.makeText(getActivity(), "이미 차단한 유저입니다.", Toast.LENGTH_SHORT).show();
+                            dismiss();
+                        } else {
+                            CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("tag", CustomDialogFragment.TAG_TAB_TWO_UNIV);
+                            b.putString("title","정말 차단 하시겠습니까?");
+                            b.putString("body", "더보기 - 친구관리에서 확인하실 수 있습니다.");
+                            b.putSerializable("mItem", data);
+                            mDialogFragment.setArguments(b);
+                            mDialogFragment.setTargetFragment(getTargetFragment(), FriendsTwoFragment.DIALOG_RC_BLOCK);
+                            mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
+                            dismiss();
+                        }
+                    }
                     if(tag.equals(TAG_LIST)) {
                         dismiss();
                     }
@@ -217,6 +275,18 @@ public class ReportDialogFragment extends DialogFragment {
                         b.putSerializable("bItem", null);
                         mDialogFragment.setArguments(b);
                         mDialogFragment.setTargetFragment(getTargetFragment(), FriendsSectionFragment.DIALOG_RC_REPORT);
+                        mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportFormDialog");
+                        dismiss();
+                    }
+
+                    if(tag.equals(TAG_TAB_TWO_UNIV)) {
+                        ReportFormDialogFragment mDialogFragment = ReportFormDialogFragment.newInstance();
+                        Bundle b = new Bundle();
+                        b.putString("tag", ReportFormDialogFragment.TAG_TAB_TWO_UNIV);
+                        b.putSerializable("fItem", data);
+                        b.putSerializable("bItem", null);
+                        mDialogFragment.setArguments(b);
+                        mDialogFragment.setTargetFragment(getTargetFragment(), FriendsTwoFragment.DIALOG_RC_REPORT);
                         mDialogFragment.show(getActivity().getSupportFragmentManager(), "reportFormDialog");
                         dismiss();
                     }

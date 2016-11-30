@@ -14,6 +14,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.NetworkManager;
@@ -61,6 +64,10 @@ public class ManagementActivity extends AppCompatActivity implements IDataReturn
         nameView = (TextView)findViewById(R.id.text_manage_username);
         emailView = (TextView)findViewById(R.id.text_manage_email);
         initData();
+
+        Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     private void initData(){
@@ -219,4 +226,17 @@ public class ManagementActivity extends AppCompatActivity implements IDataReturn
         finish();
         super.onBackPressed();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        super.onStop();
+    }
+
 }
