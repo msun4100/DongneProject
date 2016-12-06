@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.view.ViewPager
+    <kr.me.ansr.image.CustomViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -57,11 +57,12 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:orientation="vertical"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="10dp"
         android:padding="20dp">
 
         <TextView
             android:id="@+id/title"
+            android:text="img title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
@@ -69,7 +70,9 @@
             android:textStyle="bold" />
 
         <TextView
+            android:layout_marginTop="4dp"
             android:id="@+id/date"
+            android:text="img ts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

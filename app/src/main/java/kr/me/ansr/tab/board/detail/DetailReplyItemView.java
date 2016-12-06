@@ -2,6 +2,7 @@ package kr.me.ansr.tab.board.detail;
 
 import android.content.Context;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
 
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
@@ -76,6 +78,11 @@ public class DetailReplyItemView extends FrameLayout{
                         mListener.onLikeClick(DetailReplyItemView.this, mItem, 400);
                     }
                     break;
+                case R.id.image_board_reply_thumb:
+                    if (mListener != null) {
+                        mListener.onLikeClick(DetailReplyItemView.this, mItem, 500);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -85,7 +92,7 @@ public class DetailReplyItemView extends FrameLayout{
     private void init() {
         LayoutInflater.from(getContext()).inflate( R.layout.view_board_detail_reply_layout, this);
         iconThumb = (ImageView)findViewById(R.id.image_board_reply_thumb) ;
-
+        iconThumb.setOnClickListener(viewListener);
         usernameView = (TextView)findViewById(R.id.text_board_reply_reply_name);
         bodyView = (TextView)findViewById(R.id.text_board_reply_reply_content);
         usernameView.setOnClickListener(viewListener);
@@ -117,8 +124,14 @@ public class DetailReplyItemView extends FrameLayout{
             default:
 //                usernameView.setText(Html.fromHtml("<B>"+item.username+"</B>"));
                 usernameView.setText(item.username);
-                String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-                Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon).centerCrop().into(iconThumb);
+                if(!TextUtils.isEmpty(item.user.pic.small) && item.user.pic.small.equals("1")){
+                    String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
+                    Glide.with(getContext()).load(url).placeholder(R.drawable.e__who_icon).centerCrop()
+                            .signature(new StringSignature(item.user.updatedAt))
+                            .into(iconThumb);
+                } else {
+                    iconThumb.setImageResource(R.drawable.e__who_icon);
+                }
                 break;
         }
         bodyView.setText(item.body);

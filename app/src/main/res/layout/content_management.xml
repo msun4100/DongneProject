@@ -81,7 +81,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/f_my_next_selecotr"/>
+            android:src="@drawable/common_next"/>
     </LinearLayout>
 
     <LinearLayout
@@ -109,7 +109,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/f_my_next_selecotr"/>
+            android:src="@drawable/common_next"/>
     </LinearLayout>
 
     <LinearLayout
@@ -137,6 +137,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/f_my_next_selecotr"/>
+            android:src="@drawable/common_next"/>
+        <!--android:background="@drawable/z_btn_white_selector"-->
     </LinearLayout>
 </LinearLayout>

@@ -15,6 +15,7 @@ public class BoardInfo {
     public static final String BOARD_DETAIL_OBJECT = "detailObject";
     public static final String BOARD_DETAIL_MODIFIED_ITEM = "detailModifiedItem";
     public static final String BOARD_DETAIL_MODIFIED_POSITION = "detailModifiedPosition";
+
     public Boolean error;
     public String message;
     public int total;

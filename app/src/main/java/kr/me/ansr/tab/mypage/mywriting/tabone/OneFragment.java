@@ -99,8 +99,12 @@ public class OneFragment extends PagerFragment{
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
-                int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+                int lastCompletelyVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();  //Completely로 하면 -1리턴 되는 경우가 있음
+                if(lastCompletelyVisibleItemPosition == RecyclerView.NO_POSITION && ((totalItemCount - 1) == lastVisibleItemPosition) ){
+                    lastCompletelyVisibleItemPosition = lastVisibleItemPosition;
+                }
+                if (totalItemCount > 0 && lastCompletelyVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastCompletelyVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;

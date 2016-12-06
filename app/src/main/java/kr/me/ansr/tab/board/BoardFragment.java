@@ -212,7 +212,10 @@ public class BoardFragment extends PagerFragment {
 					if (result != null) {
 						EventBus.getInstance().post((BoardResult)result);
 					}
-//					EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+					String next = extraBundle.getString("_NEXT_");	//on 1130
+					if(next != null){
+						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
+					}
 				}
 				break;
 			case BoardWriteActivity.BOARD_WRITE_RC_NEW:

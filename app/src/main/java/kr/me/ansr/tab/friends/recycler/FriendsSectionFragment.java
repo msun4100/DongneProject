@@ -52,6 +52,7 @@ import kr.me.ansr.common.event.ActivityResultEvent;
 import kr.me.ansr.common.event.EventBus;
 import kr.me.ansr.common.ReportDialogFragment;
 import kr.me.ansr.common.event.FriendsFragmentResultEvent;
+import kr.me.ansr.image.PinchZoomActivity;
 import kr.me.ansr.tab.friends.FriendsFragment;
 import kr.me.ansr.tab.friends.MySpinnerAdapter;
 import kr.me.ansr.tab.friends.PagerFragment;
@@ -151,27 +152,18 @@ public class FriendsSectionFragment extends PagerFragment
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-                Log.e("sectionFragment->data", data.toString());
-                Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
-                getParentFragment().startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                showDetail(position);
             }
         });
         mAdapter.setOnAdapterItemClickListener(new SectionAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onAdapterItemClick(SectionAdapter adapter, View view, FriendsResult item, int type) {
+            public void onAdapterItemClick(SectionAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
-                    case 100:
-                        Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                    case 200:
-                        Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
+                    case 100:   //nameView
+                    case 200:   //imageView
+                        default:
+                            showDetail(position);
+                            break;
                 }
             }
         });
@@ -1011,5 +1003,16 @@ public class FriendsSectionFragment extends PagerFragment
         }, 100);
     }
 
+    private void showDetail(int position) {
+        FriendsResult data = mAdapter.getItem(position);
+        selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+        Log.e("sectionFragment->data", data.toString());
+        Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+        intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+        getParentFragment().startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+    }
 
 }

@@ -162,19 +162,19 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
             switch(v.getId()){
                 case R.id.text_friends_name:
                     if (mListener != null) {
-                        mListener.onLikeClick(v, mItem, 100);
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 100);
                     }
                     break;
                 case R.id.image_friends_icon:
                     if (mListener != null) {
-                        mListener.onLikeClick(v, mItem, 200);
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 200);
                     }
                     break;
                 case R.id.text_friends_status_msg:
                 case R.id.image_friends_status_msg:
                 case R.id.frame_msg_layout:
                     if (mListener != null) {
-                        mListener.onLikeClick(v, mItem, 300);
+                        mListener.onLikeClick(v, getAdapterPosition(), mItem, 300);
                     }
                     break;
                 default:
@@ -187,7 +187,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
     //for individual row item button click
     FriendsResult mItem;
     public interface OnLikeClickListener {
-        public void onLikeClick(View v, FriendsResult item, int type);
+        public void onLikeClick(View v, int position, FriendsResult item, int type);
     }
     OnLikeClickListener mListener;
     public void setOnLikeClickListener(OnLikeClickListener listener) {

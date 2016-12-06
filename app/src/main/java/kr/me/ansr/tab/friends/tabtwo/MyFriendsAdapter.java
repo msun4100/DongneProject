@@ -30,7 +30,7 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public int blockCount = 0;
 
     public interface OnAdapterItemClickListener {
-        public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type);
+        public void onAdapterItemClick(MyFriendsAdapter adapter, View view, int position, FriendsResult item, int type);
     }
     OnAdapterItemClickListener mListener;
     public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
@@ -38,9 +38,9 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public void onLikeClick(View v, FriendsResult item, int type) {
+    public void onLikeClick(View v, int position, FriendsResult item, int type) {
         if (mListener != null) {
-            mListener.onAdapterItemClick(this, v, item, type);
+            mListener.onAdapterItemClick(this, v, position, item, type);
 
         }
     }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import kr.me.ansr.MyApplication;
 import kr.me.ansr.R;
+import kr.me.ansr.image.model.ImageItem;
 import kr.me.ansr.tab.friends.model.FriendsResult;
 
 public class MediaStoreActivity extends AppCompatActivity{
@@ -150,11 +151,11 @@ public class MediaStoreActivity extends AppCompatActivity{
                     images.clear();
                     for(int i=0; i<path.size(); i++){
                         ImageItem image = new ImageItem();
-                        image.setName("path"+i);
+                        image.setName(path.get(i));
                         image.setSmall(path.get(i));
                         image.setMedium(path.get(i));
                         image.setLarge(path.get(i));
-                        image.setTimestamp("custom timeStamp "+i);
+                        image.setTimestamp(MyApplication.getInstance().getKoreanTimeStampString());
                         images.add(image);
                     }
                     //==================

@@ -159,7 +159,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
             bodyImage.setVisibility(View.VISIBLE);
             String url = Config.BOARD_FILE_GET_URL.replace(":imgKey", ""+item.pic.get(0));
             Glide.with(mContext).load(url)
-//                    .signature(new StringSignature(item.updatedAt))
+                    .signature(new StringSignature(item.updatedAt))
                     .override(Config.resizeValue, Config.resizeValue)
                     .into(bodyImage);
         } else {

@@ -107,6 +107,7 @@
     <string name="title_activity_my_interest">MyInterestActivity</string>
     <string name="title_activity_management">ManagementActivity</string>
     <string name="title_activity_setting">SettingActivity</string>
+    <string name="title_activity_pinch_zoom">PinchZoomActivity</string>
 
 
 </resources>

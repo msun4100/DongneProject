@@ -3,6 +3,8 @@ package kr.me.ansr.tab.board.reply;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import kr.me.ansr.tab.board.one.BoardUser;
+
 /**
  * Created by KMS on 2016-07-27.
  */
@@ -18,15 +20,10 @@ public class ReplyResult implements Serializable {
 
     public ArrayList<ReplyResult> replies;
     public String updatedAt;
+    public BoardUser user;  //aggregation value
 
-
-    public ReplyResult(){}
-
-    public ReplyResult(String _id, String body, int userId, String username) {
-        this._id = _id;
-        this.body = body;
-        this.userId = userId;
-        this.username = username;
+    public ReplyResult(){
+        this.user = new BoardUser();
     }
 
     public ReplyResult(String _id, String body, int userId, String username, String type, ArrayList<Integer> likes, int likeCount, ArrayList<ReplyResult> replies, String updatedAt) {

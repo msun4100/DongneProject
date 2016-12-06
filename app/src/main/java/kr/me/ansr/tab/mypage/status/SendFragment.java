@@ -130,7 +130,7 @@ public class SendFragment extends Fragment {
         });
         mAdapter.setOnAdapterItemClickListener(new StatusAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onAdapterItemClick(StatusAdapter adapter, View view, FriendsResult item, int type) {
+            public void onAdapterItemClick(StatusAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
                     case 100:
                         Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();

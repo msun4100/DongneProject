@@ -33,14 +33,6 @@ public class BoardResult implements Serializable {
 //        this.user = new FriendsResult(-1, "name", "");
         this.user = new BoardUser();
     }
-    public class BoardUser implements Serializable{
-        public int enterYear;
-        public String username;
-        public String deptname;
-        public String updatedAt;
-        public Pic pic;
-        public BoardUser(){}
-    }
 
     @Override
     public String toString() {

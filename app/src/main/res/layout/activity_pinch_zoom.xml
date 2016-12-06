@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    android:background="@android:color/black"
+    tools:context="kr.me.ansr.image.PinchZoomActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+        <android.support.v7.widget.Toolbar
+            android:visibility="gone"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_photo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@null"
+            android:adjustViewBounds="true"
+            android:layout_centerInParent="true"/>
+        <!--<uk.co.senab.photoview.PhotoView-->
+        <!--android:id="@+id/iv_photo"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:adjustViewBounds="true"-->
+        <!--android:src="@drawable/e__who_icon" />-->
+
+        <ImageView
+            android:id="@+id/iv_exit"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:padding="11dp"
+            android:src="@drawable/abc_ic_clear_mtrl_alpha_custom_2" />
+
+        <ProgressBar android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"
+            style="?android:attr/progressBarStyleLarge" />
+        <!--style에 large/small 변경가능, 지우면 기본 사이즈-->
+    </FrameLayout>
+
+
+</RelativeLayout>

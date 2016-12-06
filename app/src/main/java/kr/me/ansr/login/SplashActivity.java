@@ -165,26 +165,21 @@ public class SplashActivity extends Activity {
         Log.d(TAG, "onStart: mProvider " + mProvider.toString());
         Log.d(TAG, "onStart: passive " + mProvider.equals(LocationManager.PASSIVE_PROVIDER));
         Log.d(TAG, "onStart: isProviderEnabled "+ mLM.isProviderEnabled(mProvider));
+        Log.e(TAG, "onStart: usingLocation "+PropertyManager.getInstance().getUsingLocation() );
         if (mProvider == null || mProvider.equals(LocationManager.PASSIVE_PROVIDER) || !mLM.isProviderEnabled(mProvider)) {
 //			PropertyManager.getInstance().getUsingLocation() == 0
             if (PropertyManager.getInstance().getUsingLocation() == 2) {
                 PropertyManager.getInstance().setUsingLocation(2);
+            } else if(PropertyManager.getInstance().getUsingLocation() == 1){
+                PropertyManager.getInstance().setUsingLocation(1);
             } else if (PropertyManager.getInstance().getUsingLocation() == 0){
-                Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요. 0", Toast.LENGTH_SHORT).show();
                 PropertyManager.getInstance().setUsingLocation(0);
             }
 //               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), RC_FINE_LOCATION_ON_ACTIVITY_RESULT);
 //                //startActivity(intent);
             return; // 정상적인 프로바이더를 지원하지 않으면 아래 코드 실행 안함.
-        } else {
-            //mProvider가 null이 아니면 위치 정보 가져오는 코드 진행
-            if (PropertyManager.getInstance().getUsingLocation() == 2) {
-                //MainActivity에서 뜬 다이얼로그에서 다시 보지 않기를 클릭하면
-                PropertyManager.getInstance().setUsingLocation(2);
-            } else {
-//                PropertyManager.getInstance().setUsingLocation(1);
-            }
         }
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -221,22 +216,29 @@ public class SplashActivity extends Activity {
                     //========================
                     return;
                 } else {
-                    //낮은 API 버전에서는 무조건 else 타게 되는 듯
+                    //낮은 API 버전에서는 무조건 else 타게 되는 듯 (이라인 말고 아래)
                     PropertyManager.getInstance().setUsingLocation(0);
                     Log.d(TAG, "onStart: else " + mProvider.toString());
                     return;
                 }
+            } else {
+                //*************낮은 API 버전에서는 무조건 여기 else 타게 되는 듯 ****************
+                if(PropertyManager.getInstance().getUsingLocation() == 0){
+                    Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요. 2", Toast.LENGTH_SHORT).show();
+                    PropertyManager.getInstance().setLatitude("");
+                    PropertyManager.getInstance().setLongitude("");
+                    return;
+                }
+                /*
+                        위치 정보를 끄더라도 getLastKnownLocation 함수가 최근 좌표를 불러 오는 듯
+                        일단은 usinglocation이 0이 아니면 아래 라인타서 좌표 받아오게 함.
+                */
+                Log.d(TAG, "onStart: else...................... " + mProvider.toString() + " " + PropertyManager.getInstance().getUsingLocation());
             }
 //            Toast.makeText(SplashActivity.this, "After checkSelfPermission()", Toast.LENGTH_SHORT).show();
             Location location = mLM.getLastKnownLocation(mProvider);
             if (location != null) {
-//                latitude=String.valueOf(location.getLatitude());
-//                longitude=String.valueOf(location.getLongitude());
-//                PropertyManager.getInstance().setLatitude(latitude);
-//                PropertyManager.getInstance().setLongitude(longitude);    //1116 주석
                 mListener.onLocationChanged(location);
-                PropertyManager.getInstance().setUsingLocation(1);  //1116 추가
-
             } else {
                 Toast.makeText(SplashActivity.this, "onStart->location is null..", Toast.LENGTH_SHORT).show();
             }
@@ -250,6 +252,7 @@ public class SplashActivity extends Activity {
     protected void onStop() {
         super.onStop();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            mLM.removeUpdates(mListener);
             return;
         }
         mLM.removeUpdates(mListener);

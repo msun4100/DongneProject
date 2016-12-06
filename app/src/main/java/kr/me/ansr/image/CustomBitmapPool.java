@@ -6,6 +6,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 
 /**
  * Created by KMS on 2016-11-14.
+ * Circle ImageView
  */
 public class CustomBitmapPool implements BitmapPool {
     @Override

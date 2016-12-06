@@ -90,6 +90,7 @@ public class BoardReportDialogFragment extends DialogFragment {
 
                     if(tag.equals(TAG_BOARD_DETAIL)) {
                         Toast.makeText(getActivity(), "detail top 삭제하기", Toast.LENGTH_SHORT).show();
+                        mCallback.onDataReturned("0");
                         dismiss();
                     }
                 }
@@ -126,6 +127,7 @@ public class BoardReportDialogFragment extends DialogFragment {
                     }
                     if(tag.equals(TAG_BOARD_DETAIL)) {
                         Toast.makeText(getActivity(), "detail mid", Toast.LENGTH_SHORT).show();
+                        mCallback.onDataReturned("1");
                         dismiss();
                     }
                 }

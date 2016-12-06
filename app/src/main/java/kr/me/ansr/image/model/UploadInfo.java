@@ -1,4 +1,4 @@
-package kr.me.ansr.image.upload;
+package kr.me.ansr.image.model;
 
 import java.io.Serializable;
 

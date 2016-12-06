@@ -131,21 +131,21 @@ public class MainActivity extends AppCompatActivity {
 		mAdapter.setOnTabChangedListener(new OnTabChangeListener() {
 			@Override
 			public void onTabChanged(String tabId) {
-				// TODO Auto-generated method stub
+
 			}
 		});
 		mAdapter.setOnPageChangeListener(new OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int arg0) {
-				// TODO Auto-generated method stub
+
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
+
 			}
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
+
 			}
 		});
 

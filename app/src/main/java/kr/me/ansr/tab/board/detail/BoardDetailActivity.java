@@ -44,6 +44,7 @@ import kr.me.ansr.common.BoardReportDialogFragment;
 import kr.me.ansr.common.IDataReturned;
 import kr.me.ansr.common.InputDialogFragment;
 import kr.me.ansr.common.event.EventBus;
+import kr.me.ansr.image.PinchZoomActivity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.board.CommentInfo;
 import kr.me.ansr.tab.board.like.LikeInfo;
@@ -123,10 +124,10 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             public void onAdapterItemClick(DetailReplyAdapter adapter, View view, ReplyResult item, int type) {
                 switch (type){
                     case 100:
-                        Toast.makeText(BoardDetailActivity.this,"reply name click", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BoardDetailActivity.this,""+item.username, Toast.LENGTH_SHORT).show();
                         break;
                     case 200:
-                        Toast.makeText(BoardDetailActivity.this,"reply body click", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BoardDetailActivity.this,""+item.body, Toast.LENGTH_SHORT).show();
                         break;
                     case 300:
                         mAdapter.setLike(item, Integer.valueOf(PropertyManager.getInstance().getUserId()));
@@ -136,6 +137,14 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 //                        mAdapter.setLike(item, Integer.valueOf(PropertyManager.getInstance().getUserId()));
                         Toast.makeText(BoardDetailActivity.this, "신고하기"+item._id, Toast.LENGTH_SHORT).show();
                         break;
+                    case 500:
+                        Log.e(TAG, "onAdapterItemClick: "+item.toString() );
+                        if( item.type.equals("00") || item.type.equals("10") ) { //익명 유저
+                            break;
+                        } else {
+                            getUserInfo(mItem.writer);
+                            break;
+                        }
                     default:
                         break;
                 }
@@ -471,7 +480,11 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             @Override
             public void onClick(View v) {
                 if(mItem != null){
-                    getUserInfo(mItem.writer);
+                    if( mItem.type.equals("00") || mItem.type.equals("10") ) { //익명 유저
+                        return;
+                    } else {
+                        getUserInfo(mItem.writer);
+                    }
                 }
             }
         });
@@ -480,6 +493,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
         deptView = (TextView)findViewById(R.id.text_board_dept);
         timeStampView = (TextView)findViewById(R.id.text_board_timestamp);
         bodyView = (TextView)findViewById(R.id.text_board_body);
+
 //        iconReply = (ImageView)findViewById(R.id.image_board_reply);
         replyCountView = (TextView)findViewById(R.id.text_board_reply_count);
 //        iconLike = (ImageView)findViewById(R.id.image_board_like);
@@ -487,11 +501,31 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
         likeLayout = (RelativeLayout) findViewById(R.id.relative_board_like_layout);
         bodyImage = (ImageView)findViewById(R.id.image_board_body);
+        bodyImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(bodyImage.getVisibility() == View.VISIBLE && mItem.pic.size() > 0){
+                    Intent i = new Intent(BoardDetailActivity.this, PinchZoomActivity.class);
+                    ArrayList<String> list = new ArrayList<>();
+                    for(String pic : mItem.pic){
+                        list.add(pic);
+                    }
+                    if(list.size() > 0){
+                        i.putExtra("boardPics", list);
+                    }
+//                    i.putExtra("boardPic", mItem.pic.get(0));   //String
+                    i.putExtra("userId", mItem.writer); //int
+                    i.putExtra("updatedAt", mItem.updatedAt);   //String
+                    startActivity(i);
+                }
+            }
+        });
 
         listView = (ListView)findViewById(R.id.listView_board);
         mAdapter = new DetailReplyAdapter(this);
     }
 
+    public String next = null;
     private void finishAndReturnData(){
         Log.e(TAG, "finishAndReturnData: mPosition "+ mPosition);
         if(mPosition != -1){
@@ -500,6 +534,9 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             Intent intent = new Intent();
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM, mItem);
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, mPosition);
+            if(next != null){
+                intent.putExtra("_NEXT_", next);
+            }
             setResult(RESULT_OK, intent);//RESULT_OK를 BoardFragment의 온리절트에서 받음
             finish();
         } else {
@@ -538,15 +575,39 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     public void onDataReturned(String choice) {
         //Use the returned value
         if(choice != null){
-            Log.e("choice", choice);
+            Log.e(TAG, "onDataReturned: " + choice );
             switch (choice){
-                case "0":
-                case "1":
-                case "2":
-                case "3":
+                case "0":   //삭제하기
+                    nextProcess("_DELETE_");
+                    break;
+                case "1":   //수정하기 or 신고하기
+                    int selfUserId = Integer.parseInt(PropertyManager.getInstance().getUserId());
+                    if(mItem.writer == selfUserId){
+                        nextProcess("_EDIT_");
+                    } else {
+                        nextProcess("_REPORT_");
+                    }
                     break;
             }
         }
+    }
+
+    private void nextProcess(String msg){
+        switch (msg){
+            case "_DELETE_":
+                next = "_DELETE_";
+                finishAndReturnData();
+                break;
+            case "_EDIT_":
+                next = "_EDIT_";
+                finishAndReturnData();
+                break;
+            case "_REPORT_":
+                next = "_REPORT_";
+                finishAndReturnData();
+                break;
+        }
+
     }
 
     @Override

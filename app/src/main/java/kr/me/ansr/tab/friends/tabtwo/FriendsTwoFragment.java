@@ -166,29 +166,21 @@ public class FriendsTwoFragment extends PagerFragment {
         mAdapter = new MyFriendsAdapter();
         mAdapter.setOnAdapterItemClickListener(new MyFriendsAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onAdapterItemClick(MyFriendsAdapter adapter, View view, FriendsResult item, int type) {
+            public void onAdapterItemClick(MyFriendsAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
-                    case 100:
-                        Toast.makeText(getActivity(), "on Adapter nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                    case 200:
-                        Toast.makeText(getActivity(), "on Adapter imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
+                    case 100:   //nameView
+                    case 200:   //imageView
+                        default:
+                            showDetail(position);
+                            break;
+
                 }
             }
         });
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                FriendsResult data = mAdapter.getItem(position);
-                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-                Log.e("FriendsTwoFragment", data.toString());
-                Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
-                intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
-                intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
-                getParentFragment().startActivityForResult(intent, FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                showDetail(position);
             }
         });
         mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -918,7 +910,17 @@ public class FriendsTwoFragment extends PagerFragment {
 
     }
 
-
+    private void showDetail(int position){
+        FriendsResult data = mAdapter.getItem(position);
+        selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+        Log.e("FriendsTwoFragment", data.toString());
+        Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+        intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+        getParentFragment().startActivityForResult(intent, FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+    }
 
 
     public FriendsTwoFragment(){}

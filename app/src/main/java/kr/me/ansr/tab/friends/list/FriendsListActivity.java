@@ -155,7 +155,7 @@ public class FriendsListActivity extends AppCompatActivity {
         });
         mAdapter.setOnAdapterItemClickListener(new FriendsListAdapter.OnAdapterItemClickListener() {
             @Override
-            public void onAdapterItemClick(FriendsListAdapter adapter, View view, FriendsResult item, int type) {
+            public void onAdapterItemClick(FriendsListAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
                     case 100:
                         Toast.makeText(FriendsListActivity.this, "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();

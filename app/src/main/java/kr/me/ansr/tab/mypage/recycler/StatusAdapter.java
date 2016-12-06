@@ -26,7 +26,7 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public List<FriendsResult> items = new ArrayList<FriendsResult>();
     public int blockCount = 0;
     public interface OnAdapterItemClickListener {
-        public void onAdapterItemClick(StatusAdapter adapter, View view, FriendsResult item, int type);
+        public void onAdapterItemClick(StatusAdapter adapter, View view, int position, FriendsResult item, int type);
     }
     OnAdapterItemClickListener mListener;
     public void setOnAdapterItemClickListener(OnAdapterItemClickListener listener) {
@@ -34,9 +34,9 @@ public class StatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onLikeClick(View v, FriendsResult item, int type) {
+    public void onLikeClick(View v, int position, FriendsResult item, int type) {
         if (mListener != null) {
-            mListener.onAdapterItemClick(this, v, item, type);
+            mListener.onAdapterItemClick(this, v, position, item, type);
         }
     }
 

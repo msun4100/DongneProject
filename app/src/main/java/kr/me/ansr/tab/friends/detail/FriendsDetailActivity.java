@@ -2,6 +2,11 @@ package kr.me.ansr.tab.friends.detail;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
+import com.bumptech.glide.request.target.SquaringDrawable;
 import com.bumptech.glide.signature.StringSignature;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
@@ -38,6 +45,7 @@ import kr.me.ansr.gcmchat.activity.ChatRoomActivity;
 import kr.me.ansr.gcmchat.model.ChatInfo;
 import kr.me.ansr.gcmchat.model.ChatRoom;
 import kr.me.ansr.image.MediaStoreActivity;
+import kr.me.ansr.image.PinchZoomActivity;
 import kr.me.ansr.image.upload.Config;
 import kr.me.ansr.tab.chat.ChatRoomInfo;
 import kr.me.ansr.tab.chat.GcmChatFragment;
@@ -99,6 +107,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         background = (ImageView)findViewById(R.id.image_friends_detail_main);
         background.setImageResource( bgArr[new Random().nextInt(2)] );
         thumbIcon = (ImageView)findViewById(R.id.image_friends_detail_profile);
+        thumbIcon.setOnClickListener(mListener);
         backIcon = (ImageView)findViewById(R.id.image_friends_detail_back_icon);
 
         firstIcon = (ImageView)findViewById(R.id.image_friends_detail_menu_1);
@@ -127,6 +136,18 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         public void onClick(View v) {
             Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
             switch (v.getId()){
+                case R.id.image_friends_detail_profile:
+                    t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Thumb").setLabel("Thumb imageView Click").build());
+//                    Drawable d = thumbIcon.getDrawable();
+//                    Bitmap bitmap = ((BitmapDrawable)d).getBitmap(); //Bitmap bitmap = drawableToBitmap(d);
+//                    Bitmap bitmap = getBitmapFromGlide();
+                    if( !TextUtils.isEmpty(mItem.pic.large) && mItem.pic.large.equals("1")){
+                        Intent i = new Intent(FriendsDetailActivity.this, PinchZoomActivity.class);
+                        i.putExtra("userId", mItem.userId);
+                        i.putExtra("updatedAt", mItem.getUpdatedAt());
+                        startActivity(i);
+                    }
+                    break;
                 case R.id.image_friends_detail_menu_1:
                     t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button1 Click").build());
                     switch (mItem.status){
@@ -620,4 +641,43 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
+
+
+    public Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public Bitmap getBitmapFromGlide(){
+        Bitmap bitmap = null;
+        Drawable drawable = thumbIcon.getDrawable();
+        if (drawable instanceof GlideBitmapDrawable) {
+            bitmap = ((GlideBitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof TransitionDrawable) {
+            TransitionDrawable transitionDrawable = (TransitionDrawable) drawable;
+            int length = transitionDrawable.getNumberOfLayers();
+            for (int i = 0; i < length; ++i) {
+                Drawable child = transitionDrawable.getDrawable(i);
+                if (child instanceof GlideBitmapDrawable) {
+                    bitmap = ((GlideBitmapDrawable) child).getBitmap();
+                    break;
+                } else if (child instanceof SquaringDrawable
+                        && child.getCurrent() instanceof GlideBitmapDrawable) {
+                    bitmap = ((GlideBitmapDrawable) child.getCurrent()).getBitmap();
+                    break;
+                }
+            }
+        } else if (drawable instanceof SquaringDrawable) {
+            bitmap = ((GlideBitmapDrawable) drawable.getCurrent()).getBitmap();
+        }
+        return bitmap;
+    }
+
 }

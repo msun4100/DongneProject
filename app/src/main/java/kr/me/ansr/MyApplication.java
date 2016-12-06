@@ -93,6 +93,13 @@ public class MyApplication extends Application {
 		return currentDateandTime;	//서버 시간으로 리턴
 	}
 
+	public String getKoreanTimeStampString(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.KOREAN);
+//		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentDateandTime = sdf.format(new Date());
+		return currentDateandTime;	//국내 시간 && 새로운 포맷으로 리턴
+	}
+
 	public static String getTimeStamp(String dateStr) {	//dateStr == Server's timeStamp.(UTC)
 //        2016-07-06T05:47:19.000Z
 //		Log.d(TAG, "getTimeStamp: 0 "+dateStr);
