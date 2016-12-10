@@ -451,8 +451,6 @@ public void clearProperties() {
 		mEditor.putInt(FIELD_NEW_COUNT, count);
 		mEditor.commit();
 	}
-
-
 	//user's last update
 	private static final String FIELD_LAST_UPDATE = "lastUpdate";
 	private String mLastUpdate;
@@ -469,6 +467,21 @@ public void clearProperties() {
 		mEditor.commit();
 	}
 
+	//user's provider type
+	private static final String FIELD_PROVIDER = "provider";
+	private String mProvider;
+
+	public String getProvider(){
+		if (mProvider == null) {
+			mProvider = mPrefs.getString(FIELD_PROVIDER, "local");
+		}
+		return mProvider;
+	}
+	public void setProvider(String provider) {
+		mProvider = provider;
+		mEditor.putString(FIELD_PROVIDER, provider);
+		mEditor.commit();
+	}
 
 
 	//==============================

@@ -96,19 +96,24 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
 //                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_receive_msg) + "</u>"));;
                 statusView.setVisibility(View.GONE);
                 statusIcon.setVisibility(View.VISIBLE);
-                statusIcon.setImageResource(R.drawable.f_new_icon_receive);
+//                statusIcon.setImageResource(R.drawable.f_new_icon_receive);
+                statusIcon.setImageResource(R.drawable.f_new_icon_show);
                 break;
             case 0:
 //                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_send_msg) + "</u>"));;
                 statusView.setVisibility(View.GONE);
                 statusIcon.setVisibility(View.VISIBLE);
-                statusIcon.setImageResource(R.drawable.f_new_icon_send);
+//                statusIcon.setImageResource(R.drawable.f_new_icon_send);
+                statusIcon.setImageResource(R.drawable.f_new_icon_show);
                 break;
             case 2:
             case 3:
-                statusView.setVisibility(View.VISIBLE);
-                statusIcon.setVisibility(View.GONE);
-                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_block_msg) + "</u>"));;
+//                statusView.setVisibility(View.VISIBLE);
+//                statusIcon.setVisibility(View.GONE);
+//                statusView.setText(Html.fromHtml("<u>" + mContext.getResources().getString(R.string.status_block_msg) + "</u>"));;
+                statusView.setVisibility(View.GONE);
+                statusIcon.setVisibility(View.VISIBLE);
+                statusIcon.setImageResource(R.drawable.f_new_icon_clear);
                 break;
             default:
                 break;

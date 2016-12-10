@@ -1,8 +1,5 @@
 package kr.me.ansr.common;
 
-
-import java.io.Serializable;
-
 public class CommonInfo {
 	public Boolean error;
     public String message;

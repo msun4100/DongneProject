@@ -9,14 +9,14 @@ import java.io.Serializable;
 public class LoginInfo implements Serializable{
     public Boolean error;
     public String message;
-    public LoginResult user;
+    public LoginResult result;
 
     @Override
     public String toString() {
         return "LoginInfo{" +
                 "error=" + error +
                 ", message='" + message + '\'' +
-                ", user=" + user +
+                ", result=" + result +
                 '}';
     }
 }

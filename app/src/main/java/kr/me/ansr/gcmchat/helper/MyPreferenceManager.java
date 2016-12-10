@@ -49,7 +49,7 @@ public class MyPreferenceManager {
         editor.putString(KEY_USER_EMAIL, user.getEmail());
         editor.commit();
 
-        Log.e(TAG, "User is stored in shared preferences. " + user.getName() + ", " + user.getEmail());
+        Log.e(TAG, "User is stored in shared preferences. "+ user.getId() + ", " + user.getName() + ", " + user.getEmail());
     }
 
     public User getUser() {

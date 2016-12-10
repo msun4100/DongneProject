@@ -314,11 +314,11 @@ public class SplashActivity extends Activity {
                     public void onSuccess(Request request, LoginInfo result) {
                         PropertyManager.getInstance().setEmail(email);
                         PropertyManager.getInstance().setPassword(password);
-                        PropertyManager.getInstance().setUserId(result.user.user_id);
-                        PropertyManager.getInstance().setUnivId(result.user.univId);
-                        PropertyManager.getInstance().setUserName(result.user.name);
+                        PropertyManager.getInstance().setUserId(result.result.user_id);
+                        PropertyManager.getInstance().setUnivId(result.result.univId);
+                        PropertyManager.getInstance().setUserName(result.result.name);
                         //for chatting PropertyManager
-                        User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
+                        User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
                         MyApplication.getInstance().getPrefManager().storeUser(user);
 //                        Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SplashActivity.this, MainActivity.class);

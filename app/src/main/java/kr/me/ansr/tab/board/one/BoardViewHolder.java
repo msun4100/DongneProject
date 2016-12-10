@@ -57,7 +57,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
     LinearLayout listViewLayout;
 
     ImageView bodyImage;
-    LinearLayout myView;
+    ImageView iconRedDot;
 
     RelativeLayout likeLayout, replyLayout;
 
@@ -105,7 +105,7 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         replyLayout = (RelativeLayout)itemView.findViewById(R.id.relative_board_reply_layout);
 
         bodyImage = (ImageView)itemView.findViewById(R.id.image_board_body);
-        myView = (LinearLayout)itemView.findViewById(R.id.linear_board_my_view);
+        iconRedDot = (ImageView) itemView.findViewById(R.id.iv_red_dot);
 
         listView = (ListView)itemView.findViewById(R.id.listView_board);
 		mAdapter = new PreReplyAdapter(context);
@@ -203,9 +203,9 @@ public class BoardViewHolder extends RecyclerView.ViewHolder{
         }
 
         if(item.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
-            myView.setVisibility(View.VISIBLE);
+            iconRedDot.setVisibility(View.VISIBLE);
         } else {
-            myView.setVisibility(View.GONE);
+            iconRedDot.setVisibility(View.GONE);
         }
 
     }

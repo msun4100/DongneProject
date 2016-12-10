@@ -79,7 +79,7 @@
             android:name=".gcmchat.activity.ChatRoomActivity"
             android:label="@string/title_activity_chat_room_discussion"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <!-- ==================================== -->
         <!-- [START gcm_receiver] -->
         <receiver
@@ -228,7 +228,20 @@
         <activity
             android:name=".image.PinchZoomActivity"
             android:label="@string/title_activity_pinch_zoom"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!-- 네이버 로그인 테스트용 액티비티-->
+        <activity
+            android:name=".login.OAuthSampleActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+        <!-- 네이버 아이디로 로그인에서 사용하는 액티비티를 등록 -->
+        <activity android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity
+            android:name="com.nhn.android.naverlogin.ui.OAuthLoginInAppBrowserActivity"
+            android:label="OAuth2.0 In-app"/>
+
+
 
     </application>
 

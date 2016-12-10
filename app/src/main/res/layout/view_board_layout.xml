@@ -4,9 +4,7 @@
     android:layout_height="wrap_content"
     android:background="#ffffff"
     android:orientation="horizontal" >
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+
         <LinearLayout
             android:orientation="vertical"
             android:background="#ffffff"
@@ -47,6 +45,14 @@
                             android:visibility="visible"
                             android:textSize="14sp"
                             android:textColor="#1c3043" />
+                        <ImageView
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginTop="4dp"
+                            android:id="@+id/iv_red_dot"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/z_red_dot"
+                            />
                     </LinearLayout>
 
                     <LinearLayout
@@ -248,18 +254,6 @@
                 android:orientation="horizontal">
             </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linear_board_my_view"
-            android:layout_marginBottom="@dimen/board_padding_size"
-            android:layout_width="3dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            android:orientation="horizontal">
-
-        </LinearLayout>
-
-    </FrameLayout>
 
 
 </LinearLayout>

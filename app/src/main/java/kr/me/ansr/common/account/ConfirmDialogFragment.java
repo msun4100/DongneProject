@@ -26,6 +26,7 @@ public class ConfirmDialogFragment extends DialogFragment{
 
     public static final String TAG_FIND_ID = "findID";
     public static final String TAG_FIND_PW = "findPW";
+    public static final String TAG_CHECK_EMAIL = "checkEmail";
 
     public ConfirmDialogFragment(){
 
@@ -80,12 +81,14 @@ public class ConfirmDialogFragment extends DialogFragment{
             public void onClick(View v) {
                 if(tag != null){
                     if(tag.equals(TAG_FIND_ID)) {
-
+                        mCallback.onDataReturned("DEFAULT");
                     }
                     if(tag.equals(TAG_FIND_PW)) {
-
+                        mCallback.onDataReturned("DEFAULT");
                     }
-
+                    if(tag.equals(TAG_CHECK_EMAIL)) {
+                        mCallback.onDataReturned("DUP_EMAIL");
+                    }
                 }
                 dismiss();
             }//onClick

@@ -22,6 +22,7 @@ import okhttp3.Request;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
@@ -45,6 +46,17 @@ import android.widget.Toast;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.playlog.internal.LogEvent;
+import com.nhn.android.naverlogin.OAuthLogin;
+import com.nhn.android.naverlogin.OAuthLoginDefine;
+import com.nhn.android.naverlogin.OAuthLoginHandler;
+import com.nhn.android.naverlogin.ui.view.OAuthLoginButton;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  * Created by KMS on 2016-07-11.
@@ -53,7 +65,16 @@ import com.google.android.gms.analytics.Tracker;
 public class LoginActivity extends AppCompatActivity implements IFindAccountReturned, IDataReturned{
 	@Override
 	public void onDataReturned(String email) {
-		findPW(email);
+		switch(email){
+			case "DUP_EMAIL":	//네이버 로그인시 프로바이더:로컬로 이미 가입 된 경우
+				Log.e(TAG, "onDataReturned: DUP_EMAIL");
+				break;
+			case "DEFAULT":
+			default:
+				findPW(email);
+				break;
+		}
+
 	}
 
 	@Override
@@ -169,9 +190,6 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		btn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-//				startActivity(intent);
 				doLogin();
 			}
 		});
@@ -182,7 +200,7 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+				Intent intent = new Intent(LoginActivity.this, OAuthSampleActivity.class);
 //				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 //				finish();
@@ -242,6 +260,19 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		inputLayoutPw = (TextInputLayout) findViewById(R.id.input_layout_pw);
 		inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
 
+		//init NAVER api
+		mOAuthLoginButton = (OAuthLoginButton) findViewById(R.id.buttonOAuthLoginImg);
+//		mOAuthLoginButton.setOAuthLoginHandler(mOAuthLoginHandler);	//이 코드는 샘플의 verifying 처럼 이미 인증처리 되었다면 expire 될 여지가 있음.(네이버로그인 실행 후 다른 액티비티 들어갔다 나오는 등)
+		mOAuthLoginButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mOAuthLoginInstance.startOauthLoginActivity(LoginActivity.this, mOAuthLoginHandler);
+			}
+		});
+		mContext = this;
+		initApiData();
+
+		//init GA
 		Tracker t = ((MyApplication)getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
 		t.setScreenName(getClass().getSimpleName());
 		t.send(new HitBuilders.AppViewBuilder().build());
@@ -287,8 +318,6 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
 	}
 
-
-
 	private class MyTextWatcher implements TextWatcher {
 		private View view;
 		private MyTextWatcher(View view) {
@@ -296,7 +325,6 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		}
 		public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 		}
-
 		public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 		}
 		public void afterTextChanged(Editable editable) {
@@ -333,11 +361,11 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 				} else {
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
-					PropertyManager.getInstance().setUserId(result.user.user_id);
-					PropertyManager.getInstance().setUnivId(result.user.univId);
-					PropertyManager.getInstance().setUserName(result.user.name);
+					PropertyManager.getInstance().setUserId(result.result.user_id);
+					PropertyManager.getInstance().setUnivId(result.result.univId);
+					PropertyManager.getInstance().setUserName(result.result.name);
 					//for chatting PropertyManager
-					User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
+					User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
 					MyApplication.getInstance().getPrefManager().storeUser(user);
 					Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 					startActivity(intent);
@@ -357,8 +385,6 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		dialog.setTitle("Loading....");
 		dialog.show();
 	}
-
-
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -370,4 +396,265 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
+
+	@Override
+	protected void onResume() {
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		super.onResume();
+	}
+	//Naver Login api
+	private static String OAUTH_CLIENT_ID = "wQ1ellq2nJFLA5N5Vubl";
+	private static String OAUTH_CLIENT_SECRET = "Bav2X1aE8b";
+	private static String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
+
+	private static OAuthLogin mOAuthLoginInstance;
+	private static Context mContext;
+
+	//API Values
+	String accessToken ;
+	String refreshToken ;
+	long expiresAt ;
+	String tokenType ;
+	String state;
+
+	private OAuthLoginButton mOAuthLoginButton;
+
+	private void initApiData() {
+		OAuthLoginDefine.DEVELOPER_VERSION = true;  //Debug mode
+		mOAuthLoginInstance = OAuthLogin.getInstance();
+		mOAuthLoginInstance.init(mContext, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_CLIENT_NAME);
+	}
+
+	/**
+	 * startOAuthLoginActivity() 호출시 인자로 넘기거나, OAuthLoginButton 에 등록해주면 인증이 종료되는 걸 알 수 있다.
+	 */
+	private OAuthLoginHandler mOAuthLoginHandler = new OAuthLoginHandler() {
+		@Override
+		public void run(boolean success) {
+			if (success) {
+				accessToken = mOAuthLoginInstance.getAccessToken(mContext);
+				refreshToken = mOAuthLoginInstance.getRefreshToken(mContext);
+				expiresAt = mOAuthLoginInstance.getExpiresAt(mContext);
+				tokenType = mOAuthLoginInstance.getTokenType(mContext);
+				state = mOAuthLoginInstance.getState(mContext).toString();
+//				mOauthAT.setText(accessToken);
+//				mOauthRT.setText(refreshToken);
+//				mOauthExpires.setText(String.valueOf(expiresAt));
+//				mOauthTokenType.setText(tokenType);
+//				mOAuthState.setText(mOAuthLoginInstance.getState(mContext).toString());
+
+				//로그인이 성공하면  네이버에 계정값들을 가져온다. (Parsing)
+				new RequestApiTask().execute();
+			} else {
+				String errorCode = mOAuthLoginInstance.getLastErrorCode(mContext).getCode();
+				String errorDesc = mOAuthLoginInstance.getLastErrorDesc(mContext);
+				Toast.makeText(mContext, "Naver login\nerrorCode:" + errorCode + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
+//				Toast.makeText(mContext, "로그인이 취소/실패 하였습니다.!", Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+	private void updateApiValues() {
+//		mOauthAT.setText(mOAuthLoginInstance.getAccessToken(mContext));
+//		mOauthRT.setText(mOAuthLoginInstance.getRefreshToken(mContext));
+//		mOauthExpires.setText(String.valueOf(mOAuthLoginInstance.getExpiresAt(mContext)));
+//		mOauthTokenType.setText(mOAuthLoginInstance.getTokenType(mContext));
+//		mOAuthState.setText(mOAuthLoginInstance.getState(mContext).toString());
+		accessToken = mOAuthLoginInstance.getAccessToken(mContext);
+		refreshToken = mOAuthLoginInstance.getRefreshToken(mContext);
+		expiresAt = mOAuthLoginInstance.getExpiresAt(mContext);
+		tokenType = mOAuthLoginInstance.getTokenType(mContext);
+		state = mOAuthLoginInstance.getState(mContext).toString();
+	}
+
+
+	private class DeleteTokenTask extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(Void... params) {
+			boolean isSuccessDeleteToken = mOAuthLoginInstance.logoutAndDeleteToken(mContext);
+
+			if (!isSuccessDeleteToken) {
+				// 서버에서 token 삭제에 실패했어도 클라이언트에 있는 token 은 삭제되어 로그아웃된 상태이다
+				// 실패했어도 클라이언트 상에 token 정보가 없기 때문에 추가적으로 해줄 수 있는 것은 없음
+				Log.d(TAG, "errorCode:" + mOAuthLoginInstance.getLastErrorCode(mContext));
+				Log.d(TAG, "errorDesc:" + mOAuthLoginInstance.getLastErrorDesc(mContext));
+			}
+
+			return null;
+		}
+		protected void onPostExecute(Void v) {
+			updateApiValues();
+		}
+	}
+
+
+	private class RequestApiTask extends AsyncTask<Void, Void, String> {
+		@Override
+		protected void onPreExecute() {
+//			mApiResultText.setText((String) "");
+		}
+		@Override
+		protected String doInBackground(Void... params) {
+			String url = "https://openapi.naver.com/v1/nid/getUserProfile.xml";
+//			https://apis.naver.com/nidlogin/nid/getUserProfile.json?response_type=json	//JSON 타입으로 받기
+			String at = mOAuthLoginInstance.getAccessToken(mContext);
+			return mOAuthLoginInstance.requestApi(mContext, at, url);
+//			ParsingVersionData(mOAuthLoginInstance.requestApi(mContext, at, url));
+//			return null;
+		}
+		protected void onPostExecute(String content) {
+//			mApiResultText.setText((String) content);
+			ParsingVersionData(content);
+			Log.d("myLog", "email " + email);
+			Log.d("myLog", "name " + name);
+			if (email == null) {
+				Toast.makeText(LoginActivity.this, "로그인 실패하였습니다.  잠시후 다시 시도해 주세요!!", Toast.LENGTH_SHORT).show();
+			} else {
+				//서버 로그인 요청
+				Toast.makeText(LoginActivity.this, "인증 성공", Toast.LENGTH_SHORT).show();
+				checkEmail();
+			}
+		}
+	}	//RequestApiTask
+
+	private class RefreshTokenTask extends AsyncTask<Void, Void, String> {
+		@Override
+		protected String doInBackground(Void... params) {
+			return mOAuthLoginInstance.refreshAccessToken(mContext);
+		}
+		protected void onPostExecute(String res) {
+			updateApiValues();
+		}
+	}
+
+	String email = "";
+	String nickname = "";
+	String enc_id = "";
+	String profile_image = "";
+	String age = "";
+	String gender = "";
+	String id = "";
+	String name = "";
+	String birthday = "";
+	private void ParsingVersionData(String data) { // xml 파싱
+		String f_array[] = new String[9];
+		try {
+			XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+			XmlPullParser parser = parserCreator.newPullParser();
+			InputStream input = new ByteArrayInputStream(data.getBytes("UTF-8"));
+			parser.setInput(input, "UTF-8");
+			int parserEvent = parser.getEventType();
+			String tag;
+			boolean inText = false;
+			boolean lastMatTag = false;
+			int colIdx = 0;
+			while (parserEvent != XmlPullParser.END_DOCUMENT) {
+				switch (parserEvent) {
+					case XmlPullParser.START_TAG:
+						tag = parser.getName();
+						if (tag.compareTo("xml") == 0) {
+							inText = false;
+						} else if (tag.compareTo("data") == 0) {
+							inText = false;
+						} else if (tag.compareTo("result") == 0) {
+							inText = false;
+						} else if (tag.compareTo("resultcode") == 0) {
+							inText = false;
+						} else if (tag.compareTo("message") == 0) {
+							inText = false;
+						} else if (tag.compareTo("response") == 0) {
+							inText = false;
+						} else {
+							inText = true;
+						}
+						break;
+
+					case XmlPullParser.TEXT:
+						tag = parser.getName();
+						if (inText) {
+							if (parser.getText() == null) {
+								f_array[colIdx] = "";
+							} else {
+								f_array[colIdx] = parser.getText().trim();
+							}
+							colIdx++;
+						}
+						inText = false;
+						break;
+
+					case XmlPullParser.END_TAG:
+						tag = parser.getName();
+						inText = false;
+						break;
+				}
+				parserEvent = parser.next();
+			}
+		} catch (Exception e) {
+			Log.e("dd", "Error in network call", e);
+		}
+		email = f_array[0];
+		nickname = f_array[1];
+		enc_id = f_array[2];
+		profile_image = f_array[3];
+		age = f_array[4];
+		gender = f_array[5];
+		id = f_array[6];
+		name = f_array[7];
+		birthday = f_array[8];
+	}
+
+	private void checkEmail(){
+		NetworkManager.getInstance().postDongneUserEmail(LoginActivity.this, email, new NetworkManager.OnResultListener<LoginInfo>() {
+			@Override
+			public void onSuccess(Request request, LoginInfo result) {
+				if (result.error.equals(true)) {
+					Toast.makeText(LoginActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+				} else {
+					String msg = result.message.toString();
+					if(msg.equals("DUP_EMAIL") && result.result.provider.equals("local")){
+						Log.e(TAG, "onSuccess: "+ result.result.toString() );
+						ConfirmDialogFragment mDialogFragment = new ConfirmDialogFragment();  //자주 안쓰니까 newInstance 안함.
+						Bundle b = new Bundle();
+						b.putString("tag", ConfirmDialogFragment.TAG_CHECK_EMAIL);
+						b.putString("title","이미 가입된 회원입니다.");
+						String body = "";
+						body += "고객님은 '";
+						body += email;
+						body += "' 아이디로\n";
+						body += MyApplication.getTimeStamp(result.result.created_at);
+						body += " 에 회원가입 하셨습니다.\n해당 계정으로 로그인 시\n";
+						body += "네이버 아이디가 자동으로 연동됩니다.";
+						b.putString("body",  body);
+						mDialogFragment.setArguments(b);
+						mDialogFragment.show(getSupportFragmentManager(), "logoutDialog");
+					} else if(msg.equals("DUP_EMAIL") && result.result.provider.equals("naver")){
+						Log.e(TAG, "onSuccess: provider === naver" );
+						Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+						startActivity(intent);
+						finish();
+						//메인액티비티로
+					} else if(msg.equals("AVAILABLE_EMAIL")){
+						Intent intent = new Intent(LoginActivity.this, TermsActivity.class);
+						intent.putExtra("email", email);
+						intent.putExtra("username", name);
+						intent.putExtra("provider", "naver");
+						startActivity(intent);
+						finish();
+					}
+				}
+				dialog.dismiss();
+			}
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				dialog.dismiss();
+			}
+		});
+		dialog = new ProgressDialog(LoginActivity.this);
+		dialog.setTitle("Loading....");
+		dialog.show();
+	}
+
+
+
+
 }

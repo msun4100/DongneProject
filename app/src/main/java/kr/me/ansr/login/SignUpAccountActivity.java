@@ -112,9 +112,9 @@ public class SignUpAccountActivity extends AppCompatActivity {
         }
         if(isConfirmPassword() == true){
             String email = inputEmail.getText().toString();
-            NetworkManager.getInstance().postDongneUserEmail(SignUpAccountActivity.this, email, new NetworkManager.OnResultListener<CommonInfo>() {
+            NetworkManager.getInstance().postDongneUserEmail(SignUpAccountActivity.this, email, new NetworkManager.OnResultListener<LoginInfo>() {
                 @Override
-                public void onSuccess(Request request, CommonInfo result) {
+                public void onSuccess(Request request, LoginInfo result) {
                     if (result.error.equals(true)) {
                         Toast.makeText(SignUpAccountActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
                     } else {
@@ -147,8 +147,6 @@ public class SignUpAccountActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getApplicationContext(), "pw confirm error", Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     private void requestFocus(View view) {

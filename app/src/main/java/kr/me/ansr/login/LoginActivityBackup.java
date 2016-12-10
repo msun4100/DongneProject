@@ -114,7 +114,7 @@ public class LoginActivityBackup extends Activity {
 //						PropertyManager.getInstance().setPassword(password);
 
                         //for chatting PropertyManager
-                        User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
+                        User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
                         MyApplication.getInstance().getPrefManager().storeUser(user);
 
                         Intent intent = new Intent(LoginActivityBackup.this, MainActivity.class);

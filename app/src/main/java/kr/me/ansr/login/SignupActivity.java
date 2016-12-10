@@ -301,8 +301,9 @@ public class SignupActivity extends AppCompatActivity {
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(false)) {
 					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
-					Log.e(TAG, result.user.toString());
-					PropertyManager.getInstance().setUserId(result.user.user_id);
+					Log.e(TAG, "onSuccess: "+ result.toString() );
+//					Log.e(TAG, result.result.toString());
+					PropertyManager.getInstance().setUserId(result.result.user_id);
 					PropertyManager.getInstance().setUnivId(""+mUnivId);
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
@@ -349,10 +350,10 @@ public class SignupActivity extends AppCompatActivity {
 				if (result.error.equals(true)) {
 					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
 				} else {
-					PropertyManager.getInstance().setUserId(result.user.user_id);
-					PropertyManager.getInstance().setUnivId(result.user.univId);
+					PropertyManager.getInstance().setUserId(result.result.user_id);
+					PropertyManager.getInstance().setUnivId(result.result.univId);
 					//for chatting PropertyManager
-					User user = new User(Integer.parseInt(result.user.user_id), result.user.name, result.user.email);
+					User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
 					MyApplication.getInstance().getPrefManager().storeUser(user);
 					Intent intent = new Intent(SignupActivity.this, MainActivity.class);
 					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);

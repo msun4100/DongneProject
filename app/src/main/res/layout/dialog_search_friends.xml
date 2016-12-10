@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/z_dialog_search_friends"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_search_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_marginTop="11dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/search_text_size"
+            android:hint="이 름"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
+            android:singleLine="true"
+            android:inputType="text"
+            android:nextFocusDown="@+id/edit_search_enteryear"/>
+
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_search_enteryear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_marginTop="14dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/search_text_size"
+            android:hint="학 번"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
+            android:singleLine="true"
+            android:inputType="text"
+            android:nextFocusDown="@+id/edit_search_dept"/>
+
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_search_dept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_marginTop="14dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/search_text_size"
+            android:hint="학 과"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
+            android:singleLine="true"
+            android:inputType="text"
+            android:nextFocusDown="@+id/edit_search_jobname"/>
+
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_search_jobname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_marginTop="14dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/search_text_size"
+            android:hint="회 사"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
+            android:singleLine="true"
+            android:inputType="text"
+            android:nextFocusDown="@+id/edit_search_jobteam"/>
+        <kr.me.ansr.common.CustomEditText
+            android:id="@+id/edit_search_jobteam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_marginTop="13dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/search_text_size"
+            android:hint="직 무"
+            android:textColorHint="@color/signupHintColor"
+            android:textColor="@color/signupFontColor"
+            android:singleLine="true"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            />
+        <LinearLayout
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_cancel"
+                android:text="취 소"
+                android:layout_weight="1"
+                android:textColor="#ffffff"
+                android:textSize="15sp"
+                android:background="@null"
+                android:layout_width="190dp"
+                android:layout_height="30dp" />
+            <Button
+                android:id="@+id/btn_ok"
+                android:text="확 인"
+                android:layout_weight="1"
+                android:textColor="#ffffff"
+                android:textSize="15sp"
+                android:background="@null"
+                android:layout_width="190dp"
+                android:layout_height="30dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

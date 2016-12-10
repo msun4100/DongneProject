@@ -350,10 +350,10 @@ public class NetworkManager {
     }
 
     private static final String URL_USER_EMAIL = SERVER_URL + "/users/email";
-    public Request postDongneUserEmail(Context context, String email, final OnResultListener<CommonInfo> listener) {
+    public Request postDongneUserEmail(Context context, String email, final OnResultListener<LoginInfo> listener) {
         try {
             String url = URL_USER_EMAIL;
-            final CallbackObject<CommonInfo> callbackObject = new CallbackObject<CommonInfo>();
+            final CallbackObject<LoginInfo> callbackObject = new CallbackObject<LoginInfo>();
             JsonObject json = new JsonObject();
             json.addProperty("email", email);
             String jsonString = json.toString();
@@ -377,7 +377,7 @@ public class NetworkManager {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Gson gson = new Gson();
-                    CommonInfo result = gson.fromJson(response.body().charStream(), CommonInfo.class);
+                    LoginInfo result = gson.fromJson(response.body().charStream(), LoginInfo.class);
                     callbackObject.result = result;
                     Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
                     mHandler.sendMessage(msg);
