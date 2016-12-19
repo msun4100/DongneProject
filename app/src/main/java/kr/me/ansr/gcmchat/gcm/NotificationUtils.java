@@ -63,6 +63,7 @@ public class NotificationUtils {
 
         // notification icon
         final int icon = R.drawable.z_app_icon;
+//        final int icon = R.drawable.z_notification;
 
 //        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);    // 그 전에 미리
         final PendingIntent resultPendingIntent =

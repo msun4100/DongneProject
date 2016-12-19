@@ -222,17 +222,35 @@
         android:layout_below="@+id/LinearLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_marginLeft="29dp"
-            android:background="@color/profile_stroke1"
-            android:layout_width="0.75dp"
-            android:layout_height="match_parent">
-        </LinearLayout>
-        <ListView
-            android:id="@+id/listView_profile"
+
+        <FrameLayout
+            android:id="@+id/fl_empty_detail_1"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/iv_empty_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/z_empty_detail_msg"/>
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/fl_empty_detail_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginLeft="29dp"
+                android:background="@color/profile_stroke1"
+                android:layout_width="0.75dp"
+                android:layout_height="match_parent">
+            </LinearLayout>
+            <ListView
+                android:id="@+id/listView_profile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></ListView>
+        </FrameLayout>
     </FrameLayout>
 
 

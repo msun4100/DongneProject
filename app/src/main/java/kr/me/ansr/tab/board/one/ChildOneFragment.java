@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,9 +74,16 @@ public class ChildOneFragment extends PagerFragment {
     public String word = null;
     InputMethodManager imm;
 
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_board_one, container, false);
+        emptyLayout = (RelativeLayout)view.findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_board);
+
         imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
@@ -138,7 +146,11 @@ public class ChildOneFragment extends PagerFragment {
                 switch (type) {
                     case 100:   //nameView
                     case 200:   //imageView
-                        getUserInfo(data.writer);
+                        if( data.type.equals("00") || data.type.equals("10") ) {
+                            //익명 유저
+                        } else {
+                            getUserInfo(data.writer);
+                        }
                         break;
                     case 300:
                         BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
@@ -370,6 +382,7 @@ public class ChildOneFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -377,6 +390,7 @@ public class ChildOneFragment extends PagerFragment {
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(getActivity(), TAG + "Board init() onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -445,6 +459,7 @@ public class ChildOneFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -452,6 +467,7 @@ public class ChildOneFragment extends PagerFragment {
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(getActivity(), TAG + " Board search onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -823,6 +839,16 @@ public class ChildOneFragment extends PagerFragment {
         cDialogFragment.setTargetFragment(ChildOneFragment.this, DIALOG_RC_DELETE);
         cDialogFragment.setArguments(bb);
         cDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
+    }
+
+    private void showLayout(){
+        if (mAdapter.getItemCount() > 0){
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     //EventBus의 post를 통해 ActivityResultEvent 를 매개변수로 받아서 현재 프래그먼트의 (오버라이드한)onActivityResult를 호출

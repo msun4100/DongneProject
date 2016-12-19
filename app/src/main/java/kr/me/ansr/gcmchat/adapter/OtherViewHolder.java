@@ -94,7 +94,7 @@ public class OtherViewHolder extends RecyclerView.ViewHolder{
             int id = message.getUser().getId();
             String url = Config.FILE_GET_URL.replace(":userId", ""+id).replace(":size", "small");
             Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop()
-                    .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+//                    .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
                     .into(iconThumbView);
         }
     }

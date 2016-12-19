@@ -16,6 +16,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +62,9 @@ public class FriendsListActivity extends AppCompatActivity {
 
     TextView sameCnt;
     FriendsResult mItem;
+
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +77,9 @@ public class FriendsListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.c_artboard_final_list_title));
 
+        emptyLayout = (RelativeLayout)findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView) findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_friends_3);
         Intent intent = getIntent();
         if (intent != null) {
             mItem = (FriendsResult) intent.getSerializableExtra("mItem");
@@ -257,14 +265,16 @@ public class FriendsListActivity extends AppCompatActivity {
                             Log.e(TAG, result.message);
                             Toast.makeText(FriendsListActivity.this, TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
-                        dialog.dismiss();
+                        showLayout();
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        dialog.dismiss();
+                        showLayout();
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
                 });
         dialog = new ProgressDialog(FriendsListActivity.this);
@@ -406,6 +416,16 @@ public class FriendsListActivity extends AppCompatActivity {
                     EventBus.getInstance().post(result);
                     break;
                 }
+        }
+    }
+
+    private void showLayout(){
+        if (mAdapter.getItemCount() > 0){
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
         }
     }
 

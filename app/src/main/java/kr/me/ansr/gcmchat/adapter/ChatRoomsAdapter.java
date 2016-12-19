@@ -92,7 +92,7 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
                     targetId = ""+userId;
                     String url = Config.FILE_GET_URL.replace(":userId", ""+targetId).replace(":size", "small");
                     Glide.with(mContext).load(url).placeholder(R.drawable.e__who_icon).centerCrop()
-                            .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+//                            .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
                             .into(holder.thumbIcon);
                     break;
                 }

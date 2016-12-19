@@ -32,6 +32,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -106,6 +107,9 @@ public class GcmChatFragment extends PagerFragment {
     public static final int DIALOG_RC_ROOM_DELETE = 203;
 //    public static int unreadCount = 0;
     InputMethodManager imm;
+
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gcmchat, container, false);
@@ -115,15 +119,15 @@ public class GcmChatFragment extends PagerFragment {
             Toast.makeText(getActivity(), "getUser() == null ", Toast.LENGTH_LONG).show();
         }
         activity = (AppCompatActivity) getActivity();
-        emptyMsg = (TextView)view.findViewById(R.id.text_empty_msg);
-        emptyMsg.setText(getResources().getString(R.string.empty_chat_msg));
+        emptyLayout = (RelativeLayout) view.findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_chat);
         imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
 
@@ -291,10 +295,10 @@ public class GcmChatFragment extends PagerFragment {
     }
     private void showLayout(){
         if (mAdapter.getItemCount() > 0){
-            emptyMsg.setVisibility(View.GONE);
+            emptyLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         } else {
-            emptyMsg.setVisibility(View.VISIBLE);
+            emptyLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         }
     }

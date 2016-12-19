@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffffff"
     android:id="@+id/rootView"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.me.ansr.tab.board.BoardWriteActivity"
     tools:showIn="@layout/activity_board_write">
     <!--android:id="@+id/write_parent"-->
     <LinearLayout
+        android:background="@drawable/e__write_page"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/e__write_page"
         android:orientation="vertical">
+
         <LinearLayout
+            android:background="#ffffff"
             android:id="@+id/LinearLayout1"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_alignParentTop="true"
-            android:layout_marginBottom="4dp"
             android:orientation="horizontal">
+            <!--android:layout_marginBottom="4dp"-->
             <CheckBox
                 android:layout_marginLeft="12dp"
                 android:id="@+id/check_write_anonymous1"
@@ -66,6 +72,7 @@
                     android:src="@drawable/e__picture" />
             </LinearLayout>
         </LinearLayout>
+        <!--android:paddingTop="@dimen/board_padding_size"-->
         <LinearLayout
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -73,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/LinearLayout1"
-            android:paddingTop="@dimen/board_padding_size"
+
             android:layout_weight="1"
             android:orientation="vertical">
             <ScrollView
@@ -96,7 +103,7 @@
                         android:textColor="@color/list_search_colorHint"
                         android:textColorHint="#cbc8c6"
                         android:gravity="top"
-                        android:hint="내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요.\n내용을 입력하세요."
+                        android:hint="내용을 입력하세요."
                         android:inputType="textMultiLine"
                         android:singleLine="false"
                         android:maxLines="10"/>

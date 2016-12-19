@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -93,6 +94,9 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
         } else {
             forcedFinish();
         }
+        emptyMsgLayout = (FrameLayout)findViewById(R.id.fl_empty_detail_1);
+        listLayout = (FrameLayout)findViewById(R.id.fl_empty_detail_2);
+
         usernameView = (TextView)findViewById(R.id.text_friends_detail_username);
         stuidView = (TextView)findViewById(R.id.text_friends_detail_stuid);
         deptnameView = (TextView)findViewById(R.id.text_friends_detail_deptname);
@@ -304,8 +308,19 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             thumbIcon.setImageResource(R.drawable.e__who_icon);
         }
 
+        showLayout();
+    }
 
-
+    FrameLayout emptyMsgLayout;
+    FrameLayout listLayout;
+    private void showLayout(){
+        if (mAdapter.getCount() > 0){
+            emptyMsgLayout.setVisibility(View.GONE);
+            listLayout.setVisibility(View.VISIBLE);
+        } else {
+            emptyMsgLayout.setVisibility(View.VISIBLE);
+            listLayout.setVisibility(View.GONE);
+        }
     }
     public void nextProcess(String msg){
         if(msg.equals("_cancel_")){

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
@@ -54,11 +55,15 @@ public class TwoFragment extends PagerFragment {
     ImageView searchIcon;
     CustomEditText searchInput;
     public String word = null;
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_writing_two, container, false);
-
+        emptyLayout = (RelativeLayout)view.findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_board);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -211,6 +216,7 @@ public class TwoFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -218,6 +224,7 @@ public class TwoFragment extends PagerFragment {
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(getActivity(), TAG + "Replies init() onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
                     }
@@ -502,6 +509,16 @@ public class TwoFragment extends PagerFragment {
         Log.e("onEvent:", "MyTwo");
         onActivityResult(activityResultEvent.getRequestCode(), activityResultEvent.getResultCode(), activityResultEvent.getData());
     }
+    private void showLayout(){
+        if (mAdapter.getItemCount() > 0){
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
+    }
+
 
 
 

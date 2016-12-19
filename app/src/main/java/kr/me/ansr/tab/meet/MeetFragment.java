@@ -42,7 +42,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +58,6 @@ public class MeetFragment extends PagerFragment {
 	private static final String TAG = MeetFragment.class.getSimpleName();
 
 	AppCompatActivity activity;
-	TextView emptyMsg;
 
 	RecyclerView recyclerView;
 	PushAdapter mAdapter;
@@ -66,14 +67,18 @@ public class MeetFragment extends PagerFragment {
 	boolean isLast = false;
 	Handler mHandler = new Handler(Looper.getMainLooper());
 
-
+	RelativeLayout emptyLayout;
+	ImageView emptyIcon;
+	TextView emptyMsg;
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_meet, container, false);
 		activity = (AppCompatActivity) getActivity();
-		emptyMsg = (TextView)view.findViewById(R.id.text_empty_msg);
-		emptyMsg.setText(getResources().getString(R.string.empty_feed_msg));
+		emptyLayout = (RelativeLayout)view.findViewById(R.id.rl_empty);
+		emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+//		emptyMsg = (TextView)view.findViewById(R.id.tv_empty_msg);
+//		emptyMsg.setText(getResources().getString(R.string.empty_feed_msg));
 		//================================================
 		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
 		refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
@@ -274,10 +279,12 @@ public class MeetFragment extends PagerFragment {
 
 	private void showLayout(){
 		if (mAdapter.getItemCount() > 0){
-			emptyMsg.setVisibility(View.GONE);
+//			emptyMsg.setVisibility(View.GONE);
+			emptyLayout.setVisibility(View.GONE);
 			recyclerView.setVisibility(View.VISIBLE);
 		} else {
-			emptyMsg.setVisibility(View.VISIBLE);
+//			emptyMsg.setVisibility(View.VISIBLE);
+			emptyLayout.setVisibility(View.VISIBLE);
 			recyclerView.setVisibility(View.GONE);
 		}
 	}

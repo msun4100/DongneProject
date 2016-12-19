@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
@@ -48,10 +49,10 @@ public class MyInterestActivity extends AppCompatActivity {
         pager = (ViewPager)findViewById(R.id.pager);
         pager.setOffscreenPageLimit(PAGER_OFFSET_LIMIT);
         mAdapter = new kr.me.ansr.TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
-//        ImageView iv1 = new ImageView(this); iv1.setImageResource(R.drawable.e_board_tab1_selector);
-//        ImageView iv2 = new ImageView(this); iv2.setImageResource(R.drawable.e_board_tab2_selector);
-        mAdapter.addTab(tabHost.newTabSpec("myTab1").setIndicator("게 시 글"), OneFragment.class, null);
-        mAdapter.addTab(tabHost.newTabSpec("myTab2").setIndicator("댓 글"), TwoFragment.class, null);
+        ImageView iv1 = new ImageView(this); iv1.setImageResource(R.drawable.z_my_tab_1_selector);
+        ImageView iv2 = new ImageView(this); iv2.setImageResource(R.drawable.z_my_tab_2_selector);
+        mAdapter.addTab(tabHost.newTabSpec("myTab1").setIndicator(iv1), OneFragment.class, null);
+        mAdapter.addTab(tabHost.newTabSpec("myTab2").setIndicator(iv2), TwoFragment.class, null);
 
         mAdapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override

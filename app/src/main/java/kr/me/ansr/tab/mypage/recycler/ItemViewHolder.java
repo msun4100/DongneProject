@@ -146,9 +146,9 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
         jobView.setText(job);
 
 //        distanceView.setText(item.temp);
-//        String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
-//        Glide.with(mContext).load(url).into(iconThumbView);
-        if (!TextUtils.isEmpty(item.pic.small)) {
+
+//        if (!TextUtils.isEmpty(item.pic.small)) {
+        if( !TextUtils.isEmpty(item.pic.small) && item.pic.small.equals("1") ){
             String url = Config.FILE_GET_URL.replace(":userId", ""+item.userId).replace(":size", "small");
             Glide.with(mContext).load(url)
                     .placeholder(R.drawable.e__who_icon)

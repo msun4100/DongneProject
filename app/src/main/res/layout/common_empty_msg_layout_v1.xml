@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_empty"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/iv_empty_img"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/z_empty_no_msg"/>
+    <TextView
+        android:layout_below="@+id/iv_empty_img"
+        android:id="@+id/tv_empty_msg"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/empty_msg_margin_top"
+        android:textSize="@dimen/empty_msg_size"
+        android:textColor="@color/empty_msg_color"
+
+        android:text="새 소식이 없습니다."/>
+    <!--android:textStyle="bold"-->
+</RelativeLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:state_pressed="true" android:drawable="@drawable/e__popup_three_mid_gray"/>
-    <item android:drawable="@drawable/e__popup_three_mid" />
+    <!--<item android:drawable="@drawable/e__popup_three_mid_origin" />-->
+    <item android:drawable="@drawable/e__popup_three_mid_two_lines" />
 </selector>

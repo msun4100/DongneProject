@@ -25,21 +25,21 @@ public class PropertyManager {
 		mEditor = mPrefs.edit();
 	}
 
-public void clearProperties() {
+	public void clearProperties() {
 //	mPrefs.edit().clear().commit();
-	setEmail("");
-	setPassword("");
-	setLatitude("");
-	setLongitude("");
-//	setUsingLocation(0);
-	setUnivId("");
-	setUserId("");
-	setUserName("");
-	setProfile("");
-	setUnivName("");
-	setNewCount(0);
-//	setRegistrationId("");
-}
+		setEmail("");
+		setPassword("");
+		setLatitude("");
+		setLongitude("");
+//		setUsingLocation(0);
+		setUnivId("");
+		setUserId("");
+		setUserName("");
+		setProfile("");
+		setUnivName("");
+//		setNewCount(0);
+//		setRegistrationId("");
+	}
 
 	private static final String FIELD_USER_NAME = "username";
 	private String mUserName;

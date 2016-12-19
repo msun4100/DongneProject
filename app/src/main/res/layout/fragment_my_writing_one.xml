@@ -8,21 +8,29 @@
         layout="@layout/common_search_bar_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="0dp"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="0dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler"
+    <FrameLayout
+        android:id="@+id/frame_empty_layout"
+        android:background="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            layout="@layout/common_empty_msg_layout_v2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:id="@+id/refresh">
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </FrameLayout>
+
 
 </LinearLayout>

@@ -172,9 +172,8 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 	EditText emailView;
 	EditText passwordView;
-	TextView gotoSignupView;
+	Button btn_signup;
 	ImageView idFindIcon, pwFindIcon;
-	TextInputLayout inputLayoutPw, inputLayoutEmail;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -209,11 +208,12 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			}
 		});
 
-		gotoSignupView = (TextView)findViewById(R.id.text_login_signup);
-		gotoSignupView.setOnClickListener(new View.OnClickListener() {
+		btn_signup = (Button)findViewById(R.id.btn_signup);
+		btn_signup.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, SignupWayActivity.class);
+//				Intent intent = new Intent(LoginActivity.this, SignupWayActivity.class);
+				Intent intent = new Intent(LoginActivity.this, TermsActivity.class);
 				startActivity(intent);
 				finish();
 			}
@@ -257,8 +257,6 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 				return false;
 			}
 		});
-		inputLayoutPw = (TextInputLayout) findViewById(R.id.input_layout_pw);
-		inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
 
 		//init NAVER api
 		mOAuthLoginButton = (OAuthLoginButton) findViewById(R.id.buttonOAuthLoginImg);
@@ -295,7 +293,7 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			return false;
 		} else {
 			passwordView.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
-			inputLayoutPw.setErrorEnabled(false);
+//			inputLayoutPw.setErrorEnabled(false);
 		}
 		return true;
 	}
@@ -309,7 +307,7 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			return false;
 		} else {
 			emailView.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
-			inputLayoutEmail.setErrorEnabled(false);
+//			inputLayoutEmail.setErrorEnabled(false);
 		}
 		return true;
 	}

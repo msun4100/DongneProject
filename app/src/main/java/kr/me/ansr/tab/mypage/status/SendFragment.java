@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,11 +68,16 @@ public class SendFragment extends Fragment {
     Handler mHandler = new Handler(Looper.getMainLooper());
     public int mSearchOption = 0;
 
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_status_send, container, false);
 
+        emptyLayout = (RelativeLayout) view.findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_status_2);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -190,11 +197,13 @@ public class SendFragment extends Fragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        showLayout();
                         refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        showLayout();
                         refreshLayout.setRefreshing(false);
                     }
                 });
@@ -280,6 +289,7 @@ public class SendFragment extends Fragment {
                 break;
             default:break;
         }
+        showLayout();
     }
     FriendsResult selectedItem = null;
     public void updateStatus(final int status, int to, String msg){
@@ -436,6 +446,15 @@ public class SendFragment extends Fragment {
                 }
                 break;
 
+        }
+    }
+    private void showLayout(){
+        if (mAdapter != null && mAdapter.getItemCount() > 0){
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
         }
     }
 

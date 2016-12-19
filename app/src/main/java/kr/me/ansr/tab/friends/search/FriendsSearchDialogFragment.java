@@ -1,4 +1,4 @@
-package kr.me.ansr.common;
+package kr.me.ansr.tab.friends.search;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,24 +14,34 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import kr.me.ansr.R;
+import kr.me.ansr.common.CustomEditText;
+
 
 /**
  * Created by KMS on 2016-12-10.
  */
 public class FriendsSearchDialogFragment extends DialogFragment{
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
+    public static final String TAG_TAB_ONE_MY = "tabOneMy";
 
     public FriendsSearchDialogFragment() {
 
     }
     Button btnCancel, btnOk;
     String tag = null;
-    CustomEditText inputName, inputEnterYear, inputDept, inputJobname, inputJobteam ;
+    EditText inputName, inputEnterYear, inputDept, inputJobname, inputJobteam ;
+
+    Spinner spinner;
+    MySpinnerAdapter mySpinnerAdapter;
+    String mSpinnerItem;
     public static FriendsSearchDialogFragment newInstance() {
         FriendsSearchDialogFragment f = new FriendsSearchDialogFragment();
         return f;
@@ -57,14 +67,18 @@ public class FriendsSearchDialogFragment extends DialogFragment{
         View view = inflater.inflate(R.layout.dialog_search_friends, container, false);
 
         imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         btnOk = (Button) view.findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (tag != null) {
-                    if (tag.equals(TAG_TAB_ONE_UNIV)) {
-                        returnData();
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    switch (tag){
+                        case TAG_TAB_ONE_MY:
+                        case TAG_TAB_ONE_UNIV:
+                            default:
+                            returnData();
+                            break;
                     }
                     dismiss();
                 }
@@ -79,24 +93,45 @@ public class FriendsSearchDialogFragment extends DialogFragment{
             }
         });
 
-        inputName = (CustomEditText)view.findViewById(R.id.edit_search_name);
-        inputDept = (CustomEditText)view.findViewById(R.id.edit_search_dept);
-        inputJobname = (CustomEditText)view.findViewById(R.id.edit_search_jobname);
-        inputJobteam = (CustomEditText)view.findViewById(R.id.edit_search_jobteam);
-        inputEnterYear = (CustomEditText)view.findViewById(R.id.edit_search_enteryear);
-        inputEnterYear.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        inputName = (EditText)view.findViewById(R.id.edit_search_name);
+        inputDept = (EditText)view.findViewById(R.id.edit_search_dept);
+        inputJobname = (EditText)view.findViewById(R.id.edit_search_jobname);
+        inputJobteam = (EditText)view.findViewById(R.id.edit_search_jobteam);
+        inputJobteam.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_SEND){
+                if(actionId == EditorInfo.IME_ACTION_DONE){
                     //....
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    if (tag.equals(TAG_TAB_ONE_UNIV)) {
-                        returnData();
-                    }
-                    dismiss();
+//                    if (tag.equals(TAG_TAB_ONE_UNIV)) {
+//                        returnData();
+//                    }
+//                    dismiss();
                     return true;
                 }
                 return false;
+            }
+        });
+
+        spinner = (Spinner) view.findViewById(R.id.spinner);
+        mySpinnerAdapter = new MySpinnerAdapter();
+        spinner.setAdapter(mySpinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String str = (String)mySpinnerAdapter.getItem(position);
+                try {
+                    int num = Integer.valueOf(str);
+                    mSpinnerItem = str;
+                } catch (NumberFormatException e) {
+//                    e.printStackTrace();
+                    mSpinnerItem = "";
+                    spinner.setSelection(0);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                spinner.setSelection(0);
             }
         });
 
@@ -106,18 +141,22 @@ public class FriendsSearchDialogFragment extends DialogFragment{
     }
 
     private void initData() {
-
+        String[] yearArray = getResources().getStringArray(R.array.spinner_year_item);
+        for (int i = yearArray.length-1; i >= 0; i--) {
+            mySpinnerAdapter.add(yearArray[i]);
+        }
+        spinner.setSelection(0);
     }
     private void returnData(){
         String username = inputName.getText().toString().trim();
-        String enterYear = inputEnterYear.getText().toString().trim();
-        String dept = inputDept.getText().toString().trim();
+//        String enterYear = inputEnterYear.getText().toString().trim();
+        String deptname = inputDept.getText().toString().trim();
         String jobname = inputJobname.getText().toString().trim();
         String jobteam = inputJobteam.getText().toString().trim();
         Intent intent = new Intent();
         intent.putExtra("username", username);
-        intent.putExtra("enterYear", enterYear);
-        intent.putExtra("dept", dept);
+        intent.putExtra("enterYear", mSpinnerItem);
+        intent.putExtra("deptname", deptname);
         intent.putExtra("jobname", jobname);
         intent.putExtra("jobteam", jobteam);
         getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);

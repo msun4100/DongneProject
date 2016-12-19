@@ -1,29 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/gray_background"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.me.ansr.tab.friends.recycler.FriendsSectionFragment" >
-    <include
-        layout="@layout/common_search_bar_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/refresh">
 
-        <android.support.v7.widget.RecyclerView
+    <FrameLayout
+        android:id="@+id/frame_empty_layout"
+        android:background="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            layout="@layout/common_search_bar_spinner_v2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <include
+            layout="@layout/common_empty_msg_layout_v2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_marginTop="40dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/recycler"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            />
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:id="@+id/refresh">
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-</LinearLayout>
+    </FrameLayout>
+
+    <!--android:src="@android:drawable/ic_search_category_default"-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/z_fab_search"
+        app:fabSize="normal"
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:layout_anchor="@id/recycler"
+        app:layout_anchorGravity="bottom|right|end"
+        />
+
+</android.support.design.widget.CoordinatorLayout>

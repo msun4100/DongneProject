@@ -156,13 +156,13 @@
             android:nextFocusDown="@+id/edit_signup_job"
             android:singleLine="true" />
         <TextView
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="4dp"
             android:layout_marginLeft="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/signupFontColor"
             android:textSize="13sp"
-            android:text="* 재학생일 경우 직무를 학생으로 입력해주세요."/>
+            android:text="* 재학생일 경우 회사명을 학생으로 입력해주세요."/>
         <EditText
             android:layout_marginTop="6dp"
             android:paddingLeft="12dp"
@@ -179,6 +179,14 @@
             android:layout_height="36dp"
             android:textSize="16sp"
             android:imeOptions="actionDone"/>
+        <TextView
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/signupFontColor"
+            android:textSize="13sp"
+            android:text="* 재학생일 경우 직무를 학년으로 입력해주세요."/>
 
     </LinearLayout>
 

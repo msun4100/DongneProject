@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="licenses">The Apache Software Licence, Version 2.0\n
+http://www.apache.org/licenses/LICENSE-2.0 \n\n
+Picasso\n
+http://square.github.io/picasso/ \n
+Copyright 2013 Square, Inc.\n
+Apache Licence 2.0\n\n
+Otto\n
+http://square.github.io/otto/ \n
+Copyright 2013 Square, Inc.\n
+Apache Licence 2.0\n\n
+
+OkHttp\n
+http://square.github.io/okhttp/ \n
+Copyright 2016 Square, Inc.\n
+Apache Licence 2.0\n\n
+
+FishBun\n
+https://github.com/sangcomz/FishBun \n
+Copyright 2015 Jeong SeokWon\n
+Apache Licence 2.0\n\n
+
+Butter Knife\n
+http://jakewharton.github.io/butterknife/ \n
+Copyright 2013 Jake Wharton\n
+Apache Licence 2.0\n\n
+
+Glide\n
+https://github.com/bumptech/glide \n
+BSD, part MIT and Apache 2.0.\n
+Licenses details\n
+https://github.com/bumptech/glide/blob/master/LICENSE \n\n
+
+Glide-transformations\n
+https://github.com/wasabeef/glide-transformations \n
+Copyright 2015 Wasabeef\n
+Apache Licence 2.0\n\n
+
+PhotoView\n
+https://github.com/chrisbanes/PhotoView \n
+Copyright 2016 Chris Banes\n
+Apache Licence 2.0\n\n
+
+Volley\n
+https://github.com/mcxiaoke/android-volley \n
+Copyright (C) 2014,2015,2016 Xiaoke Zhang\n
+Copyright (C) 2011 The Android Open Source Project\n
+Apache Licence 2.0\n\n
+
+HttpClient, HttpCore, HttpMime\n
+http://hc.apache.org/httpcomponents-core-4.3.x/index.html \n
+Copyright © 2005-2015\n
+Apache Licence 2.0\n\n
+
+
+</string>
+
+</resources>

@@ -30,7 +30,7 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/z_app_icon"
+        android:icon="@drawable/z_app_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -46,9 +46,11 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".login.SplashBActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" />
         <activity
             android:name=".login.SplashActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,6 +60,7 @@
         </activity>
         <activity
             android:name=".login.SignupActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".login.SignUpAccountActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -68,15 +71,18 @@
         <!-- ==================================== -->
         <activity
             android:name=".gcmchat.activity.MainActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".gcmchat.activity.LoginActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".gcmchat.activity.ChatRoomActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_chat_room_discussion"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
@@ -145,15 +151,18 @@
 
         <activity
             android:name=".login.SignupWayActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_sign_up"
             android:parentActivityName=".login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".login.TermsActivity"
-            android:parentActivityName=".login.SignupWayActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".login.SignUpAccountActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_sign_up_account"
             android:parentActivityName=".login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -167,82 +176,99 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".image.MediaStoreActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_media_store"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".tab.board.detail.BoardDetailActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_board_detail"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".tab.board.BoardWriteActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_board_write"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".tab.friends.detail.FriendsDetailActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_friends_detail"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.AlarmActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_Alarm"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".login.ScrollingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.friends.set.ProfileSettingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_profile_setting"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.FriendStatusActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_friend_status"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.chat.plus.ChatPlusActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_chat_plus"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".tab.friends.list.FriendsListActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_friends_list"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.MyWritingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_my_writing"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.MyInterestActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_my_interest"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.account.ManagementActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_management"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".tab.mypage.setting.SettingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_setting"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".image.PinchZoomActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_pinch_zoom"
             android:theme="@style/AppTheme.NoActionBar" />
-        <!-- 네이버 로그인 테스트용 액티비티-->
+        <!-- 네이버 로그인 테스트용 액티비티 -->
         <activity
             android:name=".login.OAuthSampleActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-        </activity>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
         <!-- 네이버 아이디로 로그인에서 사용하는 액티비티를 등록 -->
-        <activity android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity
+            android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name="com.nhn.android.naverlogin.ui.OAuthLoginInAppBrowserActivity"
-            android:label="OAuth2.0 In-app"/>
-
-
-
+            android:label="OAuth2.0 In-app" />
+        <activity
+            android:name=".tab.mypage.setting.OpenSourcesActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/title_activity_open_sources"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

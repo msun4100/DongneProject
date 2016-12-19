@@ -13,7 +13,6 @@ import java.util.List;
  */
 public class MySpinnerAdapter extends BaseAdapter{
     List<String> items = new ArrayList<String>();
-
     public void add(String s) {
         items.add(s);
         notifyDataSetChanged();

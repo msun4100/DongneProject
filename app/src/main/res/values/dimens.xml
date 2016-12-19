@@ -25,6 +25,7 @@
     <dimen name="image_home_menu_height_gray">36dp</dimen>
 
     <!--empty message's style-->
-    <dimen name="empty_msg_size">23sp</dimen>
+    <dimen name="empty_msg_size">19sp</dimen>
+    <dimen name="empty_msg_margin_top">27dp</dimen>
 
 </resources>

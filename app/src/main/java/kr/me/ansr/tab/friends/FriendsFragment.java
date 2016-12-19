@@ -19,6 +19,8 @@ import okhttp3.Request;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -38,11 +40,12 @@ import android.widget.Toast;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.playlog.internal.LogEvent;
 
 import java.util.ArrayList;
 
 public class FriendsFragment extends PagerFragment {
-
+	private static final String TAG = FriendsFragment.class.getSimpleName();
 
 	AppCompatActivity activity;
 	TabHost tabHost;

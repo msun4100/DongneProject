@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +57,7 @@ import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 import kr.me.ansr.tab.friends.recycler.MyDecoration;
 import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
 import kr.me.ansr.tab.friends.recycler.OnItemLongClickListener;
+import kr.me.ansr.tab.friends.search.FriendsSearchDialogFragment;
 import okhttp3.Request;
 
 /**
@@ -69,6 +72,7 @@ public class FriendsTwoFragment extends PagerFragment {
     public static final int DIALOG_RC_BLOCK = 302;
     public static final int DIALOG_RC_REPORT = 303;
     public static final int DIALOG_RC_SEND_REQ = 304;
+    public static final int DIALOG_RC_SEARCH = 305;
     AppCompatActivity activity;
 
     RecyclerView recyclerView;
@@ -82,17 +86,30 @@ public class FriendsTwoFragment extends PagerFragment {
 
     Spinner spinner;
     MySpinnerAdapter mySpinnerAdapter;
-    String mSpinnerItem;
     public int mSearchOption = 0;
     ImageView searchIcon;
-    FrameLayout frameSearch;
 
     InputMethodManager imm;
+    public FloatingActionButton fab;
+
+    RelativeLayout emptyLayout;
+    ImageView emptyIcon;
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends_section, container, false);
         activity = (AppCompatActivity) getActivity();
+        emptyLayout = (RelativeLayout)view.findViewById(R.id.rl_empty);
+        emptyIcon = (ImageView)view.findViewById(R.id.iv_empty_img);
+        emptyIcon.setImageResource(R.drawable.z_empty_friends_2);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchProcess();
+            }
+        });
         imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
@@ -140,7 +157,7 @@ public class FriendsTwoFragment extends PagerFragment {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     if(isSearching == true){
-                        getMoreSearchUsers(username, enterYear, deptname, job);
+                        getMoreSearchUsers(username, enterYear, deptname, jobname, jobteam);
                     } else {
                         getMoreItem();
                     }
@@ -152,15 +169,16 @@ public class FriendsTwoFragment extends PagerFragment {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = mAdapter.getItemCount();
                 int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-//                Log.e("111lastVisiblePosition",""+lastVisibleItemPosition);
-//                Log.e("222 != NO_POSITION",""+(lastVisibleItemPosition != RecyclerView.NO_POSITION));
-//                Log.e("333 itemCount<lastPos",""+(totalItemCount - 1 <= lastVisibleItemPosition));
                 if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
-//                Log.e("444 isLast:",""+isLast);
+                if (dy > 0) { // Scroll Down
+                    if (fab.isShown()) fab.hide();
+                } else if (dy < 0) { // Scroll Up
+                    if (!fab.isShown()) fab.show();
+                }
             }
         });
         mAdapter = new MyFriendsAdapter();
@@ -213,8 +231,8 @@ public class FriendsTwoFragment extends PagerFragment {
 //        initUnivUsers();
 
         //        implements common_search_bar_spinner======================================
-        frameSearch = (FrameLayout)view.findViewById(R.id.containerforsearch);
-        frameSearch.setVisibility(View.GONE);
+//        frameSearch = (FrameLayout)view.findViewById(R.id.containerforsearch);
+//        frameSearch.setVisibility(View.GONE);
         spinner = (Spinner) view.findViewById(R.id.spinner);
         mySpinnerAdapter = new MySpinnerAdapter();
         spinner.setAdapter(mySpinnerAdapter);
@@ -250,65 +268,10 @@ public class FriendsTwoFragment extends PagerFragment {
         searchIcon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(isSearching == true){
-                    frameSearch.setVisibility(View.GONE);
-                    searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
-//                    initUnivUsers();
-                    restoreList();
-                    isSearching = false;
-                    clearSearchInput();
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                } else if(isSearching == false){
-                    setContainerVisibility();
-                }
+                searchProcess();
             }
         });
 
-        inputName = (EditText)view.findViewById(R.id.edit_search_name);
-        inputYear = (EditText)view.findViewById(R.id.edit_search_enteryear);
-        inputDept = (EditText)view.findViewById(R.id.edit_search_dept);
-        inputJob = (EditText)view.findViewById(R.id.edit_search_job);
-        inputJob.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH){
-                    searchProcess();
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    return true;
-                }
-                return false;
-            }
-        });
-        confirmView = (TextView)view.findViewById(R.id.text_search_confirm);
-        confirmView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                searchProcess();
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            }
-        });
-        cancelView = (TextView)view.findViewById(R.id.text_search_cancel);
-        cancelView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(final View v) {
-                clearSearchInput(); //또는 아래 코드처럼 검색값 입력창 닫히면서 기본값 정렬되게?
-                mSearchOption = spinner.getSelectedItemPosition();
-                start = 0;
-                if(true){
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            isSearching = false;
-                            searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
-                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                            setContainerVisibility();
-                            restoreList();
-//                            initUnivUsers();
-                        }
-                    }, 500);
-                }
-            }
-        });
 
         //		on 1118
         Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
@@ -318,22 +281,34 @@ public class FriendsTwoFragment extends PagerFragment {
         return view;
     }
 
-    public boolean isSearching = false;
-    public String username = null;
-    public String enterYear = null;
-    public String deptname = null;
-    public String job = null;
+    private void searchProcess(){
+        Log.e(TAG, "onClick: "+mSearchOption );
+        if(mSearchOption == 3){
+            spinner.setSelection(0);    // ==서치옵션도 0 이 됨
+        }
+        if(isSearching == true){
+            isSearching = false;
+            searchIcon.setImageResource(R.drawable.b_list_search_icon_selector);
+            fab.setImageResource(R.drawable.z_fab_search);
+//            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            start = 0;
+            reqDate = MyApplication.getInstance().getCurrentTimeStampString();
+            initUnivUsers();
+//            restoreList();
+        } else if(isSearching == false){
+            //프래그먼트 호출
+            showSearchFragment();
+        }
+    }
 
-    EditText inputName, inputYear, inputDept, inputJob;
-    TextView confirmView, cancelView;
+    public boolean isSearching = false;
     public String headerString = null;
-    public void searchProcess(){
-        username = inputName.getText().toString();
-        enterYear = inputYear.getText().toString();
-        deptname = inputDept.getText().toString();
-        job = inputJob.getText().toString();
-        if(username.equals("") && enterYear.equals("") && deptname.equals("") && job.equals("")){
+    String username = "", enterYear = "", deptname = "", jobname = "", jobteam = "";
+
+    public void doSearch(){
+        if(username.equals("") && enterYear.equals("") && deptname.equals("") && jobname.equals("") && jobteam.equals("")){
             Toast.makeText(getActivity(), "검색 조건을 하나 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+            isSearching = false;
             return;
         }
         headerString = "";
@@ -346,8 +321,11 @@ public class FriendsTwoFragment extends PagerFragment {
         if(!TextUtils.isEmpty(deptname)){
             headerString += "학과:" + deptname +", ";
         }
-        if(!TextUtils.isEmpty(job)){
-            headerString += "회사/직무:" + job +", ";
+        if(!TextUtils.isEmpty(jobname)){
+            headerString += "회사:" + jobname +", ";
+        }
+        if(!TextUtils.isEmpty(jobteam)){
+            headerString += "직무:" + jobname +", ";
         }
         if(!TextUtils.isEmpty(headerString)){
             headerString = headerString.substring(0, headerString.length() - 2);
@@ -356,9 +334,10 @@ public class FriendsTwoFragment extends PagerFragment {
         Log.e("s_username", username);
         Log.e("s_enterYear", enterYear);
         Log.e("s_deptname", deptname);
-        Log.e("s_job", job);
+        Log.e("s_jobname", jobname);
+        Log.e("s_jobteam", jobteam);
 
-        storeList();    //기존 데이타 백업
+//        storeList();    //기존 데이타 백업
         mSearchOption = spinner.getSelectedItemPosition();
         start = 0;
         if(true){
@@ -366,49 +345,16 @@ public class FriendsTwoFragment extends PagerFragment {
                 @Override
                 public void run() {
                     Tracker t = ((MyApplication)getActivity().getApplication()).getTracker(MyApplication.TrackerName.APP_TRACKER);
-                    t.send(new HitBuilders.EventBuilder().setCategory("TAB1_ChildOneFragment").setAction("Press Button").setLabel("Search view Click").build());
-
+                    t.send(new HitBuilders.EventBuilder().setCategory("TAB1_ChildTwoFragment").setAction("Press Button").setLabel("Search view Click").build());
                     isSearching = true;
                     searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
-                    setContainerVisibility();
-                    initSearchUsers(username, enterYear, deptname, job);
+                    fab.setImageResource(R.drawable.z_fab_close);
+                    initSearchUsers(username, enterYear, deptname, jobname, jobteam);
                 }
             }, 500);
         }
     }
 
-    public void clearSearchInput(){
-        inputName.setText(""); inputYear.setText(""); inputDept.setText(""); inputJob.setText("");
-        username = null; enterYear = null; deptname = null; job = null;
-    }
-    public void setContainerVisibility(){
-        if(frameSearch == null){
-            return;
-        }
-        if(frameSearch.getVisibility() == View.VISIBLE){
-//            Fragment f = getActivity().getSupportFragmentManager().findFragmentByTag(F1_TAG);
-//            if(f != null){
-//                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-//                ft.remove(f);
-//                ft.commit();
-//            }
-            frameSearch.setVisibility(View.GONE);
-        } else {
-//            searchIcon.setImageResource(R.drawable.abc_ic_clear_mtrl_alpha);
-//            Bundle bundle = new Bundle();
-//            bundle.putString("filePath", "");
-//            Fragment f = getActivity().getSupportFragmentManager().findFragmentByTag(F1_TAG);
-//            if (f == null) {
-//                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-//                SearchFragment newFragment = SearchFragment.newInstance();
-//                newFragment.setArguments(bundle);
-////                ft.setCustomAnimations(R.anim.slide_top_in, R.anim.slide_top_out);
-//                ft.replace(R.id.containerforsearch, newFragment, F1_TAG);
-//                ft.commit();
-//            }
-            frameSearch.setVisibility(View.VISIBLE);
-        }
-    }
     private void initData() {
         String[] searchArray = getResources().getStringArray(R.array.search_items);
         for (int i = 0; i < searchArray.length; i++) {
@@ -437,16 +383,12 @@ public class FriendsTwoFragment extends PagerFragment {
                     public void onSuccess(Request request, FriendsInfo result) {
                         if (result.error.equals(false)) {
                             if(result.result != null && !result.message.equals("has no more accepted friends") ){
-//                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
                                 mAdapter.blockCount = 0;
-                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 setTabTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
-
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
@@ -462,17 +404,18 @@ public class FriendsTwoFragment extends PagerFragment {
                                 start++;
                             }
                         } else {
-//                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
+                        showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
                     }
@@ -491,6 +434,8 @@ public class FriendsTwoFragment extends PagerFragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.e(TAG, "onResume: " );
+
     }
 
     private void getMoreItem() {
@@ -544,14 +489,17 @@ public class FriendsTwoFragment extends PagerFragment {
     }
 
     private void setTabTotalCount(int total){
-        if(FriendsFragment.totalFriends != null){
+        if(total > 0 && FriendsFragment.totalFriends != null){
             FriendsFragment.totalFriends.setText(""+total);
+        } else {
+            FriendsFragment.totalFriends.setText("");
         }
     }
 
-    private void initSearchUsers(String username, String enterYear, String deptname, String job){
+    private void initSearchUsers(String username, String enterYear, String deptname, String jobname, String jobteam){
         String mUnivId = PropertyManager.getInstance().getUnivId();
         searchReqDate = MyApplication.getInstance().getCurrentTimeStampString();
+        start = 0;
         NetworkManager.getInstance().postDongneUnivUsersSearch(getActivity(),
                 1,//mode
                 mSearchOption,//req.body.sort
@@ -562,7 +510,8 @@ public class FriendsTwoFragment extends PagerFragment {
                 username,
                 enterYear,
                 deptname,
-                job,
+                jobname,
+                jobteam,
                 new NetworkManager.OnResultListener<FriendsInfo>() {
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
@@ -605,14 +554,16 @@ public class FriendsTwoFragment extends PagerFragment {
                             Log.e(TAG, result.message);
                             Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
-                        dialog.dismiss();
+                        showLayout();
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        dialog.dismiss();
+                        showLayout();
                         refreshLayout.setRefreshing(false);
+                        dialog.dismiss();
                     }
                 });
         dialog = new ProgressDialog(getActivity());
@@ -620,7 +571,7 @@ public class FriendsTwoFragment extends PagerFragment {
         dialog.show();
     }
 
-    private void getMoreSearchUsers(String username, String enterYear, String deptname, String job){
+    private void getMoreSearchUsers(String username, String enterYear, String deptname, String jobname, String jobteam){
         String mUnivId = PropertyManager.getInstance().getUnivId();
         if (isMoreData) return;
         isMoreData = true;
@@ -637,7 +588,8 @@ public class FriendsTwoFragment extends PagerFragment {
                     username,
                     enterYear,
                     deptname,
-                    job,
+                    jobname,
+                    jobteam,
                     new NetworkManager.OnResultListener<FriendsInfo>() {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
@@ -859,6 +811,17 @@ public class FriendsTwoFragment extends PagerFragment {
                     }
                 }
                 break;
+            case DIALOG_RC_SEARCH:
+                if (resultCode == getActivity().RESULT_OK) {
+                    extraBundle = data.getExtras();
+                    username = extraBundle.getString("username");
+                    enterYear = extraBundle.getString("enterYear");
+                    deptname = extraBundle.getString("deptname");
+                    jobname = extraBundle.getString("jobname");
+                    jobteam = extraBundle.getString("jobteam");
+                    doSearch();
+                }
+                break;
         }
     }
 
@@ -922,6 +885,25 @@ public class FriendsTwoFragment extends PagerFragment {
         getParentFragment().startActivityForResult(intent, FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
     }
 
+    private void showSearchFragment(){
+        FriendsSearchDialogFragment mDialogFragment = FriendsSearchDialogFragment.newInstance();
+        Bundle b = new Bundle();
+        b.putString("tag", FriendsSearchDialogFragment.TAG_TAB_ONE_MY);
+        mDialogFragment.setArguments(b);
+        mDialogFragment.setTargetFragment(FriendsTwoFragment.this, DIALOG_RC_SEARCH);
+        mDialogFragment.show(getActivity().getSupportFragmentManager(), "friendsSearchDialog");
+    }
+
+    private void showLayout(){
+        if (mAdapter != null && mAdapter.getItemCount() > 2){
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
+    }
+
 
     public FriendsTwoFragment(){}
     @Override
@@ -931,6 +913,7 @@ public class FriendsTwoFragment extends PagerFragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+        Log.e(TAG, "setUserVisibleHint: " );
     }
     @Subscribe
     public void onEvent(FriendsFragmentResultEvent activityResultEvent){

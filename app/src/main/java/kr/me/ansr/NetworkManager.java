@@ -682,7 +682,7 @@ public class NetworkManager {
         return null;
     }
     private static final String URL_FRIEND_UNIV_USERS_SEARCH = SERVER_URL + "/friends/univ/:univId/search";
-    public Request postDongneUnivUsersSearch(Context context, int mode, int sort, String univId, String start, String display, String reqDate, String username, String enterYear, String deptname, String job, final OnResultListener<FriendsInfo> listener) {
+    public Request postDongneUnivUsersSearch(Context context, int mode, int sort, String univId, String start, String display, String reqDate, String username, String enterYear, String deptname, String jobname, String jobteam, final OnResultListener<FriendsInfo> listener) {
         try {
             String url = URL_FRIEND_UNIV_USERS_SEARCH.replace(":univId", ""+univId);
             if(mode == 1){
@@ -700,7 +700,8 @@ public class NetworkManager {
             json.addProperty("username", username);
             json.addProperty("enterYear", enterYear);
             json.addProperty("deptname", deptname);
-            json.addProperty("job", job);
+            json.addProperty("jobname", jobname);
+            json.addProperty("jobteam", jobteam);
 
             String jsonString = json.toString();
 
