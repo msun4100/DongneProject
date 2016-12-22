@@ -146,7 +146,7 @@ public class PropertyManager {
 
 	public String getLatitude() {
 		if (mLatitude == null) {
-			mLatitude = mPrefs.getString(FIELD_LOCATION_LATITUDE, null);
+			mLatitude = mPrefs.getString(FIELD_LOCATION_LATITUDE, "0");
 		}
 		return mLatitude;
 	}
@@ -161,7 +161,7 @@ public class PropertyManager {
 
 	public String getLongitude() {
 		if (mLongitude == null) {
-			mLongitude = mPrefs.getString(FIELD_LOCATION_LONGITUDE, null);
+			mLongitude = mPrefs.getString(FIELD_LOCATION_LONGITUDE, "0");
 		}
 		return mLongitude;
 	}

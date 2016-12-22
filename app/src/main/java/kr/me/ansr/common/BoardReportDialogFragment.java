@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.Toast;
 
 import kr.me.ansr.PropertyManager;
 import kr.me.ansr.R;
@@ -67,7 +66,16 @@ public class BoardReportDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 if(tag != null){
                     if(tag.equals(TAG_TAB_THREE_STUDENT)) {
-                        Toast.makeText(getActivity(), "top 삭제하기", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_DELETE_");
+                        } else {
+                            intent.putExtra("next", "");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_THREE_GRADUATE)) {
                         Intent intent = new Intent();
                         if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
                             intent.putExtra("next", "_DELETE_");
@@ -89,7 +97,6 @@ public class BoardReportDialogFragment extends DialogFragment {
                     }
 
                     if(tag.equals(TAG_BOARD_DETAIL)) {
-                        Toast.makeText(getActivity(), "detail top 삭제하기", Toast.LENGTH_SHORT).show();
                         mCallback.onDataReturned("0");
                         dismiss();
                     }
@@ -104,7 +111,16 @@ public class BoardReportDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 if(tag != null){
                     if(tag.equals(TAG_TAB_THREE_STUDENT)) {
-                        Toast.makeText(getActivity(), "tab three mid "+ getTargetRequestCode(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
+                            intent.putExtra("next", "_EDIT_");
+                        } else {
+                            intent.putExtra("next", "_REPORT_");
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_THREE_GRADUATE)) {
                         Intent intent = new Intent();
                         if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
                             intent.putExtra("next", "_EDIT_");
@@ -115,7 +131,6 @@ public class BoardReportDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if(tag.equals(TAG_TAB_MY_WRITING_ONE)) {
-                        Toast.makeText(getActivity(), "tab three mid "+ getTargetRequestCode(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         if(data.writer == Integer.parseInt(PropertyManager.getInstance().getUserId())){
                             intent.putExtra("next", "_EDIT_");
@@ -126,7 +141,6 @@ public class BoardReportDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if(tag.equals(TAG_BOARD_DETAIL)) {
-                        Toast.makeText(getActivity(), "detail mid", Toast.LENGTH_SHORT).show();
                         mCallback.onDataReturned("1");
                         dismiss();
                     }

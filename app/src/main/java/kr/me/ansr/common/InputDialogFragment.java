@@ -72,8 +72,8 @@ public class InputDialogFragment extends DialogFragment {
             tag = b.getString("tag", null);
             mStatus = (StatusResult)b.getSerializable("mStatus");
             mItem = (FriendsResult)b.getSerializable("mItem");
-            Log.e("inputDialog-mStatus", mStatus.toString());
-            Log.e("inputDialog-mItem", mItem.toString());
+//            Log.e("inputDialog-mStatus", mStatus.toString());
+//            Log.e("inputDialog-mItem", mItem.toString());
             Log.e("inputDialog-tag", tag);
         }
     }

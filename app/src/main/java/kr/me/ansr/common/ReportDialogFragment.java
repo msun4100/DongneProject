@@ -3,7 +3,6 @@ package kr.me.ansr.common;
 import android.app.ActionBar.LayoutParams;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,7 +83,6 @@ public class ReportDialogFragment extends DialogFragment {
                             mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
                             dismiss();
                         } else if(data.status == -1){
-                            Log.e("친구신청: ",""+data.status);
                             int userId =Integer.parseInt(PropertyManager.getInstance().getUserId());
                             StatusResult sr = new StatusResult(
                                     userId, //from
@@ -122,7 +120,6 @@ public class ReportDialogFragment extends DialogFragment {
                             mDialogFragment.show(getActivity().getSupportFragmentManager(), "customDialog");
                             dismiss();
                         } else if(data.status == -1){
-                            Log.e("친구신청: ",""+data.status);
                             int userId =Integer.parseInt(PropertyManager.getInstance().getUserId());
                             StatusResult sr = new StatusResult(
                                     userId, //from

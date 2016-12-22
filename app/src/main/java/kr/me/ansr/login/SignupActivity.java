@@ -84,13 +84,7 @@ public class SignupActivity extends AppCompatActivity {
 			email = intent.getExtras().getString("email");
 			password = intent.getExtras().getString("password");
 		}
-		if(email != null){
-			Toast.makeText(getApplicationContext(), email, Toast.LENGTH_SHORT).show();
-		} else {
-			email = null;
-			password = null;
-			Toast.makeText(getApplicationContext(), "Account is null", Toast.LENGTH_SHORT).show();
-		}
+
 		textViewUniv = (TextView)findViewById(R.id.text_signup_univ);
 //		mUnivAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		mUnivAdapter = new MyUnivAdapter();
@@ -208,14 +202,15 @@ public class SignupActivity extends AppCompatActivity {
 					}
 				} else {
 					mUnivAdapter.clearAll();
-					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(SignupActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
 				}
 				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(SignupActivity.this, TAG + "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(SignupActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
@@ -240,14 +235,15 @@ public class SignupActivity extends AppCompatActivity {
 						Toast.makeText(SignupActivity.this, TAG + "result.size is zero", Toast.LENGTH_SHORT).show();
 					}
 				} else {
-					Toast.makeText(SignupActivity.this, TAG + "error: true" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(SignupActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
 				}
 				dialog.dismiss();
 			}
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(SignupActivity.this, TAG + "onFailure: " + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(SignupActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
@@ -300,9 +296,6 @@ public class SignupActivity extends AppCompatActivity {
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(false)) {
-					Toast.makeText(SignupActivity.this, "error:false" + result.toString(), Toast.LENGTH_SHORT).show();
-					Log.e(TAG, "onSuccess: "+ result.toString() );
-//					Log.e(TAG, result.result.toString());
 					PropertyManager.getInstance().setUserId(result.result.user_id);
 					PropertyManager.getInstance().setUnivId(""+mUnivId);
 					PropertyManager.getInstance().setEmail(email);
@@ -319,7 +312,6 @@ public class SignupActivity extends AppCompatActivity {
 					//프로퍼티 저장할 것들 저장하고 로그인 요청. --> 로그인 성공하면 메인액티비티로
 					//...
 				} else {
-					Toast.makeText(SignupActivity.this, "error:true" + result.toString(), Toast.LENGTH_SHORT).show();
 					PropertyManager.getInstance().setUserId("");
 					PropertyManager.getInstance().setUnivId("");
 					PropertyManager.getInstance().setEmail("");
@@ -333,12 +325,13 @@ public class SignupActivity extends AppCompatActivity {
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(SignupActivity.this, TAG+" onFailure:" + cause, Toast.LENGTH_LONG).show();
+				Toast.makeText(SignupActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
 		dialog = new ProgressDialog(SignupActivity.this);
-		dialog.setTitle("Loading....");
+		dialog.setTitle("회원가입 요청 중...");
 		dialog.show();
 	}
 	private void doLogin(){
@@ -348,7 +341,7 @@ public class SignupActivity extends AppCompatActivity {
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(true)) {
-					Toast.makeText(SignupActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(SignupActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
 				} else {
 					PropertyManager.getInstance().setUserId(result.result.user_id);
 					PropertyManager.getInstance().setUnivId(result.result.univId);
@@ -365,12 +358,13 @@ public class SignupActivity extends AppCompatActivity {
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(SignupActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(SignupActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
 		dialog = new ProgressDialog(SignupActivity.this);
-		dialog.setTitle("Loading....");
+		dialog.setTitle("로그인 중입니다...");
 		dialog.show();
 	}
 

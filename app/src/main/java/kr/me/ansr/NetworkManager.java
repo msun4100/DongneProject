@@ -217,7 +217,8 @@ public class NetworkManager {
             json.addProperty("univId", PropertyManager.getInstance().getUnivId());
             String lat = PropertyManager.getInstance().getLatitude();
             String lon = PropertyManager.getInstance().getLongitude();
-            if(lat.equals("") || lat == null) lat = "0"; if(lon.equals("") || lon == null) lon = "0";
+            if(lat.equals("") || lat == null) lat = "0";
+            if(lon.equals("") || lon == null) lon = "0";
             json.addProperty("lat", lat);
             json.addProperty("lon", lon);
             String jsonString = json.toString();

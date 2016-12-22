@@ -136,11 +136,9 @@ public class OneFragment extends PagerFragment{
             public void onAdapterItemClick(BoardAdapter adapter, View view, int position, BoardResult item, int type) {
                 BoardResult data = mAdapter.getItem(position);
                 switch (type) {
-                    case 100:
-                        Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                    case 100:   //nameview
                         break;
-                    case 200:
-                        Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                    case 200:   //imageView
                         break;
                     case 300:
                         selectedItem = data;
@@ -153,7 +151,6 @@ public class OneFragment extends PagerFragment{
                         mDialogFragment.show(getActivity().getSupportFragmentManager(), "boardReportDialog");
                         break;
                     case 400:
-                        Toast.makeText(getActivity(), "like view click:\n"+data.likes.toString(), Toast.LENGTH_SHORT).show();
                         int likeMode =2;    //likeMode가 2면 요청 안하고 리턴
                         int mUserId = Integer.valueOf(PropertyManager.getInstance().getUserId());
                         if(data.likes.contains(mUserId)) likeMode = LikeInfo.DISLIKE; else likeMode = LikeInfo.LIKE;
@@ -209,6 +206,7 @@ public class OneFragment extends PagerFragment{
     }
 
     private void initBoard(){
+        isMoreData = false;
         String mUnivId = PropertyManager.getInstance().getUnivId();
         String userId = PropertyManager.getInstance().getUserId();
         if(mUnivId == ""){
@@ -229,11 +227,9 @@ public class OneFragment extends PagerFragment{
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")  && result.result != null ){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
-                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<BoardResult> items = result.result;
                                 ArrayList<CommentThread> comment = result.comment;
-                                Log.e(TAG+"comment:", ""+comment.toString());
                                 Random r = new Random();
                                 for(int i=0; i < items.size(); i++){
                                     BoardResult child = items.get(i);
@@ -257,14 +253,12 @@ public class OneFragment extends PagerFragment{
                                 //has no board item
                                 mAdapter.items.clear();
                                 Log.e(TAG, result.message);
-                                Toast.makeText(getActivity(), "" + result.message, Toast.LENGTH_SHORT).show();
                             }
                         } else {
 //                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             //error: true
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         dialog.dismiss();
@@ -273,7 +267,8 @@ public class OneFragment extends PagerFragment{
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(getActivity(), TAG + "Board init() onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
@@ -307,7 +302,6 @@ public class OneFragment extends PagerFragment{
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")  && result.result != null ){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
-                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<BoardResult> items = result.result;
                                 ArrayList<CommentThread> comment = result.comment;
@@ -333,12 +327,10 @@ public class OneFragment extends PagerFragment{
                                 //has no board item
                                 mAdapter.items.clear();
                                 Log.e(TAG, result.message);
-                                Toast.makeText(getActivity(), "" + result.message, Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         dialog.dismiss();
@@ -347,7 +339,8 @@ public class OneFragment extends PagerFragment{
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(getActivity(), TAG + " Board search onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
@@ -379,23 +372,22 @@ public class OneFragment extends PagerFragment{
                     new NetworkManager.OnResultListener<BoardInfo>() {
                         @Override
                         public void onSuccess(Request request, BoardInfo result) {
-                            Log.e(TAG+"getMore:", ""+result.message);
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")){
-                                Log.e(TAG+"getMore:", result.result.toString());
                                 ArrayList<CommentThread> comment = result.comment;
-                                Log.e(TAG+"getMore-comment:", comment.toString());
                                 mAdapter.addAll(result.result);
                                 start++;
-                            } else {
-                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                isMoreData = false;
+                            } else {    //has no board item
+                                isMoreData = true;
+                                Log.e(TAG, "onSuccess: "+result.message );
                             }
-                            isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -422,23 +414,22 @@ public class OneFragment extends PagerFragment{
                     new NetworkManager.OnResultListener<BoardInfo>() {
                         @Override
                         public void onSuccess(Request request, BoardInfo result) {
-                            Log.e(TAG+"getMoreSearch:", ""+result.message);
                             if(!result.message.equals("HAS_NO_BOARD_ITEM")){
-                                Log.e(TAG+"getMoreSearch:", result.result.toString());
                                 ArrayList<CommentThread> comment = result.comment;
-                                Log.e(TAG+"getMoreSearch-comment:", comment.toString());
                                 mAdapter.addAll(result.result);
                                 start++;
+                                isMoreData = false;
                             } else {
+                                isMoreData = true;
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
-                            isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreSearch() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -457,16 +448,16 @@ public class OneFragment extends PagerFragment{
             @Override
             public void onSuccess(Request request, LikeInfo result) {
                 if(result.error.equals(false)){
-                    Toast.makeText(getActivity(),""+result.message, Toast.LENGTH_SHORT).show();
                     mAdapter.setLike(position, Integer.valueOf(userId));
                 } else {
                     //error: true
-                    Toast.makeText(getActivity(),"error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), TAG+ " "+result.message, Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(getActivity(),"postLike() onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onFailure: " + cause );
             }
         });
     }
@@ -505,13 +496,14 @@ public class OneFragment extends PagerFragment{
                             }
                             dialog.dismiss();
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -540,13 +532,14 @@ public class OneFragment extends PagerFragment{
                             dialog.dismiss();
 //                            updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });

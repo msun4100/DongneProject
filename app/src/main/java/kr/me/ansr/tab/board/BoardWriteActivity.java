@@ -197,7 +197,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     }
 
     private void initData(){
-        Log.e(TAG, "initData: "+mItem.toString() );
         if(mItem.type.equals("00") || mItem.type.equals("10")){
             checkBox.setChecked(true);
         } else {
@@ -281,8 +280,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             @Override
             public void onSuccess(Request request, WriteInfo result) {
                 if(result.error.equals(false)){
-                    Log.e(TAG+" result.message: ", result.message);
-//                    mItem = result.result;
                     mItem.body = result.result.body;
                     mItem.pic = result.result.pic;
                     mItem.updatedAt = result.result.updatedAt;
@@ -293,13 +290,14 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                         finishAndReturnData(true);
                     }
                 } else {
-                    Toast.makeText(BoardWriteActivity.this, "error: true\n" + result.message, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "onSuccess: "+result.message );
                 }
                 dialog.dismiss();
             }
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(BoardWriteActivity.this, "onFailure: " + cause, Toast.LENGTH_LONG).show();
+                Toast.makeText(BoardWriteActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onFailure: " + cause );
             }
         });
         dialog = new ProgressDialog(this);
@@ -317,7 +315,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
 //            return;
 //        }
         String type = getBoardType();
-        Log.e("postWriteType:", type);
         int pageId = Integer.valueOf(PropertyManager.getInstance().getUnivId()); //임시 pageId == univId
         String title = "Title";
         String content = inputBody.getText().toString();
@@ -325,7 +322,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             @Override
             public void onSuccess(Request request, WriteInfo result) {
                 if(result.error.equals(false)){
-                    Log.e(TAG+" result.message: ", result.message);
                     if(filePath != null){
                         imageUpload(""+result.result.boardId);
                     } else {
@@ -338,7 +334,8 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
             }
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(BoardWriteActivity.this, "onFailure: " + cause, Toast.LENGTH_LONG).show();
+                Toast.makeText(BoardWriteActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onFailure: " + cause );
             }
         });
         dialog = new ProgressDialog(this);
@@ -401,10 +398,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
     private void finishAndReturnData(boolean result){
         Intent intent = new Intent();
         if(result){
-            if(mItem != null){
-//                _EDIT_ 모드 일때만 로그 찍히게 postWrite 일땐 어차피 리스트 갱신이라 mItem 리턴을 안함.
-                Log.e(TAG, "finishAndReturnData: " + mItem.toString() );
-            }
             intent.putExtra("mItem", mItem);
             intent.putExtra("return", "success");
         } else {
@@ -509,7 +502,6 @@ public class BoardWriteActivity extends AppCompatActivity implements IDataReturn
                             mItem.pic.remove(0);
                             mItem.pic.add("board_"+mItem.boardId);
                         }
-                        Log.e("get(0)", mItem.pic.get(0));
                     }
                 }
                 break;

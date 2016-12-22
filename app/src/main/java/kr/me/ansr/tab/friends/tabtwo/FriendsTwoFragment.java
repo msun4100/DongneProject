@@ -363,6 +363,7 @@ public class FriendsTwoFragment extends PagerFragment {
         spinner.setSelection(0);
     }
     private void initUnivUsers(){
+        isMoreData = false; //여기서 초기화를 해줘야 다른탭 갔다와서 새로고침 된 후에도 겟모어 요청을 할 수 있음
         String mUnivId = PropertyManager.getInstance().getUnivId();
         if(mUnivId == ""){
             Toast.makeText(getActivity(),"대학교 등록할 것", Toast.LENGTH_SHORT).show();
@@ -395,7 +396,6 @@ public class FriendsTwoFragment extends PagerFragment {
 
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
                                     if(i==0 && mAdapter.getItem(1) == null){ //임시코드
                                         mAdapter.put("내 프로필", child); //내 정보 불러와서
                                     }
@@ -406,7 +406,6 @@ public class FriendsTwoFragment extends PagerFragment {
                         } else {
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         refreshLayout.setRefreshing(false);
@@ -415,6 +414,8 @@ public class FriendsTwoFragment extends PagerFragment {
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
@@ -434,8 +435,6 @@ public class FriendsTwoFragment extends PagerFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume: " );
-
     }
 
     private void getMoreItem() {
@@ -457,26 +456,28 @@ public class FriendsTwoFragment extends PagerFragment {
                     new NetworkManager.OnResultListener<FriendsInfo>() {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
-                            Log.e(TAG+"getMore:", ""+result.message);
+
                             if(result.error.equals(false)){
                                 if(!result.message.equals("has no more accepted friends")){
-                                    Log.e(TAG+"getMore:", result.result.toString());
                                     mAdapter.addAllFriends(result.result);
                                     start++;
-                                } else {
-                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                    isMoreData = false;
+                                } else { //has no more
+                                    isMoreData = true;  //getMoreItem의 첫라인 if(isMoreData) return; 에 의해 더이상 요청하지 않음
+                                    Log.e(TAG, "onSuccess: "+result.message );
                                 }
-                            } else {
-                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                            } else {    //error: true
+                                isMoreData = false;
+                                Log.e(TAG, "onSuccess: error:true"+result.message );
                             }
-
-                            isMoreData = false;
+//                            isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -520,16 +521,13 @@ public class FriendsTwoFragment extends PagerFragment {
                                 mAdapter.blockCount = 0;
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
-                                Log.d(TAG, "onSuccess: total"+result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
                                     if(child.status == 3){
                                         mAdapter.blockCount++;
                                         continue;
@@ -543,16 +541,14 @@ public class FriendsTwoFragment extends PagerFragment {
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(0);
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
-                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_LONG).show();
+                                Log.e(TAG, "onSuccess: "+result.message );
                             }
                         } else {
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         refreshLayout.setRefreshing(false);
@@ -561,6 +557,8 @@ public class FriendsTwoFragment extends PagerFragment {
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
@@ -594,12 +592,10 @@ public class FriendsTwoFragment extends PagerFragment {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
                             if (result.error.equals(false)) {
-                                Log.e(TAG, "onSuccess: " + result.message);
                                 if(!result.message.equals("has no more friends")){
                                     ArrayList<FriendsResult> items = result.result;
                                     for(int i=0; i < items.size(); i++){
                                         FriendsResult child = items.get(i);
-                                        Log.e(TAG, ""+child);
                                         if(child.status == 3){
                                             mAdapter.blockCount++;
                                             continue;
@@ -607,21 +603,23 @@ public class FriendsTwoFragment extends PagerFragment {
                                         mAdapter.put(headerString, child);
                                     }
                                     start++;
-                                } else {
-                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                    isMoreData = false;
+                                } else {    //has no more items
+                                    Log.e(TAG, "onSuccess: "+result.message );
+                                    isMoreData = true;
                                 }
-                            } else {
+                            } else {    //error: true
+                                isMoreData = false;
                                 Log.e(TAG, "onSuccess: "+result.message);
-                                Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                             }
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                             dialog.dismiss();
-                            isMoreData = false;
                             refreshLayout.setRefreshing(false);
                         }
 
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             dialog.dismiss();
                             isMoreData =false;
                             refreshLayout.setRefreshing(false);
@@ -642,20 +640,53 @@ public class FriendsTwoFragment extends PagerFragment {
             case -1:
                 mAdapter.removeItem(fr);
 //                mAdapter.setTotalCount(mAdapter.getTotalCount()-1);
-                num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
-                setTabTotalCount(--num);
+                try {
+                    num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
+                    setTabTotalCount(--num);
+                } catch (NumberFormatException e) {
+                    setTabTotalCount(0);
+                    e.printStackTrace();
+                }
                 break;
             case 0:
                 break;
             case 1:
+                boolean isExists = false;
+                isExists = mAdapter.isExists(fr);
+                Log.e(TAG, "findOneAndModify: fr.status == 1" );
+                Log.e(TAG, "findOneAndModify: isExists: " + isExists);
+                if (isExists == false) {
+                    mAdapter.put("학교 사람들", fr);
+                    try {
+                        num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
+                        setTabTotalCount(++num);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        setTabTotalCount(0);
+                    }
+                    int cnt = mAdapter.getItemCount();  //추가 된 후 카운트.
+                    if(cnt > 0 ){
+//                        recyclerView.scrollToPosition(mAdapter.getItemCount());
+                        recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, cnt );
+//                        이렇게하면 자동으로 갱신될 수도 있음. == 마지막 포지션에 풋하니까.
+//                        그럼 스크롤이 엉뚱하게 Diplay_num만큼 추가 된 곳으로 가 있을수도..?(테스트는 안해봄)
+//                        스크롤하기 전의 카운트를 저장해놓고 cnt만큼 스크롤함.
+                    }
+                }
+
                 break;
             case 2:
             case 3:
                 mAdapter.removeItem(fr);
 //                mAdapter.setTotalCount(mAdapter.getTotalCount()-1);
                 mAdapter.blockCount++;
-                num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
-                setTabTotalCount(--num);
+                try {
+                    num = Integer.parseInt(FriendsFragment.totalFriends.getText().toString());
+                    setTabTotalCount(--num);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    setTabTotalCount(0);
+                }
                 break;
             default:break;
         }
@@ -679,17 +710,17 @@ public class FriendsTwoFragment extends PagerFragment {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             mItem.status = status;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onSuccess: "+result.message );
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -709,13 +740,14 @@ public class FriendsTwoFragment extends PagerFragment {
                             mItem.status = -1;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onSuccess: "+result.message );
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -740,17 +772,17 @@ public class FriendsTwoFragment extends PagerFragment {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                             updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onSuccess: "+result.message );
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -876,7 +908,6 @@ public class FriendsTwoFragment extends PagerFragment {
     private void showDetail(int position){
         FriendsResult data = mAdapter.getItem(position);
         selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-        Log.e("FriendsTwoFragment", data.toString());
         Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
         intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
         intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
@@ -913,7 +944,11 @@ public class FriendsTwoFragment extends PagerFragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        Log.e(TAG, "setUserVisibleHint: " );
+        if(isVisibleToUser){
+            Log.e(TAG, "setUserVisibleHint: "+ isVisibleToUser );
+        } else {
+            Log.e(TAG, "setUserVisibleHint: else "+ isVisibleToUser );
+        }
     }
     @Subscribe
     public void onEvent(FriendsFragmentResultEvent activityResultEvent){

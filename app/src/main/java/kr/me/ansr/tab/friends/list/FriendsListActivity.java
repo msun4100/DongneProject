@@ -85,7 +85,6 @@ public class FriendsListActivity extends AppCompatActivity {
             mItem = (FriendsResult) intent.getSerializableExtra("mItem");
             userId = mItem.userId;
             Log.e("targetId :", ""+userId);
-            Log.e("mItem: ", mItem.toString());
         }
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
@@ -152,7 +151,6 @@ public class FriendsListActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
                 selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-                Log.e("FriendsList->data", data.toString());
                 Intent intent = new Intent(FriendsListActivity.this, FriendsDetailActivity.class);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
@@ -165,12 +163,18 @@ public class FriendsListActivity extends AppCompatActivity {
             @Override
             public void onAdapterItemClick(FriendsListAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
-                    case 100:
-                        Toast.makeText(FriendsListActivity.this, "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
-                    case 200:
-                        Toast.makeText(FriendsListActivity.this, "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-                        break;
+                    case 100:   //name
+                    case 200:   //image
+                        default:
+                            FriendsResult data = mAdapter.getItem(position);
+                            selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
+                            Intent intent = new Intent(FriendsListActivity.this, FriendsDetailActivity.class);
+                            intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                            intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                            intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                            intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                            startActivityForResult(intent, FriendsListActivity.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
+                            break;
                 }
             }
         });
@@ -179,7 +183,6 @@ public class FriendsListActivity extends AppCompatActivity {
             public void onItemLongClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
                 selectedItem = data;
-                Log.e("friendslist:", "Long click");
 //                ReportDialogFragment mDialogFragment = ReportDialogFragment.newInstance();
 //                Bundle b = new Bundle();
 ////                b.putString("tag", ReportDialogFragment.TAG_BOARD_WRITE);
@@ -226,8 +229,6 @@ public class FriendsListActivity extends AppCompatActivity {
                 new NetworkManager.OnResultListener<FriendsInfo>() {
                     @Override
                     public void onSuccess(Request request, FriendsInfo result) {
-                        Log.e("list result: ", ""+result.error);
-                        Log.e("list result: ", ""+result.message);
                         if (result.error.equals(false)) {
                             if(result.result != null && !result.message.equals("has no more accepted friends")){
                                 mAdapter.blockCount = 0;    //1인애들만 불러오니까 블락카운트가 증가 안하겟지
@@ -236,18 +237,15 @@ public class FriendsListActivity extends AppCompatActivity {
                                 ArrayList<FriendsResult> items = result.result;
 
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     if(mItem !=null){
                                         mAdapter.put("친구 프로필", mItem);
                                     } else {
-                                        Toast.makeText(FriendsListActivity.this, "mItem is null..", Toast.LENGTH_SHORT).show();
                                         result.user.status = 1;
                                         mAdapter.put("친구 프로필", result.user);
                                     }
                                 }
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
                                     if(child.status == 3){
                                         mAdapter.blockCount++;
                                         continue;
@@ -263,7 +261,7 @@ public class FriendsListActivity extends AppCompatActivity {
                             mAdapter.items.clear();
                             sameCnt.setText("0");
                             Log.e(TAG, result.message);
-                            Toast.makeText(FriendsListActivity.this, TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FriendsListActivity.this, TAG + " " + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         refreshLayout.setRefreshing(false);
@@ -272,6 +270,8 @@ public class FriendsListActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(FriendsListActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
@@ -312,9 +312,7 @@ public class FriendsListActivity extends AppCompatActivity {
                     new NetworkManager.OnResultListener<FriendsInfo>() {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
-                            Log.e(TAG+"getMore:", ""+result.message);
                             if(!result.message.equals("has no more accepted friends")){
-                                Log.e(TAG+"getMore:", result.result.toString());
                                 mAdapter.addAllFriends(result.result);
                                 start++;
 //                                FriendsDataManager.getInstance().getList().addAll(result.result);
@@ -323,10 +321,11 @@ public class FriendsListActivity extends AppCompatActivity {
                             }
                             isMoreData = false;
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(FriendsListActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             refreshLayout.setRefreshing(false);
                         }
@@ -411,7 +410,6 @@ public class FriendsListActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
-                    Toast.makeText(FriendsListActivity.this,""+ result.toString() , Toast.LENGTH_SHORT).show();
 //                    EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
                     EventBus.getInstance().post(result);
                     break;

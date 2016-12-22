@@ -186,11 +186,9 @@ public class MypageFragment extends PagerFragment {
 					getActivity().overridePendingTransition(R.anim.slide_left_in, R.anim.slide_left_out);
 					break;
 				case R.id.image_my_thumb:
-					Toast.makeText(getActivity(), "thumb", Toast.LENGTH_SHORT).show();
 					break;
 				case R.id.image_my_next:
 				case R.id.LinearLayout1:
-					Toast.makeText(getActivity(), "next", Toast.LENGTH_SHORT).show();
 					intent = new Intent(getActivity(), MediaStoreActivity.class);
 					FriendsResult item = FriendsSectionFragment.getUserInfo();
 					if(item != null){

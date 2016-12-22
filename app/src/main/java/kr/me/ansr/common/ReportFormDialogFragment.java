@@ -32,6 +32,7 @@ import kr.me.ansr.tab.friends.recycler.FriendsSectionFragment;
 public class ReportFormDialogFragment extends DialogFragment {
     public static final String TAG_FRIENDS_DETAIL = "friendsDetail";
     public static final String TAG_TAB_THREE_STUDENT = "tabThreeStudent";
+    public static final String TAG_TAB_THREE_GRADUATE = "tabThreeGraduate";
     public static final String TAG_BOARD_DETAIL = "BoardDetail";
 
     public static final String TAG_TAB_ONE_UNIV = "tabOneUniv";
@@ -113,6 +114,12 @@ public class ReportFormDialogFragment extends DialogFragment {
                     }
 
                     if (tag.equals(TAG_TAB_THREE_STUDENT)) {
+                        Intent intent = new Intent();
+                        intent.putExtra("type", spinnerPos);
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if (tag.equals(TAG_TAB_THREE_GRADUATE)) {
                         Intent intent = new Intent();
                         intent.putExtra("type", spinnerPos);
                         getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);

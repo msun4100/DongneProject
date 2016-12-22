@@ -213,6 +213,7 @@ public class FriendsFragment extends PagerFragment {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
 			case FriendsSectionFragment.FRIENDS_RC_NUM:
+			case FriendsTwoFragment.FRIENDS_RC_NUM:
 				if (resultCode == getActivity().RESULT_OK) {
 //					EventBus.getInstance().post(new FriendsFragmentResultEvent(requestCode, resultCode, data));
 //					sectionFragment말고 모든 FriendsResult를 사용하는 아답터들이 알아야 하니까 굳이 위처럼하지말고 여기 스텝에서 포스트 이벤트를 뿌림.

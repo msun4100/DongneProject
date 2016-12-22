@@ -154,47 +154,7 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     break;
                 case R.id.image_friends_detail_menu_1:
                     t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button1 Click").build());
-                    switch (mItem.status){
-                        case -100:
-                        case 0:
-                        case 100:
-                            getStatus();
-                            break;
-                        case -1:
-                            //아무 관계도 아님
-                            int userId =Integer.parseInt(PropertyManager.getInstance().getUserId());
-                            StatusResult s = new StatusResult(
-                                    userId, //from
-                                    mItem.userId, //to
-                                    -1, //status
-                                    userId, //actionUser
-                                    "", //updatedAt
-                                    ""  //msg
-                            );
-                            showDialog(s);
-                            break;
-                        case 1:
-                            Toast.makeText(FriendsDetailActivity.this, "1:1대화", Toast.LENGTH_SHORT).show();
-                            ArrayList<FriendsResult> cList = new ArrayList<>();
-                            cList.add(mItem);
-                            searchRoom(cList);
-                            break;
-                        case 2:
-                            break;
-                        case 3:
-                            CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
-                            Bundle b = new Bundle();
-                            b.putString("tag", CustomDialogFragment.TAG_FRIENDS_DETAIL);
-                            b.putString("title","친구 차단을 해제 하시겠습니까?");
-                            b.putString("body", "학교 사람들 리스트에 노출됩니다.");
-                            b.putString("choice","blockOff");
-                            b.putSerializable("mItem", mItem);
-                            mDialogFragment.setArguments(b);
-                            mDialogFragment.show(getSupportFragmentManager(), "customDialog");
-                            break;
-                        default: break;
-                    }
-
+                    getStatus();    // api서버 요청을 통해 status를 한번 더 확인한 후 액션. 동시성 보장위해
                     break;
                 case R.id.image_friends_detail_menu_2:
                     t.send(new HitBuilders.EventBuilder().setCategory("Event").setAction("Press Button").setLabel("Button2 Click").build());
@@ -356,16 +316,43 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
+                            Log.e(TAG, "onSuccess: "+result.message );
                             StatusResult mStatus = result.result;
                             mItem.status = mStatus.status;
-                            showDialog(mStatus);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            updateFirstIcon(mItem.status);  //실시간 요청에 따른 아이콘 변경
+                            switch (mItem.status){
+                                case 1:
+                                    ArrayList<FriendsResult> cList = new ArrayList<>();
+                                    cList.add(mItem);
+                                    searchRoom(cList);
+                                    break;
+                                case 3:
+                                    CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
+                                    Bundle b = new Bundle();
+                                    b.putString("tag", CustomDialogFragment.TAG_FRIENDS_DETAIL);
+                                    b.putString("title","친구 차단을 해제 하시겠습니까?");
+                                    b.putString("body", "학교 사람들 리스트에 노출됩니다.");
+                                    b.putString("choice","blockOff");
+                                    b.putSerializable("mItem", mItem);
+                                    mDialogFragment.setArguments(b);
+                                    mDialogFragment.show(getSupportFragmentManager(), "customDialog");
+                                    break;
+                                default:
+                                    // case of "-100, 0, 100, -1"
+                                    // friends collection 에 존재하지 않아 docs.length === 0 인 경우
+                                    // 서버에서 status: -1 로 된 새 객체 생성해 리턴함.
+                                    showDialog(mStatus);
+                                    break;
+                            }
+                        } else {    // error: true, DOCS_LENGTH_ERROR (0 or 1 이 아닌)
+                            Log.e(TAG, "onSuccess: "+result.message);
+                            Toast.makeText(getApplicationContext(), "요청보기가 실패하였습니다.", Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
                 });
@@ -385,32 +372,38 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                         Log.e("updateStatus:", result.message);
                         if (result.error.equals(false)) {
                             mItem.status = result.result.status;
-                            //.. imageButton1 이미지 변경
-                            switch (mItem.status){
-                                case 3:
-                                    firstIcon.setImageResource(R.drawable.c__icon_6);
-                                    break;
-                                case 1:
-                                    firstIcon.setImageResource(R.drawable.c__icon_3);
-                                    break;
-                                case 0:
-                                    firstIcon.setImageResource(R.drawable.c__icon_5);
-                                    break;
-                            }
+                            updateFirstIcon(mItem.status);  //.. imageButton1 이미지 변경
                         } else {
-                            Toast.makeText(getApplicationContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
                             Log.e(TAG+" error: true", result.message);
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
                 });
         dialog = new ProgressDialog(FriendsDetailActivity.this);
         dialog.setTitle("친구 요청 중입니다...");
         dialog.show();
+    }
+
+    private void updateFirstIcon(int status){
+        switch (status){
+            case 3:
+                firstIcon.setImageResource(R.drawable.c__icon_6);
+                break;
+            case 1:
+                firstIcon.setImageResource(R.drawable.c__icon_3);
+                break;
+            case 0:
+                firstIcon.setImageResource(R.drawable.c__icon_5);
+                break;
+            case -1:
+                firstIcon.setImageResource(R.drawable.c__icon_1);
+                break;
+        }
     }
 
     public void removeStatus(int userId){
@@ -426,13 +419,13 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                             firstIcon.setImageResource(R.drawable.c__icon_1);
                             //.. imageButton1 이미지 변경
                         } else {
-                            Toast.makeText(FriendsDetailActivity.this, "error: true\n"+result.message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(FriendsDetailActivity.this, TAG+" "+result.message, Toast.LENGTH_LONG).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
                 });
@@ -455,17 +448,16 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                             updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
                 });
@@ -564,7 +556,6 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
             list.add(""+fr.getUserId());
         }
         list.add(""+PropertyManager.getInstance().getUserId());
-        Log.d("TAG", "searchRoom: "+ list.toString());
         NetworkManager.getInstance().postDongneCheckChatRooms(FriendsDetailActivity.this, list,
                 new NetworkManager.OnResultListener<ChatRoomInfo>() {
                     @Override
@@ -628,13 +619,14 @@ public class FriendsDetailActivity extends AppCompatActivity implements IDataRet
                                 }
                             }
                         } else {    //요청 실패
-                            Toast.makeText(FriendsDetailActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FriendsDetailActivity.this, TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             finish();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onFailure: ");
                         dialog.dismiss();
                         finish();

@@ -126,7 +126,6 @@ public class ImageHomeFragment extends Fragment {
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                Toast.makeText(getActivity(), "isChecked:"+ isChecked, Toast.LENGTH_SHORT).show();
                 if(isChecked){
                     PropertyManager.getInstance().setUsingLocation(1);
                 } else {
@@ -233,7 +232,7 @@ public class ImageHomeFragment extends Fragment {
         final String insta = inputInsta.getText().toString();
 
         final String reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        Log.e(TAG, "editUser: "+reqDate );
+
         if( dept != null && TextUtils.isEmpty(dept)){
             Toast.makeText(getActivity(), "학과명은 필수 입력사항입니다.", Toast.LENGTH_SHORT).show();
             return;
@@ -244,7 +243,6 @@ public class ImageHomeFragment extends Fragment {
             public void onSuccess(Request request, CommonInfo result) {
                 if (result.error.equals(true)) {
                     Toast.makeText(getActivity(), "회원정보 수정을 실패하였습니다. 다시 요청해주세요.", Toast.LENGTH_SHORT).show();
-                    Log.e("error on edit:", result.message);
                 } else {
                     mItem.getDesc().clear();
                     mItem.getDesc().add(desc1); mItem.getDesc().add(desc2);
@@ -270,7 +268,8 @@ public class ImageHomeFragment extends Fragment {
 
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(getActivity(), "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 dialog.dismiss();
             }
         });
@@ -281,7 +280,6 @@ public class ImageHomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("ImageHome-mitem", mItem.toString());
         initUserInfo();
     }
 
@@ -316,11 +314,6 @@ public class ImageHomeFragment extends Fragment {
         int id = item.getItemId();
 
         if(id == android.R.id.home){
-            Toast.makeText(getActivity(), "filePath is: "+ filePath, Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(getActivity(), LoginActivity.class);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(intent);
-//            getActivity().finish();
             ((MediaStoreActivity)getActivity()).finishAndCancel();
             return true;
         }
@@ -435,11 +428,6 @@ public class ImageHomeFragment extends Fragment {
             // showing the server response in an alert dialog
             String userId = PropertyManager.getInstance().getUserId();
             final String url = Config.FILE_GET_URL.replace(":userId", ""+userId).replace(":size", "large");
-//            Glide.with(getActivity()).load(url)
-//                    .placeholder(R.drawable.e__who_icon)
-//                    .centerCrop()
-//                    .signature(new StringSignature(mItem.getUpdatedAt()))
-//                    .into(profileView);
             Glide.with(getActivity()).load(filePath)
                     .placeholder(R.drawable.e__who_icon)
                     .centerCrop()
@@ -497,18 +485,15 @@ public class ImageHomeFragment extends Fragment {
 
     private void deletePic(){
         if(mItem.pic.small.equals("0") && mItem.pic.large.equals("0")){
-            Log.e(TAG, "deletePic: "+ "This user has already default img");
             return;
         }
         final String userId = PropertyManager.getInstance().getUserId();
         final String reqDate = MyApplication.getInstance().getCurrentTimeStampString();
-        Log.e(TAG, "deletePic: "+reqDate );
         NetworkManager.getInstance().deleteDongnePicUser(getActivity(), reqDate, Integer.parseInt(userId), new NetworkManager.OnResultListener<CommonInfo>() {
             @Override
             public void onSuccess(Request request, CommonInfo result) {
                 if (result.error.equals(true)) {
                     Toast.makeText(getActivity(), "기본 이미지 설정에 실패하였습니다. 다시 요청해주세요.", Toast.LENGTH_SHORT).show();
-                    Log.e("error on edit:", result.message);
                 } else {
                     mItem.updatedAt = reqDate;
                     mItem.pic.small = "0";
@@ -529,7 +514,8 @@ public class ImageHomeFragment extends Fragment {
 
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(getActivity(), "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 dialog.dismiss();
             }
         });

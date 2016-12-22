@@ -128,7 +128,6 @@ public class BlockFragment extends Fragment {
             public void onItemClick(View view, int position) {
                 FriendsResult data = mAdapter.getItem(position);
                 selectedItem = data;
-                Log.e("receiveFragment->data", data.toString());
                 Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
@@ -141,11 +140,17 @@ public class BlockFragment extends Fragment {
             @Override
             public void onAdapterItemClick(StatusAdapter adapter, View view, int position, FriendsResult item, int type) {
                 switch (type) {
-                    case 100:
-                        Toast.makeText(getActivity(), "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                    case 100:   //name
+                    case 200:   //image
+                        FriendsResult data = mAdapter.getItem(position);
+                        selectedItem = data;
+                        Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
+                        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
+                        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
+                        intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_POSITION, position);
+                        intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
+                        getActivity().startActivityForResult(intent, BlockFragment.FRIENDS_RC_NUM);
                         break;
-                    case 200:
-                        Toast.makeText(getActivity(), "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                     case 300:
                         selectedItem = item;
                         CustomDialogFragment mDialogFragment = CustomDialogFragment.newInstance();
@@ -195,16 +200,10 @@ public class BlockFragment extends Fragment {
                             if(result.result != null && !result.message.equals("has no blocked-3 friends") ){
 //                                mAdapter.clearAllFriends();   //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                                 mAdapter.items.clear();
-                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
-//                                    if(i==0 && mAdapter.getItem(1) == null){ //임시코드
-//                                        mAdapter.put("내 프로필", child); //내 정보 불러와서
-//                                    }
-//                                    mAdapter.put("받은 신청", child);
                                     mAdapter.put(child);
                                 }
                                 start++;
@@ -213,7 +212,6 @@ public class BlockFragment extends Fragment {
 //                            mAdapter.clearAllFriends(); //이 시점에 호출하면 IndexBound exception. why? 내 프로필도 등록안했으니 칠드런의 사이즈가 0임.
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         refreshLayout.setRefreshing(false);
@@ -221,6 +219,8 @@ public class BlockFragment extends Fragment {
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                     }
@@ -327,17 +327,17 @@ public class BlockFragment extends Fragment {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             mItem.status = status;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+ " "+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -358,13 +358,14 @@ public class BlockFragment extends Fragment {
                             mItem.status = -1;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -389,16 +390,16 @@ public class BlockFragment extends Fragment {
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+ " "+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -420,12 +421,14 @@ public class BlockFragment extends Fragment {
                             selectedItem.status = mStatus.status;
                             showDialog(mStatus);
                         } else {
-                            Toast.makeText(getActivity(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });

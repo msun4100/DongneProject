@@ -73,10 +73,10 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void findOneAndModify(FriendsResult child){
         for (GroupItem g : items) {
             for(FriendsResult fr : g.children){
-                if(fr.userId == child.userId){
+                if(fr.userId == child.userId){ //isExists
                     int index = g.children.indexOf(fr);
                     if(index != -1){
-                        Log.e("MyFriendsAdapter:", "index:"+index +" "+fr.toString());
+                        Log.e("MyFriendsAdapter", "findOneAndModify: find idx "+index );
                         g.children.get(index).status = child.status;
                         g.children.get(index).univ = child.univ;
                         g.children.get(index).sns = child.sns;
@@ -90,6 +90,22 @@ public class MyFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
         notifyDataSetChanged();
+    }
+
+    public boolean isExists(FriendsResult child){
+        boolean isExists = false;
+        for (GroupItem g : items) {
+            for(FriendsResult fr : g.children){
+                if(fr.userId == child.userId){ //isExists
+                    int index = g.children.indexOf(fr);
+                    if(index != -1){
+                        isExists = true;
+                    }
+                    break;
+                }
+            }
+        }
+        return isExists;
     }
 
     public void removeItem(FriendsResult child){

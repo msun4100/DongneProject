@@ -39,6 +39,7 @@ public class CustomDialogFragment extends DialogFragment {
     public static final String TAG_TAB_TWO_UNIV = "tabTwoUniv";
     public static final String TAG_TAB_ONE_MY = "tabOneMy";
     public static final String TAG_TAB_THREE_STU = "tabThreeStu";
+    public static final String TAG_TAB_THREE_GRA = "tabThreeGra";
     public static final String TAG_TAB_MY_WRITING_ONE = "tabMyWritingOne";
 
     public static final String TAG_LIST = "list";
@@ -134,6 +135,17 @@ public class CustomDialogFragment extends DialogFragment {
                         dismiss();
                     }
                     if(tag.equals(TAG_TAB_THREE_STU)) {
+                        Intent intent = new Intent();
+                        if(choice != null){
+                            intent.putExtra("choice", choice);  //사실상 필요 없음 ok만 누른거 확인되면 됨
+                        }
+                        if(bItem != null){
+                            intent.putExtra("bItem", bItem);
+                        }
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                        dismiss();
+                    }
+                    if(tag.equals(TAG_TAB_THREE_GRA)) {
                         Intent intent = new Intent();
                         if(choice != null){
                             intent.putExtra("choice", choice);  //사실상 필요 없음 ok만 누른거 확인되면 됨

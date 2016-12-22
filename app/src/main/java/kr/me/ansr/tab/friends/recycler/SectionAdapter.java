@@ -1,7 +1,6 @@
 package kr.me.ansr.tab.friends.recycler;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +67,6 @@ public class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if(fr.userId == child.userId){
                     int index = g.children.indexOf(fr);
                     if(index != -1){
-                        Log.e("sectionAdapter:", "index:"+index +" "+fr.toString());
                         g.children.get(index).status = child.status;
                         g.children.get(index).univ = child.univ;
                         g.children.get(index).sns = child.sns;

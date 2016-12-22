@@ -1,6 +1,7 @@
 package kr.me.ansr.tab.mypage.setting;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -105,7 +106,6 @@ public class SettingActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             try {
-                                Looper.prepare();
                                 Glide.get(MyApplication.getContext()).clearDiskCache();
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -144,4 +144,43 @@ public class SettingActivity extends AppCompatActivity {
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
         super.onStop();
     }
+
+    private class ClearCacheTask extends AsyncTask<Void, Integer, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... urls) {
+            boolean bool = false;
+            //...
+
+            return bool;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            // 파일 다운로드 퍼센티지 표시 작업
+            // setProgressPercent(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            // 다 받아진 후 받은 파일 총용량 표시 작업
+            // showDialog("Downloaded " + result + " bytes");
+        }
+
+        @Override
+        protected void onCancelled(Boolean result) {
+            super.onCancelled(result);
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+    }
+
 }

@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
@@ -116,7 +117,7 @@ public class SignUpAccountActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Request request, LoginInfo result) {
                     if (result.error.equals(true)) {
-                        Toast.makeText(SignUpAccountActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignUpAccountActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
                     } else {
                         String msg = result.message.toString();
                         Intent intent = new Intent(SignUpAccountActivity.this, SignupActivity.class);
@@ -137,7 +138,8 @@ public class SignUpAccountActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onFailure(Request request, int code, Throwable cause) {
-                    Toast.makeText(SignUpAccountActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpAccountActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onFailure: " + cause );
                     dialog.dismiss();
                 }
             });
@@ -145,7 +147,7 @@ public class SignUpAccountActivity extends AppCompatActivity {
             dialog.setTitle("Loading....");
             dialog.show();
         } else {
-            Toast.makeText(getApplicationContext(), "pw confirm error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Password confirm error", Toast.LENGTH_SHORT).show();
         }
     }
 

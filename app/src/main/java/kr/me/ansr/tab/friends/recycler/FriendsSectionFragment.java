@@ -129,16 +129,12 @@ public class FriendsSectionFragment extends PagerFragment
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Log.d(TAG, "onScrollStateChanged: isSearching" + isSearching);
                     if(isSearching == true){
                         getMoreSearchUsers(username, enterYear, deptname, jobname, jobteam);
                     } else {
                         getMoreItem();
                     }
                 }
-//                if(newState == RecyclerView.SCROLL_STATE_IDLE){
-//                    if (!fab.isShown()) fab.show();
-//                }
             }
 
             @Override
@@ -338,6 +334,7 @@ public class FriendsSectionFragment extends PagerFragment
 //        initUnivUsers();
     }
     private void initUnivUsers(){
+        isMoreData = false;
         String mUnivId = PropertyManager.getInstance().getUnivId();
         if(mUnivId.equals("")){
             Toast.makeText(getActivity(),"대학교를 등록해주세요.", Toast.LENGTH_SHORT).show();
@@ -360,57 +357,60 @@ public class FriendsSectionFragment extends PagerFragment
 //                        if(!result.message.equals("HAS_NO_BOARD_ITEM")  && result.result != null ){
                         int mTotal = 0;
                         if (result.error.equals(false)) {
-                            if(result.result != null){
-                                mAdapter.blockCount = 0;
-                                mAdapter.items.clear();
-                                if(result.total != -99999){ //가까운 거리순은 토탈이 없기때문에 -99999리턴해줌
-                                    mAdapter.setTotalCount(result.total);
-                                    setTabTotalCount(result.total);
-                                }
-                                ArrayList<FriendsResult> items = result.result;
+                            if ( !result.message.equals("HAS_NO_MORE_ITEMS")) {
+                                if(result.result != null){
+                                    mAdapter.blockCount = 0;
+                                    mAdapter.items.clear();
+                                    if(result.total != -99999){ //가까운 거리순은 토탈이 없기때문에 -99999리턴해줌
+                                        mAdapter.setTotalCount(result.total);
+                                        setTabTotalCount(result.total);
+                                    }
+                                    ArrayList<FriendsResult> items = result.result;
 
-                                if(PropertyManager.getInstance().getNewCount() < result.total){
-                                    MainActivity.setUserCount(result.total - PropertyManager.getInstance().getNewCount());
-                                    PropertyManager.getInstance().setNewCount(result.total);
-                                }
-                                if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
-                                    result.user.status = 1; //내프로필 이름 표시되게
-                                    //last update 값이 다르면 프로퍼티매니저에 새로 저장.
-                                    if(!PropertyManager.getInstance().getLastUpdate().equals(result.user.updatedAt)){
-                                        PropertyManager.getInstance().storeUser(result.user);
+                                    if(PropertyManager.getInstance().getNewCount() < result.total){
+                                        MainActivity.setUserCount(result.total - PropertyManager.getInstance().getNewCount());
+                                        PropertyManager.getInstance().setNewCount(result.total);
                                     }
-                                    if(result.user.job != null){
-                                        if(result.user.job.name != null) {
-                                            PropertyManager.getInstance().setJobName(result.user.job.name);
+                                    if(result.user != null){
+                                        result.user.status = 1; //내프로필 이름 표시되게
+                                        //last update 값이 다르면 프로퍼티매니저에 새로 저장.
+                                        if(!PropertyManager.getInstance().getLastUpdate().equals(result.user.updatedAt)){
+                                            PropertyManager.getInstance().storeUser(result.user);
                                         }
-                                        if(result.user.job.team != null) {
-                                            PropertyManager.getInstance().setJobTeam(result.user.job.team);
+                                        if(result.user.job != null){
+                                            if(result.user.job.name != null) {
+                                                PropertyManager.getInstance().setJobName(result.user.job.name);
+                                            }
+                                            if(result.user.job.team != null) {
+                                                PropertyManager.getInstance().setJobTeam(result.user.job.team);
+                                            }
                                         }
+                                        mAdapter.put("내 프로필", result.user);
                                     }
-                                    mAdapter.put("내 프로필", result.user);
-                                }
-                                for(int i=0; i < items.size(); i++){
-                                    FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
-                                    if(child.status == 3){
-                                        //block 관계면 리스트엔 보여주지 않고 아답터 토탈 카운트는 증가 시키기 위해.
-                                        //나중에 children.size() + blockCount로 토탈카운트를 리턴함.
-                                        //현시점에서 겟모어 하는 리스너봤을때 큰 문제가 없을 것 같음.
-                                        //아답터의 갯수보다는 리스트에 보이는 갯수와 포지션으로 호출 하니까
-                                        //겟모어 할때 (result.total == mAdapter.getTotalCount()) 와 비교할때
-                                        //mAdapter.getItemCount()와 block 카운트를 더해서 비교 하면 기존 토탈과 갯수를 맞춰 비교할 수 있음.
-                                        mAdapter.blockCount++;
-                                        continue;
+                                    for(int i=0; i < items.size(); i++){
+                                        FriendsResult child = items.get(i);
+                                        if(child.status == 3){
+                                            //block 관계면 리스트엔 보여주지 않고 아답터 토탈 카운트는 증가 시키기 위해.
+                                            //나중에 children.size() + blockCount로 토탈카운트를 리턴함.
+                                            //현시점에서 겟모어 하는 리스너봤을때 큰 문제가 없을 것 같음.
+                                            //아답터의 갯수보다는 리스트에 보이는 갯수와 포지션으로 호출 하니까
+                                            //겟모어 할때 (result.total == mAdapter.getTotalCount()) 와 비교할때
+                                            //mAdapter.getItemCount()와 block 카운트를 더해서 비교 하면 기존 토탈과 갯수를 맞춰 비교할 수 있음.
+                                            mAdapter.blockCount++;
+                                            continue;
+                                        }
+                                        mAdapter.put("학교 사람들", child);
                                     }
-                                    mAdapter.put("학교 사람들", child);
+                                    start++;
                                 }
-                                start++;
+                            } else {    //HAS_NO_MORE_ITEMS
+                                mAdapter.items.clear();
+                                Log.e(TAG, "onSuccess: "+result.message );
                             }
-                        } else {
+                        } else { //error: true
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), TAG + "INIT_ERROR", Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         dialog.dismiss();
@@ -419,6 +419,8 @@ public class FriendsSectionFragment extends PagerFragment
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
@@ -461,27 +463,34 @@ public class FriendsSectionFragment extends PagerFragment
                     new NetworkManager.OnResultListener<FriendsInfo>() {
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
-                            Log.e(TAG+"getMore:", result.result.toString());
-//                            mAdapter.addAllFriends(result.result);
-                            //기존 getMore의 addAll 대신에 포문 사용(블락친구 핸들링 위해)
-                            ArrayList<FriendsResult> items = result.result;
-                            for(int i=0; i < items.size(); i++){
-                                FriendsResult child = items.get(i);
-                                Log.e(TAG, ""+child);
-                                if(child.status == 3){
-                                    mAdapter.blockCount++;
-                                    continue;
+                            if(result.error.equals(false)){
+                                if ( !result.message.equals("HAS_NO_MORE_ITEMS")) {
+                                    ArrayList<FriendsResult> items = result.result;
+                                    for(int i=0; i < items.size(); i++){
+                                        FriendsResult child = items.get(i);
+                                        if(child.status == 3){
+                                            mAdapter.blockCount++;
+                                            continue;
+                                        }
+                                        mAdapter.put("학교 사람들", child);
+                                    }
+                                    start++;
+                                    isMoreData = false;
+                                } else {    //has no more items
+                                    isMoreData = true;
+                                    Log.e(TAG, "onSuccess: "+result.message );
                                 }
-                                mAdapter.put("학교 사람들", child);
+                            } else {    //error: true
+                                isMoreData = false;
+                                Log.e(TAG, "onSuccess: "+result.message );
                             }
-                            isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            start++;
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
@@ -544,10 +553,9 @@ public class FriendsSectionFragment extends PagerFragment
     FriendsResult selectedItem = null;
     public void updateStatus(final int status, int to, String msg){
         if(selectedItem == null){
-            Log.e("selectedItem is null","");
+            Log.e(TAG, "updateStatus: "+"selectedItem is null" );
             return;
         }
-        Log.e("selectedItem ", selectedItem.toString());
         final FriendsResult mItem = selectedItem;
         //세번째 파라미터 mItem은 요청 성공시 아답터에서 삭제하기 위해 remove(object) 호출 용
         NetworkManager.getInstance().postDongneFriendsUpdate(MyApplication.getContext(),
@@ -558,17 +566,17 @@ public class FriendsSectionFragment extends PagerFragment
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             mItem.status = status;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+" "+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -588,13 +596,14 @@ public class FriendsSectionFragment extends PagerFragment
                             mItem.status = -1;
                             EventBus.getInstance().post(mItem); //수정된 체로 보냄
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+""+result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure\n"+cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -619,17 +628,17 @@ public class FriendsSectionFragment extends PagerFragment
                     @Override
                     public void onSuccess(Request request, StatusInfo result) {
                         if (result.error.equals(false)) {
-                            Toast.makeText(MyApplication.getContext(), ""+result.message, Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                             updateStatus(3, to, "reported");    //신고처리 성공시 차단친구로 변경
                         } else {
-                            Toast.makeText(MyApplication.getContext(), "error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MyApplication.getContext(), TAG+result.message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(MyApplication.getContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -662,21 +671,17 @@ public class FriendsSectionFragment extends PagerFragment
                                 mAdapter.blockCount = 0;
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(result.total);
-                                Log.d(TAG, "onSuccess: total"+result.total);
                                 ArrayList<FriendsResult> items = result.result;
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
                                 for(int i=0; i < items.size(); i++){
                                     FriendsResult child = items.get(i);
-                                    Log.e(TAG, ""+child);
                                     if(child.status == 3){
                                         mAdapter.blockCount++;
                                         continue;
                                     }
-//                                    mAdapter.put("검색 결과", child);
                                     mAdapter.put(headerString, child);
                                 }
                                 start++;
@@ -685,18 +690,15 @@ public class FriendsSectionFragment extends PagerFragment
                                 mAdapter.items.clear();
                                 mAdapter.setTotalCount(0);
                                 if(result.user != null){
-                                    Log.e(TAG+" user:", result.user.toString());
                                     result.user.status = 1;
                                     mAdapter.put("내 프로필", result.user);
                                 }
-                                Toast.makeText(getActivity(), result.message, Toast.LENGTH_LONG).show();
                             }
                         } else {
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), TAG + "" + result.message, Toast.LENGTH_SHORT).show();
                         }
-                        Log.e(TAG, "onSuccess: cnt "+mAdapter.getItemCount() );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
@@ -704,6 +706,8 @@ public class FriendsSectionFragment extends PagerFragment
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
@@ -737,12 +741,10 @@ public class FriendsSectionFragment extends PagerFragment
                         @Override
                         public void onSuccess(Request request, FriendsInfo result) {
                             if (result.error.equals(false)) {
-                                Log.e(TAG, "onSuccess: " + result.message);
                                 if(!result.message.equals("has no more friends")){
                                     ArrayList<FriendsResult> items = result.result;
                                     for(int i=0; i < items.size(); i++){
                                         FriendsResult child = items.get(i);
-                                        Log.e(TAG, ""+child);
                                         if(child.status == 3){
                                             mAdapter.blockCount++;
                                             continue;
@@ -750,27 +752,30 @@ public class FriendsSectionFragment extends PagerFragment
                                         mAdapter.put(headerString, child);
                                     }
                                     start++;
-                                } else {
-                                    Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
+                                    isMoreData = false;
+                                } else {    //has no more friends
+                                    isMoreData = true;
+                                    Log.e(TAG, "onSuccess: "+result.message );
                                 }
-                            } else {
-                                Log.e(TAG, "onSuccess: "+result.message);
-                                Toast.makeText(getActivity(), TAG + "result.error: true\nresult.message:" + result.message, Toast.LENGTH_SHORT).show();
+                            } else {    //error: true
+                                isMoreData = false;
+                                Log.e(TAG, "onSuccess: "+result.message );
                             }
                             dialog.dismiss();
-                            isMoreData = false;
                             refreshLayout.setRefreshing(false);
                         }
 
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             dialog.dismiss();
                             isMoreData =false;
                             refreshLayout.setRefreshing(false);
                         }
                     });
             dialog = new ProgressDialog(getActivity());
-            dialog.setTitle("get more items...");
+            dialog.setTitle("서버 요청 중...");
             dialog.show();
         }
     }
@@ -814,7 +819,6 @@ public class FriendsSectionFragment extends PagerFragment
                 }
             case DIALOG_RC_BLOCK:
                 if (resultCode == getActivity().RESULT_OK) {
-                    Log.e("DIALOG_RC_BLOCK","aaaaaaaa");
                     extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
                     updateStatus(StatusInfo.STATUS_BLOCKED, result.userId, "blocked");
@@ -822,7 +826,6 @@ public class FriendsSectionFragment extends PagerFragment
                 break;
             case DIALOG_RC_CUT_OFF:
                 if (resultCode == getActivity().RESULT_OK) {
-                    Log.e("DIALOG_RC_CUT_OFF","aaaaaaaa");
                     extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
                     removeStatus(result.userId, result);
@@ -830,7 +833,6 @@ public class FriendsSectionFragment extends PagerFragment
                 break;
             case DIALOG_RC_REPORT:
                 if (resultCode == getActivity().RESULT_OK) {
-                    Log.e("DIALOG_RC_REPORT","aaaaaaaa");
                     extraBundle = data.getExtras();
                     int reportType = extraBundle.getInt("type", -1);
                     if(reportType != -1){
@@ -840,7 +842,6 @@ public class FriendsSectionFragment extends PagerFragment
                 break;
             case DIALOG_RC_SEND_REQ:
                 if (resultCode == getActivity().RESULT_OK) {
-                    Log.e("DIALOG_RC_SEND_REQ","aaaaaaaa");
                     extraBundle = data.getExtras();
                     String msg = extraBundle.getString("msg");
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable("mItem");
@@ -949,7 +950,6 @@ public class FriendsSectionFragment extends PagerFragment
     private void showDetail(int position) {
         FriendsResult data = mAdapter.getItem(position);
         selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-        Log.e("sectionFragment->data", data.toString());
         Intent intent = new Intent(getActivity(), FriendsDetailActivity.class);
         intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
         intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);

@@ -4,9 +4,6 @@
     <string name="hello">Hello World, Chat Fragment!</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_splash">학교사람들</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="title_activity_sign_up">SignUpActivity</string>
 
     <string name="action_leave">Leave</string>
     <string name="action_send">Send</string>
@@ -24,17 +21,17 @@
     <string name="message_user_left">%s left</string>
     <string name="user_action_typing">is typing</string>
 
-    <!-- For GCM Demo-->
+    <!-- GCM Demo-->
     <string name="registering_message_ready">InstanceID 토큰 가져오기</string>
     <string name="registering_message_generating">InstanceID 토큰 생성중...</string>
     <string name="registering_message_complete">완료!</string>
 
-    <!-- For SignUpAccountActivity-->
+    <!-- SignUpAccountActivity-->
     <string name="hint_pw">비밀번호 (영문, 숫자 조합 6자 이상)</string>
     <string name="hint_pw_confirm">비밀번호 재입력</string>
     <string name="err_msg_pw">비밀번호를 입력해주세요.</string>
     <string name="err_msg_pw_confirm">비밀번호가 일치하지 않습니다.</string>
-    <!-- For GCM Chatting-->
+    <!-- GCM Chatting-->
     <string name="hint_name">Full Name</string>
     <string name="hint_email">아이디 (이메일 주소: abc@schooler.com)</string>
     <string name="err_msg_name">Enter full name</string>
@@ -53,21 +50,29 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions." </string>
 
+    <!-- Strings related to Activities title -->
+    <string name="title_activity_splash">학교사람들</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="title_activity_take_photo">TakePhotoActivity</string>
     <string name="title_activity_media_store">MediaStoreActivity</string>
     <string name="title_activity_board_detail">게 시 글</string>
-    <string name="board_anonymous_name">익 명</string>
     <string name="title_activity_board_write">BoardWriteActivity</string>
     <string name="title_activity_friends_detail">FriendsDetailActivity</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_Alarm">알 림</string>
+    <string name="title_activity_chat_plus">ChatPlusActivity</string>
     <string name="title_activity_profile_setting">ProfileSettingActivity</string>
     <string name="title_activity_friend_status">FriendStatusActivity</string>
-
+    <string name="title_activity_friends_list">FriendsListActivity</string>
+    <string name="title_activity_my_writing">MyWritingActivity</string>
+    <string name="title_activity_my_interest">MyInterestActivity</string>
+    <string name="title_activity_management">ManagementActivity</string>
+    <string name="title_activity_setting">SettingActivity</string>
+    <string name="title_activity_pinch_zoom">PinchZoomActivity</string>
+    <string name="title_activity_open_sources">OpenSourcesActivity</string>
     <!-- Strings related to Settings -->
 
 
@@ -82,8 +87,7 @@
 
     <string name="image_home_change_thumb"><u>사진 수정</u></string>
     <string name="chat_search_hint_msg">채팅방 이름, 동문 이름 검색</string>
-    <string name="title_activity_chat_plus">ChatPlusActivity</string>
-
+    <string name="board_anonymous_name">익 명</string>
 
     <string name="push_like"> 님이 회원님의 게시글을 좋아합니다.</string>
     <string name="push_reply"> 님이 회원님의 게시글에 댓글을 남겼습니다.</string>
@@ -102,13 +106,13 @@
     <string name="empty_my_reply_msg">내가 쓴 댓글이 없습니다.</string>
     <string name="empty_my_board_like_msg">내가 좋아한 게시글이 없습니다. 학교사람들 게시글에 좋아요를 눌러보세요.</string>
     <string name="empty_my_reply_like_msg">내가 좋아한 댓글이 없습니다.</string>
-    <string name="title_activity_friends_list">FriendsListActivity</string>
-    <string name="title_activity_my_writing">MyWritingActivity</string>
-    <string name="title_activity_my_interest">MyInterestActivity</string>
-    <string name="title_activity_management">ManagementActivity</string>
-    <string name="title_activity_setting">SettingActivity</string>
-    <string name="title_activity_pinch_zoom">PinchZoomActivity</string>
-    <string name="title_activity_open_sources">OpenSourcesActivity</string>
 
+    <string name="permission_location_rational">휴대폰 설정 > 앱 > 학교사람들에서 위치정보권한을 허용으로 변경해주세요.</string>
+    <string name="permission_location">위치정보</string>
+    <string name="permission_request" formatted="false">%s 접근 권한이 필요합니다. %s</string>
+    <string name="word_settings">설정</string>
+    <string name="word_close">닫기</string>
+
+    <string name="res_err_msg">서버 요청에 실패하였습니다.</string>
 
 </resources>

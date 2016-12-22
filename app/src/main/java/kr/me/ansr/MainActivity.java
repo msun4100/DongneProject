@@ -187,7 +187,8 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+//		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.menu_empty_main, menu);
 		return true;
 	}
 
@@ -202,33 +203,31 @@ public class MainActivity extends AppCompatActivity {
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Menu").setLabel("setting Click").build());
-			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation()
-					+"\nlatitude "+PropertyManager.getInstance().getLatitude()
-					+"\nlongitude "+PropertyManager.getInstance().getLongitude()
-					+"\nemail "+PropertyManager.getInstance().getEmail()
-					+"\nuserId "+PropertyManager.getInstance().getUserId()
-					+"\nusername "+PropertyManager.getInstance().getUserName()
-					+"\nunivId "+PropertyManager.getInstance().getUnivId()
-					+"\nunivName "+PropertyManager.getInstance().getUnivName()
-					+"\ndeptName "+PropertyManager.getInstance().getDeptName()
-					+"\nprofile "+PropertyManager.getInstance().getProfile()
-							+"\nisTab2visible "+PropertyManager.getInstance().getIsTab2Visible()
-							+"\nlastUpdate "+PropertyManager.getInstance().getLastUpdate()
-							+"\njobname "+PropertyManager.getInstance().getJobName()
-							+"\njobteam "+PropertyManager.getInstance().getJobTeam()
-							+"\nnewCount "+PropertyManager.getInstance().getNewCount()
-							+"\nresizeValue "+ Config.resizeValue
-					, Toast.LENGTH_LONG).show();
+//			Toast.makeText(getApplicationContext(), "UsingLocation: "+PropertyManager.getInstance().getUsingLocation()
+//					+"\nlatitude "+PropertyManager.getInstance().getLatitude()
+//					+"\nlongitude "+PropertyManager.getInstance().getLongitude()
+//					+"\nemail "+PropertyManager.getInstance().getEmail()
+//					+"\nuserId "+PropertyManager.getInstance().getUserId()
+//					+"\nusername "+PropertyManager.getInstance().getUserName()
+//					+"\nunivId "+PropertyManager.getInstance().getUnivId()
+//					+"\nunivName "+PropertyManager.getInstance().getUnivName()
+//					+"\ndeptName "+PropertyManager.getInstance().getDeptName()
+//					+"\nprofile "+PropertyManager.getInstance().getProfile()
+//							+"\nisTab2visible "+PropertyManager.getInstance().getIsTab2Visible()
+//							+"\nlastUpdate "+PropertyManager.getInstance().getLastUpdate()
+//							+"\njobname "+PropertyManager.getInstance().getJobName()
+//							+"\njobteam "+PropertyManager.getInstance().getJobTeam()
+//							+"\nnewCount "+PropertyManager.getInstance().getNewCount()
+//							+"\nresizeValue "+ Config.resizeValue
+//					, Toast.LENGTH_LONG).show();
 			return true;
 		}
         if (id == R.id.logout) {
 			t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Menu").setLabel("logout Click").build());
-            PropertyManager.getInstance().clearProperties();
-            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-//            Toast.makeText(getApplicationContext(), "property email: "+PropertyManager.getInstance().getEmail(), Toast.LENGTH_LONG).show();
-//            finish();
+//            PropertyManager.getInstance().clearProperties();
+//            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
             return true;
         }
 		return super.onOptionsItemSelected(item);

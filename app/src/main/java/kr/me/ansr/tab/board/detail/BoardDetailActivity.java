@@ -138,7 +138,6 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                         Toast.makeText(BoardDetailActivity.this, "신고하기"+item._id, Toast.LENGTH_SHORT).show();
                         break;
                     case 500:
-                        Log.e(TAG, "onAdapterItemClick: "+item.toString() );
                         if( item.type.equals("00") || item.type.equals("10") ) { //익명 유저
                             break;
                         } else {
@@ -154,7 +153,6 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ReplyResult data = (ReplyResult)listView.getItemAtPosition(position);
-                Toast.makeText(BoardDetailActivity.this,"onItem click"+data.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         listView.setAdapter(mAdapter);
@@ -222,7 +220,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     }
                 } else {
                     inputReply.setText("");
-                    Toast.makeText(BoardDetailActivity.this, "error: true" +  result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BoardDetailActivity.this, TAG +  result.message, Toast.LENGTH_SHORT).show();
                 }
                 hideSoftKeyboard();
                 dialog.dismiss();
@@ -230,7 +228,8 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(BoardDetailActivity.this, "onFailure:"+ cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(BoardDetailActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 dialog.dismiss();
             }
         });
@@ -277,17 +276,19 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                         setBoardItem(mItem);
                     } else {
                         //DOCS_LENGTH_ERROR;
-                        Toast.makeText(getApplicationContext(), ""+result.message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), TAG+""+result.message, Toast.LENGTH_SHORT).show();
                         forcedFinish();
                     }
                 } else {
-                    Toast.makeText(BoardDetailActivity.this, "error: true" + result.message, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "onSuccess: "+result.message );
+                    Toast.makeText(BoardDetailActivity.this, "존재하지 않는 게시글입니다.", Toast.LENGTH_LONG).show();
                 }
                 dialog.dismiss();
             }
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(BoardDetailActivity.this, "onFailure" + cause, Toast.LENGTH_LONG).show();
+                Toast.makeText(BoardDetailActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 dialog.dismiss();
             }
         });
@@ -351,7 +352,6 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     t.send(new HitBuilders.EventBuilder().setCategory(getClass().getSimpleName()).setAction("Press Button").setLabel("Like view Click").build());
                     break;
                 case R.id.text_board_body:
-                    Toast.makeText(BoardDetailActivity.this,"detail body click", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.toolbar_menu1:
                     BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
@@ -379,12 +379,13 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                     setLike(Integer.MAX_VALUE, Integer.valueOf(userId));    //MAX_VALUE == 'position is never used'
                 } else {
                     //error: true
-                    Toast.makeText(BoardDetailActivity.this,"error: true\n"+result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BoardDetailActivity.this,TAG+result.message, Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Request request, int code, Throwable cause) {
-                Toast.makeText(BoardDetailActivity.this,"postLike() onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(BoardDetailActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
             }
         });
     }
@@ -399,7 +400,6 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                             if(result.result != null && result.result.size() == 1){
                                 data = result.result.get(0);
 //                                selectedItem = data;    //디테일에서 관리 누를 경우사용될 변수
-                                Log.e(TAG, "onSuccess: "+data.toString() );
                                 Intent intent = new Intent(BoardDetailActivity.this, FriendsDetailActivity.class);
                                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM, data);
                                 intent.putExtra(FriendsInfo.FRIENDS_DETAIL_USER_ID, data.userId);
@@ -407,20 +407,21 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
                                 intent.putExtra("tag", InputDialogFragment.TAG_FRIENDS_DETAIL);
                                 startActivityForResult(intent, FriendsSectionFragment.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
                             } else {
-                                Log.e(TAG, result.message);
-                                Toast.makeText(BoardDetailActivity.this, "result.error: false" + result.message, Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, result.message);
+                                Toast.makeText(BoardDetailActivity.this, TAG+"" + result.message, Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
-                            Log.e(TAG, result.message);
-                            Toast.makeText(BoardDetailActivity.this, "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, result.message);
+                            Toast.makeText(BoardDetailActivity.this, TAG+"" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(BoardDetailActivity.this, TAG + " getUser onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(BoardDetailActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });
@@ -527,10 +528,7 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
 
     public String next = null;
     private void finishAndReturnData(){
-        Log.e(TAG, "finishAndReturnData: mPosition "+ mPosition);
         if(mPosition != -1){
-            //board tab에서 요청한 상세보기면 setResult해줌
-            Log.e(TAG, "finishAndReturnData: " + mItem.toString() );
             Intent intent = new Intent();
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM, mItem);
             intent.putExtra(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, mPosition);
@@ -575,7 +573,6 @@ public class BoardDetailActivity extends AppCompatActivity implements IDataRetur
     public void onDataReturned(String choice) {
         //Use the returned value
         if(choice != null){
-            Log.e(TAG, "onDataReturned: " + choice );
             switch (choice){
                 case "0":   //삭제하기
                     nextProcess("_DELETE_");

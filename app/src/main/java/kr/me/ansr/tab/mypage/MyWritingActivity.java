@@ -146,11 +146,9 @@ public class MyWritingActivity extends AppCompatActivity {
                     String returnString = extraBundle.getString("return");
                     if(returnString.equals("success")){
                         Log.e("afterWrite", "success");
-                        Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_LONG).show();
                         EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
                     } else {
                         Log.e("afterWrite", "failure");
-                        Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
@@ -158,7 +156,6 @@ public class MyWritingActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
-                    Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_LONG).show();
                     if(returnString.equals("success")){
                         Log.e("afterEdit", "success");
 //                        EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
@@ -169,7 +166,6 @@ public class MyWritingActivity extends AppCompatActivity {
                         }
                     } else {
                         Log.e("afterEdit", "failure");
-                        Toast.makeText(MyWritingActivity.this, "return key== "+returnString, Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;

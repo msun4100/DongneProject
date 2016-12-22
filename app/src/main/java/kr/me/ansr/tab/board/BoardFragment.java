@@ -33,7 +33,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
-import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -135,7 +134,6 @@ public class BoardFragment extends PagerFragment {
 			@Override
 			public void onClick(View v) {
 //				((WriteActivity)getActivity()).imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-				Toast.makeText(getActivity(), "currentTab: " + currentTab, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(getActivity(), BoardWriteActivity.class);
 				intent.putExtra("currentTab", currentTab);
 				intent.putExtra("type", "new");
@@ -224,11 +222,9 @@ public class BoardFragment extends PagerFragment {
 					String returnString = extraBundle.getString("return");
 					if(returnString.equals("success")){
 						Log.e("afterWrite", "success");
-						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_LONG).show();
 						EventBus.getInstance().post(new ActivityResultEvent(requestCode, resultCode, data));
 					} else {
 						Log.e("afterWrite", "failure");
-						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
 					}
 				}
 				break;
@@ -236,7 +232,6 @@ public class BoardFragment extends PagerFragment {
 				if (resultCode == getActivity().RESULT_OK) {
 					Bundle extraBundle = data.getExtras();
 					String returnString = extraBundle.getString("return");
-					Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_LONG).show();
 					if(returnString.equals("success")){
 						Log.e("afterEdit", "success");
 						BoardResult result = (BoardResult)extraBundle.getSerializable("mItem");
@@ -245,7 +240,6 @@ public class BoardFragment extends PagerFragment {
 						}
 					} else {
 						Log.e("afterEdit", "failure");
-						Toast.makeText(getActivity(), "return key== "+returnString, Toast.LENGTH_SHORT).show();
 					}
 				}
 				break;

@@ -98,7 +98,6 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_activity_chat_room);
-//        Log.d(TAG, "onCreate: "+ PropertyManager.getInstance().getIsTab2Visible());   //only visible
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.common_back_selector);
         setSupportActionBar(toolbar);
@@ -114,13 +113,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         toolbarMenu.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "menu click", Toast.LENGTH_SHORT).show();
-                ArrayList<Message> list = (ArrayList<Message>) DBManager.getInstance().searchAllMsg(Integer.parseInt(chatRoomId));
-                if(list != null && list.size() > 0){
-                    for(int i=0; i<list.size(); i++){
-                        Log.e("list.get("+i+")", list.get(i).toString());
-                    }
-                }
+                Log.d(TAG, "onClick: toolbarMenu");
             }
         });
         imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -132,10 +125,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         inputMessage.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.e(TAG, "onFocusChange: "+ hasFocus );
                 if(hasFocus){
                     if (mAdapter.getItemCount() > 0) {
-                        Log.e(TAG, "onFocusChange: "+ hasFocus + ""+mAdapter.getItemCount());
 //                        smoothScrollToPosition(recyclerView, mAdapter.getItemCount());
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -212,11 +203,10 @@ public class ChatRoomActivity extends AppCompatActivity {
             public void onAdapterItemClick(ChatRoomThreadAdapter adapter, View view, Message item, int type) {
                 switch (type) {
                     case 100:
-//                        Toast.makeText(ChatRoomActivity.this, "imageView click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         getUserInfo(item.user.id);
                         break;
-                    case 200:
-                        Toast.makeText(ChatRoomActivity.this, "name View click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                    case 200:   //nameView
+                        getUserInfo(item.user.id);
                         break;
                 }
             }
@@ -225,7 +215,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             @Override
             public void onItemLongClick(View view, int position) {
                 Message data = messageArrayList.get(position);
-                Toast.makeText(ChatRoomActivity.this, "Long click"+ data.toString(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onItemLongClick: ");
             }
         });
 
@@ -248,7 +238,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("chatRoomdId: ", chatRoomId);
+                Log.d(TAG, "onClick: chatRoomId "+chatRoomId );
                 if(chatRoomId.equals("-1")){
 //                    addChatRoomVolley();
                     addChatRoom();
@@ -271,17 +261,15 @@ public class ChatRoomActivity extends AppCompatActivity {
             mItem = (FriendsResult) intent.getSerializableExtra("mItem");
             mList = (ArrayList<FriendsResult>)intent.getSerializableExtra("mList");
             if(mList != null){
-                Log.e("mList:", mList.toString());
+                Log.d(TAG, "onCreate: mList"+mList.toString() );
             }
         }
         if (chatRoomId == null) {
-            Toast.makeText(getApplicationContext(), "Chat room not found!", Toast.LENGTH_SHORT).show();
             finishAndReturnData(false);
         }
         if(chatRoomId.equals("-1")){
             //맨처음 생성한방. == 디비에 방이 생성되어 있지는 않고
             //클라이언트 화면에만 떠 있는 상태
-            Log.e("getItemCount()", ""+mAdapter.getItemCount());
             if(mAdapter.getItemCount() != 0){
                 messageArrayList.clear();
                 mAdapter.notifyDataSetChanged();
@@ -360,7 +348,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
 
         String endPoint = EndPoints.CHAT_ROOM_MESSAGE.replace("_ID_", chatRoomId);
-        Log.e(TAG, "endpoint: " + endPoint);
 
         this.inputMessage.setText("");
 
@@ -456,7 +443,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         final String message = this.inputMessage.getText().toString().trim();
 
         if (TextUtils.isEmpty(message)) {
-            Toast.makeText(getApplicationContext(), "Enter a message", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "메세지를 입력해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
         this.inputMessage.setText("");
@@ -492,20 +479,20 @@ public class ChatRoomActivity extends AppCompatActivity {
                             message.bgColor = 0; //view type message
                             messageArrayList.add(message);
                         }
-                        Log.e("sendMsg",result.messages.get(0).toString());
                     }
                     mAdapter.notifyDataSetChanged();
                     if (mAdapter.getItemCount() > 1) {
                         recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount());
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), TAG + result.message, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
+                Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -513,7 +500,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     private void addChatRoom(){
         final String message = this.inputMessage.getText().toString().trim();
         if (TextUtils.isEmpty(message)) {
-            Toast.makeText(getApplicationContext(), "Enter a message", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "메세지를 입력해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
         this.inputMessage.setText("");
@@ -523,7 +510,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 if (result.error.equals(false)) {
                     if(result.messages != null){
                         for(int i=0; i<result.messages.size(); i++){
-                            Log.e("msg"+i+" :", result.messages.get(i).toString());
                             Message message = new Message();
                             message.setId(result.messages.get(i).getId());
                             message.setMessage(result.messages.get(i).getMessage());
@@ -559,13 +545,14 @@ public class ChatRoomActivity extends AppCompatActivity {
                         messageArrayList.clear();
                         mAdapter.notifyDataSetChanged();
                     }
-                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), TAG+ result.message, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 if(messageArrayList != null && messageArrayList.size() > 0){
                     messageArrayList.clear();
                     mAdapter.notifyDataSetChanged();
@@ -617,17 +604,12 @@ public class ChatRoomActivity extends AppCompatActivity {
             lastJoin = "";
         }
         if(lastJoin == null || lastJoin.equals("")){
-            Log.e(TAG, "fetchChatThread: timeStamp undefined error");
-            Toast.makeText(ChatRoomActivity.this, "timeStamp undefined error", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ChatRoomActivity.this, "TIMESTAMP_UN_DEFINED_ERROR", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "fetchChatThread: " +  "TIMESTAMP_UN_DEFINED_ERROR");
             return;
         }
 /*
-*   start, display 0 말고 넣어야함!!
-*
-*
-*
-*
-*
+*   start, display 0 말고 넣어야함!! <-- ??이거 뭐였지
 * */
         NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, 0, 0, new NetworkManager.OnResultListener<ChatInfo>(){
             @Override
@@ -668,7 +650,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         }, 500);
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), TAG+ result.message, Toast.LENGTH_SHORT).show();
                     messageArrayList.clear();
                     mAdapter.notifyDataSetChanged();
                 }
@@ -678,7 +660,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure: " + cause );
                 messageArrayList.clear();
                 mAdapter.notifyDataSetChanged();
                 refreshLayout.setRefreshing(false);
@@ -701,8 +684,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 lastJoin = "";
             }
             if(lastJoin == null || lastJoin.equals("")){
-                Log.e(TAG, "fetchChatThread: timeStamp undefined error");
-                Toast.makeText(ChatRoomActivity.this, "timeStamp undefined error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChatRoomActivity.this, "TIMESTAMP_UNDEFINED_ERROR", Toast.LENGTH_SHORT).show();
                 return;
             }
             NetworkManager.getInstance().postDongneFetchChatThread(ChatRoomActivity.this, chatRoomId, lastJoin, start, DISPLAY_NUM, new NetworkManager.OnResultListener<ChatInfo>(){
@@ -743,7 +725,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             }, 500);
                         }
                     } else {
-                        Toast.makeText(getApplicationContext(), "error: true\n " + result.message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), TAG + result.message, Toast.LENGTH_SHORT).show();
                         messageArrayList.clear();
                         mAdapter.notifyDataSetChanged();
                     }
@@ -754,7 +736,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                    Toast.makeText(getApplicationContext(), "onFailure: "+cause, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onFailure: " + cause );
                     messageArrayList.clear();
                     mAdapter.notifyDataSetChanged();
 
@@ -860,7 +843,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             return true;
         }
         if(id == android.R.id.home){
-            Log.e("chat_room_id: ", chatRoomId);
+            Log.e(TAG, "onOptionsItemSelected: chat_room_id:"+ chatRoomId);
             if(chatRoomId.equals("-1")){
                 finishAndReturnData(false);
             } else {
@@ -986,6 +969,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         MyApplication.getInstance().addToRequestQueue(strReq);
     }
     private void finishAndReturnData(boolean result){
+        Log.e(TAG, "finishAndReturnData: bool:"+ result );
         Intent intent = new Intent();
         if(result){
             intent.putExtra("return", "success");
@@ -1020,7 +1004,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Log.e("chat_room_id: ", chatRoomId);
+        Log.d("chat_room_id: ", chatRoomId);
         if(chatRoomId.equals("-1")){
             finishAndReturnData(false);
         } else {
@@ -1084,11 +1068,9 @@ public class ChatRoomActivity extends AppCompatActivity {
                     Bundle extraBundle = data.getExtras();
                     FriendsResult result = (FriendsResult)extraBundle.getSerializable(FriendsInfo.FRIENDS_DETAIL_MODIFIED_ITEM);
                     if(result != null){
-//                        Log.e(TAG, "onActivityResult: " + result );
                         EventBus.getInstance().post(result);
                     }
                     if(data.getAction() != null && data.getAction().equals(ACTION_GET_ROOM)){
-                        Log.e(TAG, "onActivityResult: getAction..." );
                         finishAndReturnData(true, ACTION_GET_ROOM);
                     }
 
@@ -1116,20 +1098,20 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 intent.setAction(ACTION_GET_ROOM);
                                 startActivityForResult(intent, ChatRoomActivity.FRIENDS_RC_NUM); //tabHost가 있는 FriendsFragment에서 리절트를 받음
                             } else {
-                                Log.e(TAG, result.message);
-                                Toast.makeText(ChatRoomActivity.this, "result.error: false" + result.message, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ChatRoomActivity.this, TAG+ "" + result.message, Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
                             Log.e(TAG, result.message);
-                            Toast.makeText(ChatRoomActivity.this, "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChatRoomActivity.this, TAG+ result.message, Toast.LENGTH_SHORT).show();
                         }
                         dialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(okhttp3.Request request, int code, Throwable cause) {
-                        Toast.makeText(ChatRoomActivity.this, TAG + " getUser onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatRoomActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         dialog.dismiss();
                     }
                 });

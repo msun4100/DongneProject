@@ -16,7 +16,7 @@
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/z_app_icon"/>
+        android:src="@drawable/z_app_logo"/>
     <LinearLayout
         android:layout_marginTop="4dp"
         android:id="@+id/LinearLayout1"

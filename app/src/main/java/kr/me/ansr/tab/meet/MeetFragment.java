@@ -164,8 +164,8 @@ public class MeetFragment extends PagerFragment {
 			@Override
 			public void onAdapterItemClick(PushAdapter adapter, View view, Push item, int type) {
 				switch (type) {
-					case 100:
-						Toast.makeText(getActivity(), "iconView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+					case 100:	//Thumb profile click
+//						Toast.makeText(getActivity(), "iconView click"+ item.toString(), Toast.LENGTH_SHORT).show();
 						break;
 				}
 			}
@@ -212,7 +212,6 @@ public class MeetFragment extends PagerFragment {
 					List<Push> items = DBManager.getInstance().searchPush(start, DISPLAY_NUM);
 					if(items.size() > 0){
 						for (Push p : items) {
-							Log.e("feed: ", p.toString());
 							mAdapter.add(p);
 						}
 						start++;
@@ -252,12 +251,11 @@ public class MeetFragment extends PagerFragment {
 //						mAdapter.clear();
 						if(items.size() > 0){
 							for (Push p : items) {
-								Log.e("getmore feed: ", p.toString());
 								mAdapter.add(p);
 							}
 							start++;
 						} else {
-							Toast.makeText(getActivity(), "HAS_NO_PUSH_MSG", Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "run: HAS_NO_PUSH_MSG" );
 						}
 						if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
 							MainActivity.setPushCount(num);
@@ -347,8 +345,8 @@ public class MeetFragment extends PagerFragment {
 					Bundle extraBundle = data.getExtras();
 					int position = extraBundle.getInt(BoardInfo.BOARD_DETAIL_MODIFIED_POSITION, -1);
 					BoardResult result = (BoardResult)extraBundle.getSerializable(BoardInfo.BOARD_DETAIL_MODIFIED_ITEM);
-					Log.e(TAG, "onActivityResult: "+result.toString() );
 					if (result != null) {
+						Log.e(TAG, "onActivityResult: "+result.toString() );
 						EventBus.getInstance().post(result);
 					}
 				}

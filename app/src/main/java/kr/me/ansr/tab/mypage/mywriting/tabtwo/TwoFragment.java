@@ -129,7 +129,6 @@ public class TwoFragment extends PagerFragment {
                 switch (type) {
                     case 100:
                         default:
-                            Toast.makeText(getActivity(), "View click"+ item.toString(), Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
@@ -139,7 +138,6 @@ public class TwoFragment extends PagerFragment {
             public void onItemLongClick(View view, int position) {
                 ReplyResult data = mAdapter.getItem(position);
                 selectedItem = data;
-                Toast.makeText(getActivity(), "Long click"+ data.toString(), Toast.LENGTH_SHORT).show();
 //                BoardReportDialogFragment mDialogFragment = BoardReportDialogFragment.newInstance();
 //                Bundle b = new Bundle();
 //                b.putSerializable("boardInfo", data);
@@ -190,6 +188,7 @@ public class TwoFragment extends PagerFragment {
     }
 
     private void initReplies(){
+        isMoreData = false;
         String userId = PropertyManager.getInstance().getUserId();
         NetworkManager.getInstance().postDongneCommentsMyWriting(getActivity(),
                 userId,
@@ -202,7 +201,6 @@ public class TwoFragment extends PagerFragment {
                         if (!result.message.equals("HAS_NO_REPLIES_ITEM") && result.error.equals(false)) {
                             if(result.result != null ){
                                 mAdapter.items.clear();
-                                Log.e(TAG+"total:", ""+result.total);
                                 mAdapter.setTotalCount(result.total);
                                 ArrayList<ReplyResult> items = result.result;
                                 for(int i=0; i < items.size(); i++){
@@ -214,13 +212,11 @@ public class TwoFragment extends PagerFragment {
                                 //has no board item
                                 mAdapter.items.clear();
                                 Log.e(TAG, result.message);
-                                Toast.makeText(getActivity(), "" + result.message, Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             //error: true
                             mAdapter.items.clear();
                             Log.e(TAG, result.message);
-                            Toast.makeText(getActivity(), "result.error: true" + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         dialog.dismiss();
@@ -229,7 +225,8 @@ public class TwoFragment extends PagerFragment {
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
-                        Toast.makeText(getActivity(), TAG + "Replies init() onFailure:" + cause, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         showLayout();
                         dialog.dismiss();
                         refreshLayout.setRefreshing(false);
@@ -336,21 +333,21 @@ public class TwoFragment extends PagerFragment {
                     new NetworkManager.OnResultListener<MyCommentInfo>() {
                         @Override
                         public void onSuccess(Request request, MyCommentInfo result) {
-                            Log.e(TAG+"getMore:", ""+result.message);
                             if(!result.message.equals("HAS_NO_REPLIES_ITEM")){
-                                Log.e(TAG+"getMore:", result.result.toString());
                                 mAdapter.addAll(result.result);
                                 start++;
+                                isMoreData = false;
                             } else {
+                                isMoreData = true;
                                 Toast.makeText(getActivity(), result.message, Toast.LENGTH_SHORT).show();
                             }
-                            isMoreData = false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);
-                            Log.e(TAG+"getMoreItem() start=", ""+start);
                         }
                         @Override
                         public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText(getActivity(), getString(R.string.res_err_msg), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, "onFailure: " + cause );
                             isMoreData =false;
                             dialog.dismiss();
                             refreshLayout.setRefreshing(false);

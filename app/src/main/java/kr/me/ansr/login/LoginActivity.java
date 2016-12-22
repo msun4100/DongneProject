@@ -107,7 +107,8 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(LoginActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
@@ -157,7 +158,8 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(LoginActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
@@ -355,7 +357,7 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(true)) {
-					Toast.makeText(LoginActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(LoginActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
 				} else {
 					PropertyManager.getInstance().setEmail(email);
 					PropertyManager.getInstance().setPassword(password);
@@ -374,8 +376,8 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
-				Log.e(TAG, cause.toString());
+				Toast.makeText(LoginActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});
@@ -605,11 +607,10 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			@Override
 			public void onSuccess(Request request, LoginInfo result) {
 				if (result.error.equals(true)) {
-					Toast.makeText(LoginActivity.this, TAG + "result.error:" + result.message, Toast.LENGTH_SHORT).show();
+					Toast.makeText(LoginActivity.this, TAG + result.message, Toast.LENGTH_SHORT).show();
 				} else {
 					String msg = result.message.toString();
 					if(msg.equals("DUP_EMAIL") && result.result.provider.equals("local")){
-						Log.e(TAG, "onSuccess: "+ result.result.toString() );
 						ConfirmDialogFragment mDialogFragment = new ConfirmDialogFragment();  //자주 안쓰니까 newInstance 안함.
 						Bundle b = new Bundle();
 						b.putString("tag", ConfirmDialogFragment.TAG_CHECK_EMAIL);
@@ -643,7 +644,8 @@ public class LoginActivity extends AppCompatActivity implements IFindAccountRetu
 			}
 			@Override
 			public void onFailure(Request request, int code, Throwable cause) {
-				Toast.makeText(LoginActivity.this, "onFailure cause:" + cause, Toast.LENGTH_SHORT).show();
+				Toast.makeText(LoginActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "onFailure: " + cause );
 				dialog.dismiss();
 			}
 		});

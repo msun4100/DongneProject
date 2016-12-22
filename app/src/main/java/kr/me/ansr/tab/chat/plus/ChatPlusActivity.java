@@ -44,7 +44,7 @@ import kr.me.ansr.tab.friends.recycler.OnItemClickListener;
 import okhttp3.Request;
 
 public class ChatPlusActivity extends AppCompatActivity {
-
+    private static final String TAG = ChatPlusActivity.class.getSimpleName();
     TextView toolbarTitle;
     ImageView toolbarMenu;
     ImageView searchIcon;
@@ -92,8 +92,6 @@ public class ChatPlusActivity extends AppCompatActivity {
                         }
                         roomName = roomName.substring(0, roomName.length() - 1 ); //맨 마지막 ','제거
                         if(list != null){
-                            Toast.makeText(ChatPlusActivity.this, "checkedItems:"+mAdapter.getCheckedItemPositions(), Toast.LENGTH_SHORT).show();
-                            Log.e("checkedItems", list.toString());
                             searchRoom(list, roomName);
 //                            int num = DBManager.getInstance().searchRoomName(roomName);
 //                            Intent intent = new Intent(ChatPlusActivity.this, ChatRoomActivity.class);
@@ -109,8 +107,6 @@ public class ChatPlusActivity extends AppCompatActivity {
                         int checkedPos = mAdapter.getCheckItemPosition();
                         FriendsResult item = mAdapter.getItem(checkedPos);
                         if(item != null){
-                            Toast.makeText(ChatPlusActivity.this, "checkedItem:"+mAdapter.getItem(mAdapter.getCheckItemPosition()), Toast.LENGTH_SHORT).show();
-                            Log.e("checkedItem", item.toString());
                             list.clear();
                             list.add(item);
 //                            int num = DBManager.getInstance().searchRoomName(item.username);
@@ -187,8 +183,8 @@ public class ChatPlusActivity extends AppCompatActivity {
             }
         });
         mAdapter = new ChatPlusAdapter();
-        mAdapter.setMode(ChatPlusAdapter.MODE_MULTIPLE);
-//        mAdapter.setMode(ChatPlusAdapter.MODE_SINGLE);
+//        mAdapter.setMode(ChatPlusAdapter.MODE_MULTIPLE);
+        mAdapter.setMode(ChatPlusAdapter.MODE_SINGLE);
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -207,19 +203,16 @@ public class ChatPlusActivity extends AppCompatActivity {
             public void onAdapterItemClick(ChatPlusAdapter adapter, View view, FriendsResult item, int type) {
                 switch (type) {
                     case 100:
-                        Toast.makeText(ChatPlusActivity.this, "nameView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onAdapterItemClick: name");
                         break;
                     case 200:
-                        Toast.makeText(ChatPlusActivity.this, "imageView click\nmItem.temp:"+ item.temp +"\n"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onAdapterItemClick: image");
                         break;
                     case 300:
-                        Toast.makeText(ChatPlusActivity.this, "statusView click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onAdapterItemClick: status");
                         break;
-//                    case 400:
-//                        Toast.makeText(ChatPlusActivity.this, "checkView click"+ item.toString(), Toast.LENGTH_SHORT).show();
-//                        break;
                     default:
-                        Toast.makeText(ChatPlusActivity.this, "default click"+ item.toString(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onAdapterItemClick: default");
                         break;
                 }
             }
@@ -282,10 +275,12 @@ public class ChatPlusActivity extends AppCompatActivity {
                         }
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
-                        finish();
+//                        finish(); //피니쉬 하지않고 온액티비티리절트에서 피니쉬
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(ChatPlusActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
                         finish();
@@ -306,13 +301,16 @@ public class ChatPlusActivity extends AppCompatActivity {
                             mAdapter.clear();
                             mAdapter.addAllFriends(result.result);
                         } else {
-                            Toast.makeText(ChatPlusActivity.this, ""+result.message, Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "onSuccess: "+result.message );
+                            Toast.makeText(ChatPlusActivity.this, "초대할 친구목록이 없습니다.\n학교사람들과 친구를 맺어 보세요.", Toast.LENGTH_SHORT).show();
                         }
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
                     }
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
+                        Toast.makeText(ChatPlusActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: " + cause );
                         refreshLayout.setRefreshing(false);
                         dialog.dismiss();
                     }
@@ -341,10 +339,9 @@ public class ChatPlusActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Log.e("ChatPlusActivity:", "onActivityResult: "+ requestCode);
         switch (requestCode) {
-            case ChatInfo.CHAT_RC_NUM_PLUS_NEXT:
-                //그냥 리스트 클릭해서 들어가는 경우
+            case ChatInfo.CHAT_RC_NUM_PLUS_NEXT:    //리스트 체크해서 들어가는 경우
                 if (resultCode == RESULT_OK) {
-                    Log.e("PLUS_NEXT", "RESULT_OK");
+                    Log.e(TAG, "onActivityResult: PLUS_NEXT: "+ "RESULT_OK" );
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
                     Message lastMsg = (Message)extraBundle.getSerializable("lastMsg");
@@ -352,17 +349,15 @@ public class ChatPlusActivity extends AppCompatActivity {
                     intent.putExtra("return", returnString);
                     intent.putExtra("lastMsg", lastMsg);
                     this.setResult(RESULT_OK, intent);
-                    finish();
-                }
-                if(requestCode == RESULT_CANCELED){
-                    Log.e("PLUS_NEXT", "RESULT_CANCELED");
+                } else if (resultCode == RESULT_CANCELED){
+                    Log.e(TAG, "onActivityResult: PLUS_NEXT: "+ "RESULT_CANCELED" );
                     Bundle extraBundle = data.getExtras();
                     String returnString = extraBundle.getString("return");
                     Intent intent = new Intent();
                     intent.putExtra("return", returnString);
                     this.setResult(RESULT_CANCELED, intent);
-                    finish();
                 }
+                finish();
                 break;
         }
 
