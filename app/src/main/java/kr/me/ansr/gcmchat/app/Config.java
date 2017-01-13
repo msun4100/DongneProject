@@ -28,6 +28,7 @@ public class Config {
     public static final int NOTIFICATION_ID_BIG_IMAGE = 101;
 
     public static final int DISPLAY_NUM = 15;
-    public static final String SERVER_URL = "http://ec2-52-78-76-64.ap-northeast-2.compute.amazonaws.com:3000";
+    public static final String SERVER_URL = "http://ec2-52-79-144-51.ap-northeast-2.compute.amazonaws.com:3000"; //
+//    public static final String SERVER_URL = "http://ec2-52-78-76-64.ap-northeast-2.compute.amazonaws.com:3000";
 //    public static final String SERVER_URL = "http://10.0.3.2:3000";
 }

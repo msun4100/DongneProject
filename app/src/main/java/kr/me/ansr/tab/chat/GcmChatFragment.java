@@ -473,8 +473,8 @@ public class GcmChatFragment extends PagerFragment {
 //                        mAdapter.setOriginItems(chatRoomArrayList); //using at filter list
                         ChatRoomDataManager.getInstance().clearAll();
                         ChatRoomDataManager.getInstance().addAll(chatRoomArrayList);
-                        Log.e(TAG, "onSuccess: num "+num );
-                        Log.e(TAG, "onSuccess: isFirst "+isFirst );
+//                        Log.e(TAG, "onSuccess: num "+num );
+//                        Log.e(TAG, "onSuccess: isFirst "+isFirst );
                         if(num > 0 && isFirst) {	//isFirst는 isVisibleToUser에서 false로 변경 됨
                             MainActivity.setChatCount(num);
                         } else {

@@ -71,7 +71,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
         Log.d(TAG, "title: " + title);
         Log.d(TAG, "isBackground: " + isBackground);
         Log.d(TAG, "flag: " + flag);
-        Log.d(TAG, "data: " + data);
+//        Log.d(TAG, "data: " + data);
 
         if (flag == null) {
             Log.e(TAG, "flag is null");

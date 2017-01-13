@@ -261,7 +261,6 @@ public class FriendsListActivity extends AppCompatActivity {
                             mAdapter.items.clear();
                             sameCnt.setText("0");
                             Log.e(TAG, result.message);
-                            Toast.makeText(FriendsListActivity.this, TAG + " " + result.message, Toast.LENGTH_SHORT).show();
                         }
                         showLayout();
                         refreshLayout.setRefreshing(false);
@@ -317,7 +316,7 @@ public class FriendsListActivity extends AppCompatActivity {
                                 start++;
 //                                FriendsDataManager.getInstance().getList().addAll(result.result);
                             } else {
-                                Toast.makeText(FriendsListActivity.this, result.message, Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "onSuccess: " + result.message );
                             }
                             isMoreData = false;
                             refreshLayout.setRefreshing(false);

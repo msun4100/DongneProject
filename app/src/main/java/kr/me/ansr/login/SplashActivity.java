@@ -89,12 +89,10 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //        mProvider = mLM.getBestProvider(criteria, true);
         mProvider = LocationManager.NETWORK_PROVIDER;   //1116 수정
-
-
+        Log.e(TAG, "onCreate: " );
     }// onCreate
 
     LocationManager mLM;
@@ -141,7 +139,8 @@ public class SplashActivity extends Activity {
             Log.e(TAG, "onLocationChanged: " +location );
         }
     };
-    private boolean isFirstLogin = true;
+    private boolean isProviderEnabled = true;
+    private boolean isFirst = true;
     private boolean isPermissionOK = true;
     @Override
     protected void onStart() {
@@ -171,8 +170,8 @@ public class SplashActivity extends Activity {
         Log.d(TAG, "onStart: passive " + mProvider.equals(LocationManager.PASSIVE_PROVIDER));
         Log.d(TAG, "onStart: isProviderEnabled "+ mLM.isProviderEnabled(mProvider));
         Log.e(TAG, "onStart: usingLocation "+PropertyManager.getInstance().getUsingLocation() );
+        //상단 바 위치 끄면 isProviderEnabled === false
         if (mProvider == null || mProvider.equals(LocationManager.PASSIVE_PROVIDER) || !mLM.isProviderEnabled(mProvider)) {
-//			PropertyManager.getInstance().getUsingLocation() == 0
             if (PropertyManager.getInstance().getUsingLocation() == 2) {
                 PropertyManager.getInstance().setUsingLocation(2);
             } else if(PropertyManager.getInstance().getUsingLocation() == 1){
@@ -184,9 +183,12 @@ public class SplashActivity extends Activity {
 //               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), RC_FINE_LOCATION_ON_ACTIVITY_RESULT);
 //                //startActivity(intent);
-            return; // 정상적인 프로바이더를 지원하지 않으면 아래 코드 실행 안함.
+//            return;
+            isProviderEnabled = false;  // return 대신 이 변수를 넣어서 6.0 이상은 그냥 기존 플로우 따라가도록 하고 낮은 버전은 따로 세팅창 불러옴
+        } else {
+            isProviderEnabled = true;
         }
-
+        Log.e(TAG, "onStart: isProviderEnabled == " +isProviderEnabled );
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // only for Marshmallow version and newer versions
             Log.e(TAG, "onStart: newer versions" );
@@ -199,31 +201,41 @@ public class SplashActivity extends Activity {
             //6.0 이하 버전에서는 checkSelfPermission 호출은 그냥 무시됨 return 0 반환
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    Log.d(TAG, "onStart: 1");
+//                    Log.d(TAG, "onStart: 1");
                 }
-                Log.d(TAG, "onStart: 2");
+//                Log.d(TAG, "onStart: 2");
             } else {
-                //*************낮은 API 버전에서는 무조건 여기 else 타게 되는 듯 ****************
-                if(PropertyManager.getInstance().getUsingLocation() == 0){
-                    Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요. 2", Toast.LENGTH_SHORT).show();
-                    PropertyManager.getInstance().setLatitude("");
-                    PropertyManager.getInstance().setLongitude("");
-                    return;
-                }
+                //*************낮은 API 버전에서는 무조건 여기 else ****************
+//                if(PropertyManager.getInstance().getUsingLocation() == 0){
                 /*
                         위치 정보를 끄더라도 getLastKnownLocation 함수가 최근 좌표를 불러 오는 듯
                         일단은 usinglocation이 0이 아니면 아래 라인타서 좌표 받아오게 함.
                 */
                 Log.d(TAG, "onStart: 3 else...................... " + mProvider.toString() + " " + PropertyManager.getInstance().getUsingLocation());
             }
-            Location location = mLM.getLastKnownLocation(mProvider);
-            if (location != null) {
-                mListener.onLocationChanged(location);
+            Log.e(TAG, "onStart: isFirst: "+ isFirst );
+            if(isProviderEnabled == false && isFirst == true){
+                Log.e(TAG, "onStart: 4 .........." );
+                Toast.makeText(SplashActivity.this, "계속 사용하려면 위치 정보를 켜주세요. 2", Toast.LENGTH_SHORT).show();
+                PropertyManager.getInstance().setLatitude("");
+                PropertyManager.getInstance().setLongitude("");
+                isPermissionOK = false;
+//                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+//                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK), RC_COARSE_LOCATION_ON_ACTIVITY_RESULT);
+                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), RC_COARSE_LOCATION_ON_ACTIVITY_RESULT);
+                isFirst = false;
+//                return;
             } else {
-                Log.d(TAG, "onStart: location is null");
-            }
+                Location location = mLM.getLastKnownLocation(mProvider);
+                if (location != null) {
+                    mListener.onLocationChanged(location);
+                } else {
+                    Log.d(TAG, "onStart: location is null");
+                }
 //    		mLM.requestLocationUpdates(mProvider, 1000*60*60, 5.0f, mListener);// 프로바이더,2000==2초,// 5미터
-            mLM.requestLocationUpdates(mProvider, 2000, 5.0f, mListener);
+                mLM.requestLocationUpdates(mProvider, 2000, 5.0f, mListener);
+            }
+
         } //else below M version
 
     }
@@ -245,6 +257,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(TAG, "onResume: " );
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -289,24 +302,34 @@ public class SplashActivity extends Activity {
                 NetworkManager.getInstance().postDongneLogin(SplashActivity.this, email, password, new NetworkManager.OnResultListener<LoginInfo>(){
                     @Override
                     public void onSuccess(Request request, LoginInfo result) {
-                        PropertyManager.getInstance().setEmail(email);
-                        PropertyManager.getInstance().setPassword(password);
-                        PropertyManager.getInstance().setUserId(result.result.user_id);
-                        PropertyManager.getInstance().setUnivId(result.result.univId);
-                        PropertyManager.getInstance().setUserName(result.result.name);
-                        //for chatting PropertyManager
-                        User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
-                        MyApplication.getInstance().getPrefManager().storeUser(user);
+                        if (result.error.equals(true)) {
+                            Toast.makeText(SplashActivity.this, "로그인 요청이 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            PropertyManager.getInstance().setEmail(email);
+                            PropertyManager.getInstance().setPassword(password);
+                            PropertyManager.getInstance().setUserId(result.result.user_id);
+                            PropertyManager.getInstance().setUnivId(result.result.univId);
+                            PropertyManager.getInstance().setUserName(result.result.name);
+                            //for chatting PropertyManager
+                            User user = new User(Integer.parseInt(result.result.user_id), result.result.name, result.result.email);
+                            MyApplication.getInstance().getPrefManager().storeUser(user);
 //                        Toast.makeText(SplashActivity.this, TAG+ "" + result, Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
 
                     @Override
                     public void onFailure(Request request, int code, Throwable cause) {
                         Toast.makeText(SplashActivity.this, getString(R.string.res_err_msg), Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "onFailure: " + cause );
+                        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 });
             } else {
@@ -436,9 +459,10 @@ public class SplashActivity extends Activity {
     }
 
     private void updateLocation() {
-        if (!mLM.isProviderEnabled(mProvider)) {
-            return;
-        }
+//        if (!mLM.isProviderEnabled(mProvider)) {
+//            Log.e(TAG, "updateLocation: isProviderEnabled: "+ isProviderEnabled );
+//            return;
+//        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermission();
             return;
@@ -474,7 +498,7 @@ public class SplashActivity extends Activity {
                     updateLocation();
                 } else {
                     // 권한을 얻지 못했다. Show Rational Dialog
-                    isPermissionOK = true;  //퍼미션 트루를 해야 넥스트액션을 할 수 있음
+                    isPermissionOK = false;  //퍼미션 트루를 해야 넥스트액션을 할 수 있음
                     PropertyManager.getInstance().setUsingLocation(0);
                     Context mContext = SplashActivity.this;
                     String message = PermissionUtil.getRationalMessage(mContext, PermissionUtil.PERMISSION_LOCATION);
@@ -488,6 +512,9 @@ public class SplashActivity extends Activity {
                         public void onClick(DialogInterface dialog, int which) {
                             PropertyManager.getInstance().setUsingLocation(0);
                             Log.d(TAG, "onClick: Alert cancel");
+                            Intent intent = new Intent(SplashActivity.this, SplashActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            startActivity(intent);
                         }
                     });
                     builder.setPositiveButton(getString(R.string.word_settings), new DialogInterface.OnClickListener() {
@@ -513,23 +540,27 @@ public class SplashActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: resultCode " + resultCode + " requestCode  "+ requestCode );
+        Log.e(TAG, "onActivityResult: resultCode " + resultCode + " requestCode  "+ requestCode );
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case RC_COARSE_LOCATION_ON_ACTIVITY_RESULT:
                     int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
                     if(permissionCheck== PackageManager.PERMISSION_DENIED){
+                        Log.e(TAG, "onActivityResult: denied" );
                         // 권한 없음
-                        isPermissionOK = true;
+                        isPermissionOK = false;
                         PropertyManager.getInstance().setUsingLocation(0);
                     }else{
                         // 권한 있음
+                        Log.e(TAG, "onActivityResult: permission_ok" );
                         isPermissionOK = true;
                         PropertyManager.getInstance().setUsingLocation(1);
                         updateLocation();
                     }
                     break;
             }
+        } else if (resultCode == RESULT_CANCELED) {
+            Log.e(TAG, "onActivityResult: RESULT_CANCELED" );
         }
     }
 

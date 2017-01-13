@@ -77,6 +77,7 @@ public class MeetFragment extends PagerFragment {
 		activity = (AppCompatActivity) getActivity();
 		emptyLayout = (RelativeLayout)view.findViewById(R.id.rl_empty);
 		emptyIcon = (ImageView) view.findViewById(R.id.iv_empty_img);
+		emptyIcon.setImageResource(R.drawable.z_empty_push);
 //		emptyMsg = (TextView)view.findViewById(R.id.tv_empty_msg);
 //		emptyMsg.setText(getResources().getString(R.string.empty_feed_msg));
 		//================================================
@@ -175,7 +176,6 @@ public class MeetFragment extends PagerFragment {
 		layoutManager = new LinearLayoutManager(getActivity());
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.addItemDecoration(new MyDecoration(getActivity()));
-
 
 		mRegistrationBroadcastReceiver = new BroadcastReceiver() {
 			@Override
